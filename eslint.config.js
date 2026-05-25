@@ -6,7 +6,17 @@ import prettierConfig from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['dist', 'node_modules', '*.config.ts', 'playground/dist', 'playground/node_modules', 'playground/playground'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'storybook-static/**',
+      '**/*.config.ts',
+      'playground/dist/**',
+      'playground/node_modules/**',
+      'playground/playground/**',
+      'playground/playground-dist/**',
+      'playground-dist/**',
+    ],
   },
   {
     languageOptions: {
