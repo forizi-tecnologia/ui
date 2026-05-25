@@ -1,0 +1,112 @@
+{
+  "name": "@forizi/ui",
+  "version": "0.1.0",
+  "description": "Forizi UI — Vue 3 + TypeScript + Vuetify 3 component library",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/ui.css",
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./composables": {
+      "types": "./dist/composables/index.d.ts",
+      "import": "./dist/composables/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.js"
+    },
+    "./plugins": {
+      "types": "./dist/plugins/index.d.ts",
+      "import": "./dist/plugins/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite build --watch",
+    "dev:playground": "vite --config playground/vite.config.ts",
+    "build": "vite build && vue-tsc --project tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist",
+    "build:playground": "vite build --config playground/vite.config.ts --outDir playground-dist",
+    "prepublishOnly": "pnpm build",
+    "lint": "eslint . --fix",
+    "check": "pnpm lint && pnpm test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "storybook": "storybook dev -p 6006 --no-open",
+    "build:storybook": "storybook build"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "typescript",
+    "components",
+    "library",
+    "vuetify",
+    "pinia",
+    "vuetify3"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forizi/ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/forizi/ui/issues"
+  },
+  "homepage": "https://github.com/forizi/ui#readme",
+  "author": "forizi",
+  "license": "MIT",
+  "peerDependencies": {
+    "axios": "^1.0.0",
+    "maska": "^3.0.0",
+    "pinia": "^3.0.0",
+    "vue": "^3.5.0",
+    "vuetify": "^3.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@mdi/font": "^7.4.47",
+    "@storybook/addon-essentials": "^8.6.18",
+    "@storybook/vue3": "^8.6.18",
+    "@storybook/vue3-vite": "^8.6.18",
+    "@types/node": "^24.10.0",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
+    "@vue/test-utils": "^2.4.6",
+    "axios": "^1.13.5",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.8.0",
+    "jsdom": "^29.1.1",
+    "pinia": "^3.0.4",
+    "prettier": "^3.8.3",
+    "storybook": "^8.6.18",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.59.3",
+    "vite": "^7.3.1",
+    "vite-plugin-vuetify": "^2.1.3",
+    "vitest": "^4.0.18",
+    "vue": "^3.5.28",
+    "vue-eslint-parser": "^10.4.0",
+    "vue-tsc": "^3.2.4",
+    "vuetify": "^3.11.8"
+  }
+}

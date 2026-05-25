@@ -1,0 +1,13 @@
+src
+tests
+playground
+.git
+.gitignore
+.eslintrc.js
+tsconfig.json
+vite.config.ts
+vitest.config.ts
+*.log
+.vscode
+.idea
+node_modules

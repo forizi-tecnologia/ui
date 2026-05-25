@@ -1,0 +1,225 @@
+<template>
+  <SectionCard title="FzEmailField">
+    <template #description>
+      Campo de e-mail com validação automática e ícone dinâmico.
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzEmailField v-model="emailValue" label="E-mail" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzEmailField
+          v-model="emailRequired"
+          label="E-mail (obrigatório)"
+          required
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzEmailField
+          v-model="emailDisabled"
+          label="E-mail (desabilitado)"
+          disabled
+        />
+      </div>
+    </div>
+  </SectionCard>
+
+  <SectionCard title="FzMoneyField">
+    <template #description>
+      Campo monetário com formatação automática em Real (BRL).
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzMoneyField v-model="moneyValue" label="Preço" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzMoneyField
+          v-model="moneyValue2"
+          label="Com valor máximo"
+          :max="1000"
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzMoneyField
+          v-model="moneyDisabled"
+          label="Desabilitado"
+          disabled
+        />
+      </div>
+    </div>
+
+    <div class="mt-2 text-caption text-medium-emphasis">
+      Valor: {{ moneyValue }}
+    </div>
+  </SectionCard>
+
+  <SectionCard title="FzNumberField">
+    <template #description>
+      Campo numérico com formatação de milhar e casas decimais.
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzNumberField
+          v-model="numberValue"
+          label="Quantidade"
+          :decimal-places="0"
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzNumberField
+          v-model="numberDecimal"
+          label="Com decimais"
+          :decimal-places="2"
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzNumberField
+          v-model="numberDisabled"
+          label="Desabilitado"
+          disabled
+          :decimal-places="0"
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzNumberField
+          v-model="numberNegative"
+          label="Negativo permitido"
+          :decimal-places="2"
+          :allow-negative="true"
+        />
+      </div>
+    </div>
+  </SectionCard>
+
+  <SectionCard title="FzPhoneField">
+    <template #description>
+      Campo de telefone com máscara automática (fixo ou celular).
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPhoneField v-model="phoneValue" label="Telefone" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPhoneField
+          v-model="phoneCustom"
+          label="Celular"
+          icon="mdi-cellphone"
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPhoneField
+          v-model="phoneDisabled"
+          label="Desabilitado"
+          disabled
+        />
+      </div>
+    </div>
+  </SectionCard>
+
+  <SectionCard title="FzZipCodeField">
+    <template #description>
+      Campo de CEP com busca automática via ViaCEP.
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzZipCodeField v-model="zipValue" label="CEP" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzZipCodeField
+          v-model="zipDisabled"
+          label="Desabilitado"
+          disabled
+        />
+      </div>
+    </div>
+  </SectionCard>
+
+  <SectionCard title="FzFullAddress">
+    <template #description>
+      Formulário completo de endereço com busca por CEP.
+    </template>
+
+    <div class="d-flex flex-wrap ga-6">
+      <div style="min-width: 400px; max-width: 600px;">
+        <div class="text-subtitle-2 mb-2">Padrão</div>
+
+        <FzFullAddress v-model="addressValue" />
+      </div>
+
+      <div style="min-width: 400px; max-width: 600px;">
+        <div class="text-subtitle-2 mb-2">Campos bloqueados após CEP</div>
+
+        <FzFullAddress
+          v-model="addressDisabled"
+          :disabled-fields="true"
+        />
+      </div>
+
+      <div style="min-width: 400px; max-width: 600px;">
+        <div class="text-subtitle-2 mb-2">Totalmente desabilitado</div>
+
+        <FzFullAddress
+          v-model="addressAllDisabled"
+          disabled
+        />
+      </div>
+    </div>
+  </SectionCard>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+
+// Email
+const emailValue = ref('');
+const emailRequired = ref('');
+const emailDisabled = ref('user@example.com');
+
+// Money
+const moneyValue = ref(0);
+const moneyValue2 = ref(0);
+const moneyDisabled = ref(150.50);
+
+// Number
+const numberValue = ref(0);
+const numberDecimal = ref(0);
+const numberDisabled = ref(42);
+const numberNegative = ref(0);
+
+// Phone
+const phoneValue = ref('');
+const phoneCustom = ref('');
+const phoneDisabled = ref('11999999999');
+
+// ZipCode
+const zipValue = ref('');
+const zipDisabled = ref('');
+
+// FullAddress
+const addressValue = ref({});
+const addressDisabled = ref({});
+const addressAllDisabled = ref({
+  zipCode: '01001000',
+  street: 'Praça da Sé',
+  number: '1',
+  complement: 'Centro',
+  neighborhood: 'Sé',
+  city: 'São Paulo',
+  state: 'SP',
+});
+</script>
