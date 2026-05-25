@@ -60,3 +60,17 @@ jobs:
             --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy Storybook to VPS
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/vps_deploy
+          chmod 600 ~/.ssh/vps_deploy
+          ssh-keyscan -H 46.225.170.63 >> ~/.ssh/known_hosts
+
+          pnpm build:storybook
+
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/vps_deploy -o StrictHostKeyChecking=no" \
+            storybook-static/ \
+            root@46.225.170.63:/opt/forizi/storybook/
