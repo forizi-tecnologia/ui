@@ -1,7 +1,8 @@
 {
-  "name": "@forizi/ui",
-  "version": "0.1.0",
+  "name": "@forizi-tecnologia/ui",
+  "version": "0.0.1",
   "description": "Forizi UI — Vue 3 + TypeScript + Vuetify 3 component library",
+  "packageManager": "pnpm@11.1.2",
   "publishConfig": {
     "access": "public"
   },
@@ -65,13 +66,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/forizi/ui.git"
+    "url": "git+https://github.com/forizi-tecnologia/ui.git"
   },
   "bugs": {
-    "url": "https://github.com/forizi/ui/issues"
+    "url": "https://github.com/forizi-tecnologia/ui/issues"
   },
-  "homepage": "https://github.com/forizi/ui#readme",
-  "author": "forizi",
+  "homepage": "https://github.com/forizi-tecnologia/ui#readme",
+  "author": "forizi-tecnologia",
   "license": "MIT",
   "peerDependencies": {
     "axios": "^1.0.0",
