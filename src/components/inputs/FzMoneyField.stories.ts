@@ -6,15 +6,15 @@ const meta = {
   component: FzMoneyField,
   tags: ['autodocs'],
   argTypes: {
-    modelValue: { control: 'number', description: 'v-model value' },
-    label: { control: 'text' },
-    currency: { control: 'text', description: 'ISO 4217 currency code' },
-    locale: { control: 'text' },
-    disabled: { control: 'boolean' },
-    hint: { control: 'text' },
-    persistentHint: { control: 'boolean' },
-    max: { control: 'number' },
-    min: { control: 'number' },
+    modelValue: { control: 'number', description: 'v-model bound numeric value' },
+    label: { control: 'text', description: 'Field label text' },
+    currency: { control: 'text', description: 'ISO 4217 currency code (e.g. BRL, USD, EUR)' },
+    locale: { control: 'text', description: 'Locale for number formatting (e.g. pt-BR, en-US). Default: "pt-BR"' },
+    disabled: { control: 'boolean', description: 'Disable the input' },
+    hint: { control: 'text', description: 'Hint text displayed below the field' },
+    persistentHint: { control: 'boolean', description: 'Keep hint visible even when field is not focused' },
+    max: { control: 'number', description: 'Maximum allowed value' },
+    min: { control: 'number', description: 'Minimum allowed value' },
   },
 } satisfies Meta<typeof FzMoneyField>;
 
@@ -25,7 +25,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     modelValue: 0,
-    label: 'Price',
+    label: 'Preço',
     currency: 'BRL',
     locale: 'pt-BR',
   },
@@ -34,7 +34,7 @@ export const Default: Story = {
 export const WithValue: Story = {
   args: {
     modelValue: 1549.9,
-    label: 'Amount',
+    label: 'Valor',
     currency: 'BRL',
   },
 };
@@ -42,7 +42,7 @@ export const WithValue: Story = {
 export const Disabled: Story = {
   args: {
     modelValue: 250.75,
-    label: 'Price (disabled)',
+    label: 'Preço (desabilitado)',
     disabled: true,
   },
 };
@@ -50,7 +50,7 @@ export const Disabled: Story = {
 export const MaxValue: Story = {
   args: {
     modelValue: 0,
-    label: 'Price (max $1000)',
+    label: 'Preço (máx R$ 1.000)',
     max: 1000,
   },
 };
