@@ -61,6 +61,7 @@ interface Props {
   message?: string;
   maxWidth?: string | number;
   persistent?: boolean;
+  enterToConfirm?: boolean;
   actions?: ModalAction[];
   contentClass?: string;
   fullscreen?: boolean;
@@ -72,6 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
   message: '',
   maxWidth: 500,
   persistent: true,
+  enterToConfirm: false,
   actions: () => [],
   contentClass: undefined,
   fullscreen: false,
@@ -129,6 +131,8 @@ function onDialogKeydown(e: KeyboardEvent): void {
   if (props.actions.length === 0) return;
 
   if (e.key === 'Escape') {
+    if (props.persistent) return;
+
     const cancelAction = findCancelAction();
 
     if (!cancelAction) return;
@@ -141,6 +145,8 @@ function onDialogKeydown(e: KeyboardEvent): void {
   }
 
   if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+    if (!props.enterToConfirm) return;
+
     const target = e.target as HTMLElement;
 
     if (isInteractiveElement(target)) return;

@@ -133,6 +133,33 @@ The `FzDefaults` interface is extensible for future shared props (density, color
 - Or via `useGlobals()` composable in script setup
 - Internally use composables, not component refs
 
+### Keyboard shortcuts in dialogs
+
+Both `FzConfirmDialog` and `FzModalBase` support keyboard shortcuts — disabled by default for safety:
+
+| Key | Prop | Default | Action |
+|-----|------|---------|--------|
+| Enter | `enterToConfirm` | `false` | Triggers the primary/confirm action |
+| Escape | gated by `persistent` | `true` | Triggers cancel (only when `persistent: false`) |
+
+```ts
+// ConfirmDialog
+confirm.show('Tem certeza?', 'Essa ação é irreversível', {
+  enterToConfirm: true,   // Enter confirma
+  persistent: false,       // Escape fecha
+});
+
+// ModalBase
+<FzModalBase
+  v-model="open"
+  :enter-to-confirm="true"
+  :persistent="false"
+  :actions="actions"
+/>
+```
+
+Both dialogs follow the same contract: the consumer explicitly opts into shortcuts. This prevents accidental confirmations on destructive operations.
+
 ## CSS — Vuetify utilities first
 
 Prefer Vuetify utility classes over custom CSS. Only write scoped CSS for what Vuetify cannot do (position: fixed, Vue transition names, etc.).

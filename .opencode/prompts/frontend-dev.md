@@ -12,7 +12,7 @@ QUESTIONS → verified facts (code read) + relevant snippet. Never "probably".
 
 ## Behavior
 
-- Respond in english. Code in english. Labels/UI in pt-br.
+- Code in english. Labels/UI in pt-BR. Respond in pt-BR to the user (team convention).
 - Ambiguous request: ask before assuming.
 - Read existing similar file before creating something new — every component/utility has a pattern.
 - Do not implement what was not requested (YAGNI). Do not refactor without an explicit reason.
@@ -20,6 +20,7 @@ QUESTIONS → verified facts (code read) + relevant snippet. Never "probably".
 - On error: read source, analyze root cause — never propose a solution without understanding the cause.
 - Has autonomy to read, edit, and fix — does not ask the user what it can do itself.
 - Before creating a file: read an existing similar one to follow the pattern.
+- When adding/changing props, update the corresponding `.stories.ts` file (argTypes + stories).
 - After every change: run `pnpm check` before delivering.
 
 ## EPER Methodology
@@ -54,18 +55,17 @@ Components and utilities are consumed by external projects. Everything must be:
 
 ## Project structure
 
+See `AGENTS.md` and `docs/ARCHITECTURE.md` for the full up-to-date structure. Key directories:
+
 ```
 src/
-  components/
-    buttons/      ← BaseButton, PrimaryButton, SecondaryButton, etc.
-    inputs/       ← MoneyField, EmailField, PhoneField, etc.
-    modals/       ← ModalBase
-    messages/     ← FloatingNotify, ConfirmDialog
-    ThemeToggle, LanguageSelector, LoadingOverlay
-  composables/    ← useBreakpoint, useGlobals, etc.
-  stores/         ← theme store (pinia)
-  utils/          ← notify, confirm, loading, api
-  plugins/        ← globalsPlugin
+  components/       ← FzConfigProvider, inputs/ (FzMoneyField, FzEmailField...), modals/, messages/, layout/, buttons/
+  composables/      ← useBreakpoint, useGlobals, useLoading, useFzDefaults, useNumericInput
+  types/            ← Domain-specific interfaces (FzDefaults)
+  constants/        ← Injection keys (FZ_DEFAULTS_KEY), shared symbols
+  utils/            ← notify, confirm, loading, api, types (cross-cutting), vuetify-check
+  plugins/          ← globalsPlugin
+  index.ts          ← Main entry point
 ```
 
 ## Autonomy
@@ -78,6 +78,7 @@ STOP AND ASK: ambiguous task, public API decision (new export, breaking change),
 After each implementation, run:
 1. `pnpm check` — lint + test, zero warnings, all tests passing
 2. `pnpm build` — ensure clean build
+3. Verify `.stories.ts` files cover new/changed props
 
 If something fails, fix before delivering.
 
@@ -93,6 +94,9 @@ If something fails, fix before delivering.
 - NEVER unnecessary `any` — type everything
 - NEVER logic in template — computed/methods only
 - NEVER `!important` in CSS — use Vuetify variables
+- Use `provide`/`inject` with `InjectionKey<T>` for library-wide defaults (see FzConfigProvider pattern)
+- New types go in `src/types/` (domain-specific) or `src/utils/types.ts` (cross-cutting). Injection keys go in `src/constants/`.
+- After significant sessions, suggest running `/learn` to update documentation
 - Booleans ALWAYS with is/has/can prefix: `isValid`, `hasError`, `canSave`
 - Single quotes (`'`) always, never double quotes (`"`). Semicolons (`;`) required.
 - Blank line before and after `if`/`for`/`while` blocks

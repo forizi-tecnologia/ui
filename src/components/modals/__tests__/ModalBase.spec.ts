@@ -282,7 +282,7 @@ describe('FzModalBase', () => {
 
   describe('keyboard — dialog @keydown', () => {
     it('should trigger cancel action on Escape key', async () => {
-      await wrapper.setProps({ modelValue: true });
+      await wrapper.setProps({ modelValue: true, persistent: false });
 
       const card = wrapper.findComponent({ name: 'v-card' });
 
@@ -292,7 +292,7 @@ describe('FzModalBase', () => {
     });
 
     it('should trigger primary action on Enter key', async () => {
-      await wrapper.setProps({ modelValue: true });
+      await wrapper.setProps({ modelValue: true, enterToConfirm: true });
 
       const card = wrapper.findComponent({ name: 'v-card' });
 
@@ -306,7 +306,7 @@ describe('FzModalBase', () => {
         { text: 'OK', color: 'primary', handler: primaryHandler },
       ];
 
-      await wrapper.setProps({ modelValue: true, actions });
+      await wrapper.setProps({ modelValue: true, persistent: false, actions });
 
       const card = wrapper.findComponent({ name: 'v-card' });
 
@@ -322,7 +322,7 @@ describe('FzModalBase', () => {
         { text: 'OK', handler: lastHandler },
       ];
 
-      await wrapper.setProps({ modelValue: true, actions });
+      await wrapper.setProps({ modelValue: true, enterToConfirm: true, actions });
 
       const card = wrapper.findComponent({ name: 'v-card' });
 
@@ -364,7 +364,7 @@ describe('FzModalBase', () => {
 
   describe('keyboard — dialog @keydown (no global handler)', () => {
     it('should trigger cancel action on window Escape via Vuetify internal handler', async () => {
-      await wrapper.setProps({ modelValue: true });
+      await wrapper.setProps({ modelValue: true, persistent: false });
 
       // Vuetify's v-dialog internally captures Escape at the window level
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));

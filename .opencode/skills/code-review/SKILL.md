@@ -16,13 +16,15 @@ Code review checklist. CRITICAL = blocks delivery | ATTENTION = improvement
 - [ ] Typed emits with `defineEmits<{...}>()`? (CRITICAL)
 - [ ] Generic component (no domain-specific business logic)? (CRITICAL)
 - [ ] Max ~250 lines? (ATTENTION)
+- [ ] Provide/inject uses `InjectionKey<T>` from `src/constants/`? (ATTENTION)
 
 ## TypeScript
 
 - [ ] Everything typed, no `any`? (CRITICAL)
 - [ ] Interfaces exported for consumers? (CRITICAL)
 - [ ] No `var` — always const/let? (CRITICAL)
-- [ ] Types in `types.ts` when reused? (ATTENTION)
+- [ ] Domain-specific types in `src/types/`, cross-cutting types in `src/utils/types.ts`? (ATTENTION)
+- [ ] Injection keys in `src/constants/` using `Symbol('...')` and `InjectionKey<T>`? (ATTENTION)
 
 ## Async / Side Effects
 
@@ -34,6 +36,8 @@ Code review checklist. CRITICAL = blocks delivery | ATTENTION = improvement
 
 - [ ] Component registered in barrel file (`index.ts`)? (CRITICAL)
 - [ ] Types exported alongside the component? (CRITICAL)
+- [ ] Composable exported from `src/composables/index.ts`? (CRITICAL)
+- [ ] Types exported from `src/index.ts` entry point? (CRITICAL)
 - [ ] Nothing imported from relative path outside the package? (ATTENTION)
 
 ## CSS / Vuetify
@@ -46,6 +50,13 @@ Code review checklist. CRITICAL = blocks delivery | ATTENTION = improvement
 
 - [ ] Every new component has at least a render test? (CRITICAL)
 - [ ] Tests cover main props, events, and slots? (ATTENTION)
+
+## Storybook
+
+- [ ] New component has a `.stories.ts` file? (CRITICAL)
+- [ ] `argTypes` include every public prop with `control` and `description`? (ATTENTION)
+- [ ] New props added to existing component → corresponding `argTypes` updated? (ATTENTION)
+- [ ] Stories cover key use cases (default, disabled, custom, edge case)? (ATTENTION)
 
 ## General
 
