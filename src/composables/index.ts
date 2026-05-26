@@ -1,3 +1,5 @@
+export { useFzDefaults } from './useFzDefaults';
+
 export { useGlobals } from './useGlobals';
 
 export { useBreakpoint } from './useBreakpoint';

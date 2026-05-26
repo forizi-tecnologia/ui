@@ -14,7 +14,7 @@
         v-model="internal.street"
         :label="labels.street"
         :disabled="isAutoDisabled"
-        :variant="variant"
+        :variant="resolvedVariant"
       />
     </v-col>
 
@@ -31,7 +31,7 @@
         v-model="internal.neighborhood"
         :label="labels.neighborhood"
         :disabled="isAutoDisabled"
-        :variant="variant"
+        :variant="resolvedVariant"
       />
     </v-col>
 
@@ -40,7 +40,7 @@
         v-model="internal.city"
         :label="labels.city"
         :disabled="isAutoDisabled"
-        :variant="variant"
+        :variant="resolvedVariant"
       />
     </v-col>
 
@@ -52,7 +52,7 @@
         item-title="name"
         item-value="uf"
         :disabled="isAutoDisabled"
-        :variant="variant"
+        :variant="resolvedVariant"
       />
     </v-col>
   </v-row>
@@ -61,6 +61,7 @@
 <script setup lang="ts">
 import { reactive, ref, watch, computed, nextTick } from 'vue';
 import type { TextFieldVariant } from '@/utils/types';
+import { useFzDefaults } from '@/composables/useFzDefaults';
 import FzZipCodeField, { type ZipCodeResponse } from './FzZipCodeField.vue';
 
 export interface Address {
@@ -96,7 +97,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   disabledFields: false,
   labels: () => ({}),
-  variant: 'underlined',
+  variant: undefined,
 });
 
 const emit = defineEmits<{
@@ -158,7 +159,11 @@ const labels = computed(() => ({
   state: props.labels.state ?? 'Estado',
 }));
 
+const defaults = useFzDefaults();
+
 const isAutoDisabled = computed(() => props.disabled || (props.disabledFields && zipCodeFound.value));
+
+const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 function onZipCodeFound(data: ZipCodeResponse) {
   internal.street = data.street;

@@ -48,14 +48,55 @@ For notifications, confirm dialogs, and loading overlay to work, include these i
 ```vue
 <template>
   <v-app>
-    <router-view />
+    <FzConfigProvider :defaults="{ variant: 'outlined' }">
+      <router-view />
 
-    <!-- Global utilities -->
-    <FzFloatingNotify />
-    <FzLoadingOverlay />
-    <FzConfirmDialog />
+      <!-- Global utilities -->
+      <FzFloatingNotify />
+      <FzLoadingOverlay />
+      <FzConfirmDialog />
+    </FzConfigProvider>
   </v-app>
 </template>
+```
+
+## FzConfigProvider — Global defaults
+
+Set default props for all `Fz*` components in one place, without repeating them on each instance.
+
+```vue
+<script setup lang="ts">
+import { FzConfigProvider, FzFloatingNotify } from '@forizi/ui';
+</script>
+
+<template>
+  <FzConfigProvider :defaults="{ variant: 'outlined' }">
+    <FzFloatingNotify />
+    <router-view />
+  </FzConfigProvider>
+</template>
+```
+
+All `Fz` input components (`FzPhoneField`, `FzMoneyField`, `FzEmailField`, `FzNumberField`, `FzZipCodeField`, `FzFullAddress`) will use `outlined` automatically. Override individually when needed:
+
+```vue
+<FzPhoneField variant="underlined" />  <!-- one-off override -->
+```
+
+### Resolution priority (highest to lowest)
+
+1. Prop passed directly: `<FzPhoneField variant="filled" />`
+2. FzConfigProvider default: `<FzConfigProvider :defaults="{ variant: 'outlined' }">`
+3. Hardcoded fallback: `'underlined'`
+
+### Extensible
+
+The `FzDefaults` type is extendable for future shared props:
+
+```ts
+export interface FzDefaults {
+  variant?: TextFieldVariant;
+}
 ```
 
 ## Components

@@ -7,7 +7,7 @@
     :hint="hint"
     :persistent-hint="hasHint"
     :required="required"
-    :variant="variant"
+        :variant="resolvedVariant"
     :maxlength="maxlength"
     type="email"
     inputmode="email"
@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { TextFieldVariant } from '@/utils/types';
+import { useFzDefaults } from '@/composables/useFzDefaults';
 
 type ValidationRule = (value: string) => boolean | string;
 
@@ -58,7 +59,7 @@ const props = withDefaults(defineProps<Props>(), {
   validateOnBlur: true,
   requiredMessage: '',
   invalidMessage: '',
-  variant: 'underlined',
+  variant: undefined,
   maxlength: 100,
 });
 
@@ -71,7 +72,11 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const isValid = ref(false);
 
+const defaults = useFzDefaults();
+
 const hasHint = computed(() => !!props.hint);
+
+const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 const emailIcon = computed(() => isValid.value ? 'mdi-email-check' : 'mdi-email-outline');
 

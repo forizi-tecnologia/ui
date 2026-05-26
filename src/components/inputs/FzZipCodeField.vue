@@ -7,7 +7,7 @@
     :disabled="disabled"
     :hint="hint"
     :persistent-hint="hasHint"
-    :variant="variant"
+        :variant="resolvedVariant"
     :loading="isSearching"
     inputmode="numeric"
   >
@@ -27,6 +27,7 @@
 import { ref, computed, onBeforeUnmount } from 'vue';
 import { vMaska } from 'maska/vue';
 import { Mask } from 'maska';
+import { useFzDefaults } from '@/composables/useFzDefaults';
 import type { TextFieldVariant } from '@/utils/types';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -66,7 +67,7 @@ const props = withDefaults(defineProps<Props>(), {
   rules: () => [],
   disabled: false,
   hint: '',
-  variant: 'underlined',
+  variant: undefined,
 });
 
 const emit = defineEmits<{
@@ -82,7 +83,11 @@ const mask = new Mask({ mask: '#####-###', eager: true });
 
 const displayValue = computed(() => mask.masked(props.modelValue ?? ''));
 
+const defaults = useFzDefaults();
+
 const hasHint = computed(() => !!props.hint);
+
+const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 
 

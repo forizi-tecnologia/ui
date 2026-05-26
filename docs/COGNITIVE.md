@@ -88,9 +88,25 @@ Added `"sideEffects": ["**/*.css"]` for optimal tree-shaking — bundlers can sa
 
 `src/testutils.ts` was generating `dist/testutils.d.ts` in the output. Added `/testutils/` to `rollupOptions.external` so it is excluded from library builds. This utility is for internal tests only and should not ship to consumers.
 
-### 19. Root `README.md` rewritten for npm
+### 19. FzConfigProvider — provide/inject for global defaults
+
+All `Fz*` input components had `variant` hardcoded to `'underlined'`. Projects wanting `'outlined'` would repeat the prop on every instance. The solution uses Vue's `provide`/`inject`:
+
+- **`FzConfigProvider`** — wrapper component that `provide()`s defaults into the component tree
+- **`useFzDefaults()`** — composable that `inject()`s and returns the provided defaults
+- **`FzDefaults`** — interface (`variant`, extensible for density/color/etc.)
+- **`FZ_DEFAULTS_KEY`** — `InjectionKey` symbol in `src/constants/`
+
+Why not Vuetify's `defaults`? Vuetify's `createVuetify({ defaults: { VTextField: {...} } })` targets Vuetify internals (`VTextField`, `VSelect`). Our components are abstractions on top — `FzPhoneField`, `FzEmailField`, etc. The provider pattern applies at our library level, parallel to Vuetify's.
+
+Why one-level (no per-component nesting)? Simple, sufficient for 90% of use cases. Expandable — the `FzDefaults` interface can grow with component-specific keys when needed.
+
+Why `src/types/` and `src/constants/` directories? Previously all types lived in `src/utils/types.ts`. As the library grows, domain-specific types (`FzDefaults`) and injection keys (`FZ_DEFAULTS_KEY`) deserve their own modules. `src/types/` holds library interfaces, `src/constants/` holds injection keys and shared symbols.
+
+### 20. Root `README.md` rewritten for npm
 
 The root `README.md` was completely rewritten to reflect the current state of the library:
+- Added FzConfigProvider section with usage examples and resolution priority
 - Removed references to deleted components (`PrimaryButton`, `ThemeToggle`, `LanguageSelector`, `CepField`)
 - Removed `vue-i18n` from setup instructions
 - Added correct setup with `FzConfirmDialog`, `FzFloatingNotify`, `FzLoadingOverlay` in `App.vue`

@@ -10,12 +10,20 @@ src/
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
     messages/       ─ Notification/confirm (FzFloatingNotify, FzConfirmDialog, FzCustomConfirmDialog)
+    FzConfigProvider.vue ─ Global defaults via provide/inject
     index.ts        ─ Barrel — exports every component
 
   composables/      ─ Vue composables
     useBreakpoint   ─ Responsive breakpoints
     useGlobals      ─ Access $notify/$loading/$confirm from setup
     useLoading      ─ Reactive loading state (isActive, message, show, hide)
+    useFzDefaults   ─ Resolve component defaults from FzConfigProvider
+
+  types/            ─ Library-specific TypeScript types
+    FzDefaults.ts   ─ Shared defaults interface for FzConfigProvider
+
+  constants/        ─ Injection keys and library constants
+    index.ts        ─ FZ_DEFAULTS_KEY (Symbol for provide/inject)
 
   utils/            ─ Pure utility functions, no Vue dependency
     notify.ts       ─ Global notification singleton
@@ -89,6 +97,34 @@ function toggleTheme() {
   vuetify.theme.global.name.value = isDark.value ? 'dark' : 'light';
 }
 ```
+
+### Global defaults — FzConfigProvider + useFzDefaults
+
+The `FzConfigProvider` component uses Vue's `provide`/`inject` to set default props for all `Fz*` components in its subtree. Components resolve their props with this priority:
+
+1. Prop passed directly to the component (highest)
+2. Default from `FzConfigProvider`
+3. Hardcoded fallback in the component (`'underlined'`)
+
+```vue
+<!-- App.vue -->
+<FzConfigProvider :defaults="{ variant: 'outlined' }">
+  <router-view />
+  <!-- All Fz inputs inherit variant="outlined" -->
+</FzConfigProvider>
+```
+
+Individual overrides still work:
+```vue
+<FzPhoneField variant="filled" />  <!-- one-off override -->
+```
+
+Architecture:
+- `FzConfigProvider` → `provide(FZ_DEFAULTS_KEY, props.defaults)`
+- `useFzDefaults()` → `inject(FZ_DEFAULTS_KEY, {})`
+- Each component → `props.variant ?? defaults.variant ?? 'underlined'`
+
+The `FzDefaults` interface is extensible for future shared props (density, color, etc.).
 
 ### Global utilities
 

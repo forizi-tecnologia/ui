@@ -42,9 +42,9 @@ let wrapper = createComponent(MyComponent, {
 });
 ```
 
-## beforeEach / afterEach pattern
+## beforeEach / afterEach pattern (MANDATORY)
 
-Always create the wrapper in `beforeEach` and destroy in `afterEach`:
+**Always** create the wrapper in `beforeEach` and destroy in `afterEach`. Never create the wrapper inside an `it` block unless using `it.each` with varying configs that cannot be applied via `wrapper.setProps()`.
 
 ```ts
 let wrapper: ReturnType<typeof createComponent>;
@@ -109,6 +109,72 @@ src/
 ```
 
 Tests live in `__tests__/` next to the file they test.
+
+## Testing inject-based composables
+
+Composables that use `inject()` (like `useFzDefaults`) **cannot** be called directly — they require a component setup context. Mount a wrapper component that calls the composable:
+
+```ts
+import { mount } from '@vue/test-utils';
+import { h, defineComponent } from 'vue';
+
+// WRONG — inject() fails outside setup context
+const result = useFzDefaults(); // ❌
+
+// CORRECT — mount a wrapper that uses the composable
+const Consumer = defineComponent({
+  setup() {
+    const defaults = useFzDefaults();
+
+    return () => h('span', { 'data-test': 'result' }, JSON.stringify(defaults));
+  },
+});
+
+const wrapper = mount(Consumer, {
+  global: { plugins: [vuetify] },
+});
+```
+
+When testing the provider + consumer together, mount the provider with the consumer as a slot:
+
+```ts
+const wrapper = mount(FzConfigProvider, {
+  props: { defaults: { variant: 'outlined' } },
+  slots: { default: () => h(Consumer) },
+  global: { plugins: [vuetify] },
+});
+```
+
+## Multiple components in test files
+
+Test files that define helper components (via `defineComponent`) trigger the `vue/one-component-per-file` eslint rule. Add the disable comment at the top:
+
+```ts
+/* eslint-disable vue/one-component-per-file */
+import { describe, it, expect } from 'vitest';
+```
+
+Only use this in `__tests__/` files. Never in production code.
+
+## Testing `provide`/`inject` with varying configs
+
+When `it.each` needs different `provide` values, each iteration must remount the component — `wrapper.setProps()` does not update `provide`d values (Vue limitation). Use a helper function inside `it.each`:
+
+```ts
+function mountWithProvider(defaults: Record<string, unknown>): VueWrapper {
+  return mount(FzConfigProvider, {
+    props: { defaults },
+    slots: { default: () => h(Consumer) },
+    global: { plugins: [vuetify] },
+  });
+}
+
+it.each(CASES)('should resolve variant', ({ provided, expected }) => {
+  const wrapper = mountWithProvider(provided);
+
+  expect(wrapper.find('[data-test="variant"]').text()).toBe(expected);
+});
+```
 
 ## exists vs isVisible (Vue Test Utils)
 
