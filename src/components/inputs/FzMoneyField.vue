@@ -6,7 +6,7 @@
     :disabled="disabled"
     :hint="hint"
     :persistent-hint="persistentHint"
-    :variant="variant"
+        :variant="resolvedVariant"
     inputmode="decimal"
     @update:model-value="handleInput"
     @focus="handleFocus"
@@ -23,8 +23,9 @@
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue';
+import { toRef, computed } from 'vue';
 import { useNumericInput, createNumericKeydownHandler } from '@/composables/useNumericInput';
+import { useFzDefaults } from '@/composables/useFzDefaults';
 import type { TextFieldVariant } from '@/utils/types';
 
 const NON_BREAKING_SPACE = '\u00a0';
@@ -54,7 +55,7 @@ const props = withDefaults(defineProps<Props>(), {
   persistentHint: false,
   currency: 'BRL',
   locale: 'pt-BR',
-  variant: 'underlined',
+  variant: undefined,
   max: 999000000,
   min: undefined,
 });
@@ -62,6 +63,10 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'update:modelValue': [value: number]
 }>();
+
+const defaults = useFzDefaults();
+
+const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 function formatMoney(value: number): string {
   const absValue = Math.abs(value);

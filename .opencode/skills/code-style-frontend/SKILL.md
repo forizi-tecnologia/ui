@@ -173,9 +173,16 @@ Component:      ModalBase.vue, MoneyField.vue, IconToolTip.vue
 Composable:     useBreakpoint.ts, useLoading.ts
 Store (Pinia):  theme.ts, notify.ts
 Utility:        api.ts, vuetify-check.ts
-Type:           types.ts
+Type:           types.ts (reusable), FzDefaults.ts (domain-specific)
+Constant:       index.ts (injection keys, shared symbols)
 Barrel:         index.ts
 ```
+
+### Directory conventions
+
+- **`src/types/`** — Domain-specific interfaces consumed by multiple modules (e.g., `FzDefaults`). Reusable cross-cutting types stay in `src/utils/types.ts`.
+- **`src/constants/`** — Injection keys (`InjectionKey<T>`), shared symbols. Always use `Symbol()` for uniqueness.
+- **`src/components/`** — Flat for single-file components like `FzConfigProvider.vue`. Subdirectories for component families (`inputs/`, `modals/`, etc.).
 
 ## Layers and separation
 
@@ -193,6 +200,36 @@ Single Responsibility (SRP):
 - Composable = reusable reactive logic
 - Store = shareable global state
 - Utility = pure functions (formatting, validation)
+
+### Provide/Inject for library defaults
+
+When a value must flow to many descendant components without prop drilling, use `provide`/`inject`:
+
+```ts
+// src/constants/index.ts
+export const FZ_DEFAULTS_KEY: InjectionKey<FzDefaults> = Symbol('fz-defaults');
+
+// Provider component — provides defaults into the component tree
+// src/components/FzConfigProvider.vue
+provide(FZ_DEFAULTS_KEY, props.defaults);
+
+// Consumer composable — every Fz* component calls this to resolve defaults
+// src/composables/useFzDefaults.ts
+export function useFzDefaults(): FzDefaults {
+  return inject(FZ_DEFAULTS_KEY, {});
+}
+
+// Usage in component — props override provider, provider overrides fallback
+const defaults = useFzDefaults();
+const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
+```
+
+Rules for provide/inject:
+- Always use `InjectionKey<T>` (not plain strings) for type safety
+- The key constant lives in `src/constants/`
+- The provider is a component (renders `<slot />`)
+- The consumer is a composable (`use*`)
+- Fallback value in the `inject()` call ensures components work without the provider
 
 ## Pinia — Composition API style
 

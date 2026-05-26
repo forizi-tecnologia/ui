@@ -1,3 +1,5 @@
+export { default as FzConfigProvider } from './FzConfigProvider.vue';
+
 export { default as FzIconToolTip } from './buttons/FzIconToolTip.vue';
 
 export { default as FzModalBase, type ModalAction } from './modals/FzModalBase.vue';

@@ -11,6 +11,10 @@ export * from './utils';
 
 export * from './composables';
 
+export * from './constants';
+
+export type { FzDefaults } from './types/FzDefaults';
+
 export { globalsPlugin } from './plugins';
 
 export { requiredVuetifyComponents } from './vuetifyComponents';
