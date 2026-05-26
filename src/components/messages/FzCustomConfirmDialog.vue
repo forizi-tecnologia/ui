@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import type { ConfirmOptions } from '@/utils/types';
 import { useConfirmStore } from '@/utils/confirm';
 
@@ -39,6 +39,7 @@ const isOpen = ref(false);
 const currentTitle = ref('');
 const currentMessage = ref('');
 const isPersistent = ref(true);
+const enterToConfirm = ref(false);
 const confirmText = ref('');
 const cancelText = ref('');
 const confirmColor = ref('primary');
@@ -49,6 +50,7 @@ const confirmDialog = (title: string, message: string, options?: ConfirmOptions)
   currentTitle.value = title;
   currentMessage.value = message;
   isPersistent.value = options?.persistent ?? true;
+  enterToConfirm.value = options?.enterToConfirm ?? false;
   confirmText.value = options?.confirmText ?? 'Sim';
   cancelText.value = options?.cancelText ?? 'Não';
   confirmColor.value = options?.confirmColor ?? 'primary';
@@ -66,6 +68,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   useConfirmStore().setConfirmRef({ confirmDialog: () => Promise.resolve(false) });
+  document.removeEventListener('keydown', handleKeydown);
 });
 
 const handleYes = () => {
@@ -85,6 +88,30 @@ const handleOverlayClick = () => {
 
   handleNo();
 };
+
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter' && enterToConfirm.value) {
+    event.preventDefault();
+    handleYes();
+
+    return;
+  }
+
+  if (event.key === 'Escape') {
+    if (isPersistent.value) return;
+
+    event.preventDefault();
+    handleNo();
+  }
+};
+
+watch(isOpen, (open) => {
+  if (open) {
+    document.addEventListener('keydown', handleKeydown);
+  } else {
+    document.removeEventListener('keydown', handleKeydown);
+  }
+});
 
 defineExpose({
   confirmDialog,

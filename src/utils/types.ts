@@ -4,6 +4,7 @@ export interface ConfirmOptions {
   cancelText?: string;
   confirmColor?: string;
   cancelColor?: string;
+  enterToConfirm?: boolean;
 }
 
 export interface ConfirmComponentRef {

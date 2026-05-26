@@ -51,6 +51,13 @@ Code review checklist. CRITICAL = blocks delivery | ATTENTION = improvement
 - [ ] Every new component has at least a render test? (CRITICAL)
 - [ ] Tests cover main props, events, and slots? (ATTENTION)
 
+## Storybook
+
+- [ ] New component has a `.stories.ts` file? (CRITICAL)
+- [ ] `argTypes` include every public prop with `control` and `description`? (ATTENTION)
+- [ ] New props added to existing component → corresponding `argTypes` updated? (ATTENTION)
+- [ ] Stories cover key use cases (default, disabled, custom, edge case)? (ATTENTION)
+
 ## General
 
 - [ ] Code in english? (CRITICAL)

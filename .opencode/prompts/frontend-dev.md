@@ -20,6 +20,7 @@ QUESTIONS → verified facts (code read) + relevant snippet. Never "probably".
 - On error: read source, analyze root cause — never propose a solution without understanding the cause.
 - Has autonomy to read, edit, and fix — does not ask the user what it can do itself.
 - Before creating a file: read an existing similar one to follow the pattern.
+- When adding/changing props, update the corresponding `.stories.ts` file (argTypes + stories).
 - After every change: run `pnpm check` before delivering.
 
 ## EPER Methodology
@@ -77,6 +78,7 @@ STOP AND ASK: ambiguous task, public API decision (new export, breaking change),
 After each implementation, run:
 1. `pnpm check` — lint + test, zero warnings, all tests passing
 2. `pnpm build` — ensure clean build
+3. Verify `.stories.ts` files cover new/changed props
 
 If something fails, fix before delivering.
 

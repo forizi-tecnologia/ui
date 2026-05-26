@@ -13,6 +13,7 @@ const meta = {
     titleIcon: { control: 'text', description: 'MDI icon name displayed before the title' },
     maxWidth: { control: 'number', description: 'Maximum width in pixels (number) or CSS value (string). Default: 500' },
     persistent: { control: 'boolean', description: 'Prevent closing the modal by clicking outside or pressing Escape. Default: true' },
+    enterToConfirm: { control: 'boolean', description: 'Pressing Enter triggers the primary action. Default: false' },
     fullscreen: { control: 'boolean', description: 'Display modal in fullscreen mode. Default: false' },
     actions: { description: 'Array of ModalAction objects: { text: string, icon?: string, color?: string, variant?: string, handler?: () => void }. The last action with color "primary" (or no color) is treated as the primary action and triggers on Enter. Actions with "secondary" or "error" color trigger on Escape.' },
     contentClass: { control: 'text', description: 'Additional CSS classes added to the dialog content element' },
@@ -87,6 +88,20 @@ export const NotPersistent: Story = {
     persistent: false,
     actions: [
       { text: 'OK', color: 'primary' },
+    ],
+  },
+};
+
+export const KeyboardShortcuts: Story = {
+  args: {
+    modelValue: true,
+    title: 'Atalhos de teclado',
+    message: 'Pressione Enter para confirmar ou Esc para cancelar.',
+    enterToConfirm: true,
+    persistent: false,
+    actions: [
+      { text: 'Cancelar', color: 'secondary' },
+      { text: 'Confirmar', color: 'primary' },
     ],
   },
 };

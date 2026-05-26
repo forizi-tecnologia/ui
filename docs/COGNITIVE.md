@@ -103,7 +103,13 @@ Why one-level (no per-component nesting)? Simple, sufficient for 90% of use case
 
 Why `src/types/` and `src/constants/` directories? Previously all types lived in `src/utils/types.ts`. As the library grows, domain-specific types (`FzDefaults`) and injection keys (`FZ_DEFAULTS_KEY`) deserve their own modules. `src/types/` holds library interfaces, `src/constants/` holds injection keys and shared symbols.
 
-### 20. Root `README.md` rewritten for npm
+### 20. Keyboard shortcuts opt-in for ConfirmDialog and ModalBase
+
+Enter triggers the primary action, Escape triggers cancel — both controllable via props and disabled by default for safety.
+
+Why opt-in: keyboard shortcuts are ergonomic but dangerous for destructive operations. `enterToConfirm` defaults to `false`; Escape only works when `persistent` is `false` (it defaults to `true`). Both dialogs follow the same contract: the consumer explicitly opts into shortcuts per invocation.
+
+### 21. Root `README.md` rewritten for npm
 
 The root `README.md` was completely rewritten to reflect the current state of the library:
 - Added FzConfigProvider section with usage examples and resolution priority
