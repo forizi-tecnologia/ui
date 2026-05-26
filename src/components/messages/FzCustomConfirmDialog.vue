@@ -17,11 +17,11 @@
           </v-card-text>
 
           <v-card-actions class="d-flex justify-end ga-2 px-6 pb-6 pt-2">
-            <v-btn :color="cancelColor" variant="outlined" class="text-none" @click="handleNo">
-              {{ cancelText }}
-            </v-btn>
             <v-btn :color="confirmColor" variant="elevated" class="text-none" @click="handleYes">
               {{ confirmText }}
+            </v-btn>
+            <v-btn :color="cancelColor" variant="outlined" class="text-none" @click="handleNo">
+              {{ cancelText }}
             </v-btn>
           </v-card-actions>
         </v-card>

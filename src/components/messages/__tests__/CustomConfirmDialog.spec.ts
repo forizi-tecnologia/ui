@@ -39,12 +39,12 @@ describe('FzCustomConfirmDialog', () => {
   const findConfirmBtn = () => {
     const all = findButtons();
 
-    return all.length > 1 ? all[all.length - 1] : undefined;
+    return all.length > 0 ? all[0] : undefined;
   };
   const findCancelBtn = () => {
     const all = findButtons();
 
-    return all.length > 0 ? all[0] : undefined;
+    return all.length > 1 ? all[all.length - 1] : undefined;
   };
 
   it('should be hidden by default', () => {
