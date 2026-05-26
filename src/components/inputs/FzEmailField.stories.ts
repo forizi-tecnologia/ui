@@ -6,14 +6,17 @@ const meta = {
   component: FzEmailField,
   tags: ['autodocs'],
   argTypes: {
-    modelValue: { control: 'text' },
-    label: { control: 'text' },
-    required: { control: 'boolean' },
-    disabled: { control: 'boolean' },
-    hint: { control: 'text' },
-    requiredMessage: { control: 'text' },
-    invalidMessage: { control: 'text' },
-    maxlength: { control: 'number' },
+    modelValue: { control: 'text', description: 'v-model bound email value' },
+    label: { control: 'text', description: 'Field label text. Default: "Email"' },
+    rules: { description: 'Array of custom validation rules. Each receives the value and returns true or an error string.' },
+    disabled: { control: 'boolean', description: 'Disable the input' },
+    hint: { control: 'text', description: 'Hint text displayed below the field' },
+    required: { control: 'boolean', description: 'Whether the field is required for validation' },
+    validateOnBlur: { control: 'boolean', description: 'Validate only on blur (true) or on every input change (false). Default: true' },
+    requiredMessage: { control: 'text', description: 'Custom error message when required field is empty. Default: "Email é obrigatório"' },
+    invalidMessage: { control: 'text', description: 'Custom error message for invalid email format. Default: "Formato de e-mail inválido"' },
+    variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    maxlength: { control: 'number', description: 'Maximum character length. Default: 100' },
   },
 } satisfies Meta<typeof FzEmailField>;
 
@@ -37,7 +40,7 @@ export const CustomErrorMessages: Story = {
   args: {
     label: 'Email',
     required: true,
-    requiredMessage: 'Please enter your email',
-    invalidMessage: 'Invalid email format',
+    requiredMessage: 'Por favor, informe seu e-mail',
+    invalidMessage: 'Formato de e-mail inválido',
   },
 };

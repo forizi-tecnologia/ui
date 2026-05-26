@@ -6,8 +6,11 @@ const meta = {
   component: FzFullAddress,
   tags: ['autodocs'],
   argTypes: {
-    disabled: { control: 'boolean' },
-    disabledFields: { control: 'boolean', description: 'Lock auto-filled fields after CEP lookup' },
+    modelValue: { description: 'v-model bound address object (Partial<Address>). Fields: zipCode, street, number, complement, neighborhood, city, state.' },
+    disabled: { control: 'boolean', description: 'Disable all address fields' },
+    disabledFields: { control: 'boolean', description: 'Lock auto-completed fields (street, neighborhood, city, state) after a CEP is found via lookup' },
+    labels: { description: 'Override individual field labels: { zipCode, street, number, complement, neighborhood, city, state }. Defaults in pt-BR.' },
+    variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
   },
 } satisfies Meta<typeof FzFullAddress>;
 

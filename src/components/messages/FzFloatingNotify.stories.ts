@@ -10,7 +10,20 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: 'Fixed-position notification card with auto-hide timer, progress bar, and hover-pause support. Use the `notify` singleton to trigger: `notify.success("Title", "Message")`.',
+        component: [
+          'Fixed-position notification card with auto-hide timer, animated progress bar, and hover-to-pause support.',
+          '',
+          '**Singleton pattern**: include `<FzFloatingNotify />` once in your `App.vue`, then trigger notifications imperatively from anywhere:',
+          '',
+          '```ts',
+          "import { notify } from '@forizi-tecnologia/ui/utils';",
+          '',
+          "notify.success('Sucesso', 'Operação concluída.');",
+          "notify.error('Erro', 'Algo deu errado.');",
+          "notify.warning('Atenção', 'Verifique os dados.');",
+          "notify.info('Info', 'Mensagem informativa.');",
+          '```',
+        ].join('\n'),
       },
     },
   },
@@ -23,7 +36,7 @@ type Story = StoryObj<typeof meta>;
 export const Success: Story = {
   render: () => ({
     setup() {
-      onMounted(() => notify.success('Success', 'Operation completed successfully.'));
+      onMounted(() => notify.success('Sucesso', 'Operação concluída com sucesso.'));
     },
     template: '<FzFloatingNotify />',
   }),
@@ -32,7 +45,7 @@ export const Success: Story = {
 export const Error: Story = {
   render: () => ({
     setup() {
-      onMounted(() => notify.error('Error', 'Something went wrong.'));
+      onMounted(() => notify.error('Erro', 'Algo deu errado ao processar.'));
     },
     template: '<FzFloatingNotify />',
   }),
@@ -41,7 +54,7 @@ export const Error: Story = {
 export const Warning: Story = {
   render: () => ({
     setup() {
-      onMounted(() => notify.warning('Warning', 'Please check your input.'));
+      onMounted(() => notify.warning('Atenção', 'Verifique os dados informados.'));
     },
     template: '<FzFloatingNotify />',
   }),
@@ -50,7 +63,7 @@ export const Warning: Story = {
 export const Info: Story = {
   render: () => ({
     setup() {
-      onMounted(() => notify.info('Info', 'This is an informational message.'));
+      onMounted(() => notify.info('Informação', 'Esta é uma mensagem informativa.'));
     },
     template: '<FzFloatingNotify />',
   }),
