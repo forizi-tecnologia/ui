@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "Frontend-Dev",
+  "default_agent": "frontend-dev",
   "command": {
     "unit-test": {
       "description": "Create a unit test for a Vue component, composable, or utility in BaseLib",
