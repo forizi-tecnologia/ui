@@ -26,6 +26,11 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    options: {
+      storySort: {
+        order: ['Forizi UI', 'Buttons', 'Inputs', 'Layout', 'Modals', 'Messages'],
+      },
+    },
   },
   decorators: [
     () => ({
