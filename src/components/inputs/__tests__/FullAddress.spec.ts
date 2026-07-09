@@ -191,6 +191,13 @@ describe('FzFullAddress', () => {
     expect((streetInput.element as HTMLInputElement).value).toBe('Rua Alterada');
   });
 
+  it('should not re-emit update:modelValue when modelValue is set externally', async () => {
+    await wrapper.setProps({ modelValue: { street: 'Rua Externa' } });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+  });
+
   it('should emit update:modelValue when user types in street', async () => {
     const inputs = wrapper.findAll('input');
 

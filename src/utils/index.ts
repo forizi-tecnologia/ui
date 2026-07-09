@@ -8,4 +8,6 @@ export { default as api, configureApi } from './api';
 
 export * from './types';
 
+export type { DateFormat, DateLocale, DateParts, DayCell } from './date';
+
 export { ensureVuetify, debugVuetifyInstances } from './vuetify-check';

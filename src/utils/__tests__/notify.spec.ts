@@ -62,6 +62,16 @@ describe('useNotifyStore', () => {
     expect(store.isVisible).toBe(false);
   });
 
+  it('should not throw when hide is called twice in a row', () => {
+    const store = useNotifyStore();
+
+    store.show('info', 'Test');
+    store.hide();
+
+    expect(() => store.hide()).not.toThrow();
+    expect(store.isVisible).toBe(false);
+  });
+
   it('should auto-hide after NOTIFY_DURATION milliseconds', () => {
     const store = useNotifyStore();
 
@@ -134,7 +144,7 @@ describe('useNotifyStore', () => {
 
       store.show('info', 'Test');
 
-      vi.advanceTimersByTime(NOTIFY_DURATION);
+      vi.setSystemTime(Date.now() + NOTIFY_DURATION);
 
       store.pause();
 
@@ -152,6 +162,17 @@ describe('useNotifyStore', () => {
 
       expect(() => store.resume()).not.toThrow();
     });
+
+    it('should be a no-op when resume is called while a timer is already running', () => {
+      const store = useNotifyStore();
+
+      store.show('info', 'Test');
+      store.resume();
+
+      vi.advanceTimersByTime(NOTIFY_DURATION);
+
+      expect(store.isVisible).toBe(false);
+    });
   });
 
   describe('cleanup', () => {
@@ -168,6 +189,12 @@ describe('useNotifyStore', () => {
       vi.advanceTimersByTime(NOTIFY_DURATION + 100);
 
       expect(store.isVisible).toBe(true);
+    });
+
+    it('should not throw when cleanup is called without an active timeout', () => {
+      const store = useNotifyStore();
+
+      expect(() => store.cleanup()).not.toThrow();
     });
   });
 });
@@ -206,6 +233,25 @@ describe('notify singleton', () => {
     notify[method]('Only Title');
 
     expect(store.title).toBe('Only Title');
+    expect(store.message).toBe('');
+  });
+
+  it('should call store.show with the given type when notify.show is called directly', () => {
+    const store = useNotifyStore();
+
+    notify.show('warning', 'Direct Title', 'Direct Message');
+
+    expect(store.isVisible).toBe(true);
+    expect(store.type).toBe('warning');
+    expect(store.title).toBe('Direct Title');
+    expect(store.message).toBe('Direct Message');
+  });
+
+  it('should default message to empty string when notify.show is called without message', () => {
+    const store = useNotifyStore();
+
+    notify.show('info', 'Only Title');
+
     expect(store.message).toBe('');
   });
 });

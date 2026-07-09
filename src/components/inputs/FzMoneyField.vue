@@ -124,7 +124,7 @@ function updateValue(newValue: number) {
 }
 
 function computeFromDigits(digits: string, isNegative: boolean): number {
-  const value = parseInt(digits || '0') / 100;
+  const value = parseInt(digits) / 100;
 
   return isNegative ? -value : value;
 }

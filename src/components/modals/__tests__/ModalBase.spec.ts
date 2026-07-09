@@ -291,6 +291,16 @@ describe('FzModalBase', () => {
       expect(cancelHandler).toHaveBeenCalledTimes(1);
     });
 
+    it('should not trigger cancel action on Escape when persistent is true (default)', async () => {
+      await wrapper.setProps({ modelValue: true });
+
+      const card = wrapper.findComponent({ name: 'v-card' });
+
+      await card.trigger('keydown', { key: 'Escape' });
+
+      expect(cancelHandler).not.toHaveBeenCalled();
+    });
+
     it('should trigger primary action on Enter key', async () => {
       await wrapper.setProps({ modelValue: true, enterToConfirm: true });
 
@@ -299,6 +309,16 @@ describe('FzModalBase', () => {
       await card.trigger('keydown', { key: 'Enter' });
 
       expect(primaryHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not trigger primary action on Enter when enterToConfirm is false (default)', async () => {
+      await wrapper.setProps({ modelValue: true });
+
+      const card = wrapper.findComponent({ name: 'v-card' });
+
+      await card.trigger('keydown', { key: 'Enter' });
+
+      expect(primaryHandler).not.toHaveBeenCalled();
     });
 
     it('should not trigger cancel action on Escape when no cancel action exists', async () => {
@@ -331,13 +351,14 @@ describe('FzModalBase', () => {
       expect(lastHandler).toHaveBeenCalledTimes(1);
     });
 
-    it('should not trigger primary action on Enter when target is a textarea', () => {
+    it('should not trigger primary action on Enter when target is a textarea', async () => {
       wrapper.unmount();
 
       wrapper = createComponent(FzModalBase, {
         attachTo: document.body,
         props: {
           modelValue: true,
+          enterToConfirm: true,
           actions: defaultActions,
         },
         slots: {
@@ -345,11 +366,15 @@ describe('FzModalBase', () => {
         },
       });
 
-      const textarea = document.querySelector('textarea');
+      await wrapper.vm.$nextTick();
+
+      const textarea = document.querySelector('[data-test="textarea"]') as HTMLElement;
 
       expect(textarea).toBeTruthy();
 
-      textarea?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+      expect(primaryHandler).not.toHaveBeenCalled();
     });
 
     it('should do nothing when actions is empty', async () => {
@@ -359,6 +384,20 @@ describe('FzModalBase', () => {
 
       await expect(card.trigger('keydown', { key: 'Escape' })).resolves.toBeUndefined();
       await expect(card.trigger('keydown', { key: 'Enter' })).resolves.toBeUndefined();
+
+      expect(cancelHandler).not.toHaveBeenCalled();
+      expect(primaryHandler).not.toHaveBeenCalled();
+    });
+
+    it('should ignore unrelated keys', async () => {
+      await wrapper.setProps({ modelValue: true, enterToConfirm: true, persistent: false });
+
+      const card = wrapper.findComponent({ name: 'v-card' });
+
+      await card.trigger('keydown', { key: 'Tab' });
+
+      expect(cancelHandler).not.toHaveBeenCalled();
+      expect(primaryHandler).not.toHaveBeenCalled();
     });
   });
 

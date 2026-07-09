@@ -35,3 +35,5 @@ playground/node_modules
 # OpenCode
 .opencode/node_modules
 storybook-static
+
+playground-dist

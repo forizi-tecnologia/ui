@@ -154,6 +154,21 @@ describe('FzIconToolTip', () => {
     expect(btn.props('disabled')).toBe(false);
   });
 
+  it('should emit click event with MouseEvent payload when asButton is true', async () => {
+    wrapper = createComponent(FzIconToolTip, {
+      props: { icon: 'mdi-pencil', asButton: true },
+    });
+
+    const btn = wrapper.findComponent({ name: 'v-btn' });
+
+    await btn.trigger('click');
+
+    const emitted = wrapper.emitted('click');
+
+    expect(emitted).toBeTruthy();
+    expect(emitted![0][0]).toBeInstanceOf(MouseEvent);
+  });
+
   // ── disabledTooltip (mode-independent) ──
 
   it('should show disabledTooltip when disabled and disabledTooltip is provided', () => {

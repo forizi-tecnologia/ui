@@ -192,3 +192,58 @@ expect(wrapper.find('[data-test="content"]').isVisible()).toBe(true)
 ```
 
 **Rule of thumb:** `v-if` → `exists()`. `v-show` → `isVisible()`.
+
+## Testing Vuetify overlays in jsdom
+
+Vuetify overlays (`v-menu`, `v-dialog`, `v-tooltip`) rely on browser APIs not available in jsdom. Three patterns discovered while testing datepicker/calendar components:
+
+### 1. Stub missing browser APIs (MANDATORY)
+
+jsdom lacks `visualViewport` and `ResizeObserver`, both required by Vuetify's overlay positioning engine. Stub them before tests that mount Vuetify overlay components:
+
+```ts
+import { beforeAll } from 'vitest';
+
+beforeAll(() => {
+  vi.stubGlobal('visualViewport', { width: 1024, height: 768 });
+  vi.stubGlobal('ResizeObserver', vi.fn(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+    trigger: vi.fn(),
+  })));
+});
+```
+
+Place in the top-level `describe` block. Without these stubs, components that render overlays will throw during mount.
+
+### 2. Teleported content: read from `document.body`
+
+`v-menu` and `v-dialog` teleport their overlay content out of the wrapper's DOM subtree into `v-overlay-container`. `wrapper.text()` returns `''` for teleported content. Use `document.body.textContent` for text assertions, or `wrapper.findComponent()` / `wrapper.findAllComponents()` which walk the Vue component tree — not the DOM — and work across the teleport boundary:
+
+```ts
+// WRONG — teleported content is not in the wrapper's DOM
+expect(wrapper.text()).toContain('January');
+
+// CORRECT — search the real document body
+expect(document.body.textContent).toContain('January');
+
+// CORRECT — findComponent walks the Vue tree, DOM position irrelevant
+const card = wrapper.findComponent({ name: 'v-card' });
+expect(card.exists()).toBe(true);
+```
+
+### 3. mdi icon assertions: use `classList`, not `text()`
+
+`<v-icon>mdi-calendar</v-icon>` renders as `<i class="mdi mdi-calendar"></i>`. The icon name is a CSS class, not text content — `icon.text()` returns `''`:
+
+```ts
+// WRONG
+expect(icon.text()).toBe('mdi-calendar');
+
+// CORRECT
+const i = icon.find('i');
+expect(i.classes()).toContain('mdi-calendar');
+```
+
+This pattern is already used in `FzModalBase` tests for `titleIcon`. Apply consistently to any Vuetify icon assertion.

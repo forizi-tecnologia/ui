@@ -111,4 +111,16 @@ describe('FzLoadingOverlay', () => {
       vi.advanceTimersByTime(300);
     }).not.toThrow();
   });
+
+  it('should hide without error when isLoading starts true and no timeout was scheduled yet', async () => {
+    const w = createComponent(FzLoadingOverlay, {
+      props: { isLoading: true },
+    });
+
+    await w.setProps({ isLoading: false });
+
+    expect(w.find('.loading-overlay').exists()).toBe(false);
+
+    w.unmount();
+  });
 });
