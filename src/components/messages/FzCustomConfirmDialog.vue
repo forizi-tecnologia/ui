@@ -72,13 +72,13 @@ onUnmounted(() => {
 });
 
 const handleYes = () => {
-  if (resolvePromise) resolvePromise(true);
+  (resolvePromise as (value: boolean) => void)(true);
 
   isOpen.value = false;
 };
 
 const handleNo = () => {
-  if (resolvePromise) resolvePromise(false);
+  (resolvePromise as (value: boolean) => void)(false);
 
   isOpen.value = false;
 };

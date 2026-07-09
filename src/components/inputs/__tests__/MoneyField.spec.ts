@@ -119,6 +119,18 @@ describe('FzMoneyField', () => {
     expect(wrapper.emitted('update:modelValue')).toBeFalsy();
   });
 
+  it('should resolve to 0 when backspacing clears every digit', async () => {
+    await wrapper.setProps({ modelValue: 0.01 });
+
+    const input = wrapper.find('input');
+
+    await input.trigger('keydown', { key: 'Backspace' });
+
+    const emitted = wrapper.emitted('update:modelValue');
+
+    expect(emitted![emitted!.length - 1][0]).toBe(0);
+  });
+
   it('should allow digit keydown and append digit', async () => {
     const input = wrapper.find('input');
 
@@ -244,5 +256,21 @@ describe('FzMoneyField', () => {
     });
 
     expect(wrapper.find('input').exists()).toBe(true);
+  });
+
+  it('should fall back to a manual currency symbol when the currency code is invalid', async () => {
+    wrapper = createComponent(FzMoneyField, {
+      props: { modelValue: 1234.56, currency: 'INVALID' },
+    });
+
+    expect(getInputValue()).toBe('INVALID 1.234,56');
+  });
+
+  it('should prefix the fallback formatting with a minus sign for negative values', async () => {
+    wrapper = createComponent(FzMoneyField, {
+      props: { modelValue: -50, currency: 'INVALID' },
+    });
+
+    expect(getInputValue()).toBe('-INVALID 50,00');
   });
 });

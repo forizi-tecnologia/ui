@@ -82,7 +82,7 @@ const fillColor = computed(() => themeTypeColor.value);
 function updateProgress() {
   if (!store.isVisible) return;
 
-  const hovered = Date.now() >= enterTransitionEndTime && (notificationRef.value?.matches(':hover') ?? false);
+  const hovered = Date.now() >= enterTransitionEndTime && (notificationRef.value as HTMLElement).matches(':hover');
 
   if (hovered && !isHovered) {
     isHovered = true;
@@ -90,7 +90,7 @@ function updateProgress() {
 
     store.pause();
 
-    requestAnimationFrame(updateProgress);
+    rafId = requestAnimationFrame(updateProgress);
 
     return;
   }
@@ -103,7 +103,7 @@ function updateProgress() {
   }
 
   if (isHovered) {
-    requestAnimationFrame(updateProgress);
+    rafId = requestAnimationFrame(updateProgress);
 
     return;
   }
@@ -120,13 +120,14 @@ function updateProgress() {
 
   progress.value = (remaining / NOTIFY_DURATION) * 100;
 
-  requestAnimationFrame(updateProgress);
+  rafId = requestAnimationFrame(updateProgress);
 }
 
 let totalElapsedMs = 0;
 let intervalStartTime = 0;
 let enterTransitionEndTime = 0;
 let isHovered = false;
+let rafId: number | null = null;
 
 watch(() => store.isVisible, (visible) => {
   if (visible) {
@@ -136,7 +137,7 @@ watch(() => store.isVisible, (visible) => {
     isHovered = false;
     progress.value = 100;
 
-    requestAnimationFrame(updateProgress);
+    rafId = requestAnimationFrame(updateProgress);
 
     return;
   }
@@ -146,6 +147,8 @@ watch(() => store.isVisible, (visible) => {
 });
 
 onUnmounted(() => {
+  if (rafId !== null) cancelAnimationFrame(rafId);
+
   store.cleanup();
 });
 </script>

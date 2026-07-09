@@ -10,9 +10,7 @@ import type { ConfirmOptions } from '@/utils/types';
 const customDialogRef = ref<InstanceType<typeof FzCustomConfirmDialog> | null>(null);
 
 const confirmDialog = (title: string, message: string, options?: ConfirmOptions): Promise<boolean> => {
-  if (!customDialogRef.value) return Promise.resolve(false);
-
-  return customDialogRef.value.confirmDialog(title, message, options);
+  return (customDialogRef.value as InstanceType<typeof FzCustomConfirmDialog>).confirmDialog(title, message, options);
 };
 
 defineExpose({

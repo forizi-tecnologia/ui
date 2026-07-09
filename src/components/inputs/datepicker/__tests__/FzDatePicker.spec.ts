@@ -62,6 +62,10 @@ describe('FzDatePicker', () => {
     expect(wrapper.text()).toContain('Data');
   });
 
+  it('should disable browser autocomplete suggestions', () => {
+    expect(getInput().attributes('autocomplete')).toBe('off');
+  });
+
   it('should render with a custom label', () => {
     wrapper.unmount();
 

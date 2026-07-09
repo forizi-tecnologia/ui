@@ -10,6 +10,7 @@
     :persistent-hint="hasHint"
     :variant="resolvedVariant"
     inputmode="numeric"
+    autocomplete="off"
     @update:focused="onFocusChange"
   >
     <template v-if="$slots.prepend" #prepend>

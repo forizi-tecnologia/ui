@@ -58,4 +58,24 @@ describe('api', () => {
     expect(apiModule.default.defaults.timeout).toBe(15000);
     expect(apiModule.default.defaults.baseURL).toBe('/api');
   });
+
+  it('should pass through a successful response unchanged via the response interceptor', () => {
+    const interceptor = (apiModule.default.interceptors.response as unknown as {
+      handlers: { fulfilled: (response: unknown) => unknown; rejected: (error: unknown) => Promise<unknown> }[];
+    }).handlers[0];
+
+    const response = { data: { ok: true }, status: 200 };
+
+    expect(interceptor.fulfilled(response)).toBe(response);
+  });
+
+  it('should reject with the original error via the response interceptor', async () => {
+    const interceptor = (apiModule.default.interceptors.response as unknown as {
+      handlers: { fulfilled: (response: unknown) => unknown; rejected: (error: unknown) => Promise<unknown> }[];
+    }).handlers[0];
+
+    const error = new Error('Network Error');
+
+    await expect(interceptor.rejected(error)).rejects.toBe(error);
+  });
 });

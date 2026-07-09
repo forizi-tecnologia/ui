@@ -178,8 +178,6 @@ function onZipCodeNotFound() {
 }
 
 watch(() => props.modelValue, (val) => {
-  if (!val) return;
-
   skipInternalEmit = true;
 
   Object.assign(internal, val);

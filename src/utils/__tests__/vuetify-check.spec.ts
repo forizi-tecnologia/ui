@@ -40,6 +40,44 @@ describe('ensureVuetify', () => {
 
     expect(() => ensureVuetify(app)).not.toThrow();
   });
+
+  it('should detect Vuetify via a provided symbol when globalProperties is not set', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const app = createApp({});
+
+    app.provide(Symbol('Vuetify'), {});
+    ensureVuetify(app);
+
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+  });
+
+  it('should detect Vuetify via a registered component starting with "V"', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const app = createApp({});
+
+    app.component('VBtn', { template: '<button />' });
+    ensureVuetify(app);
+
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+  });
+
+  it('should not warn in production mode even when Vuetify is not installed', () => {
+    vi.stubEnv('DEV', false);
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const app = createApp({});
+
+    ensureVuetify(app);
+
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+    vi.unstubAllEnvs();
+  });
 });
 
 describe('debugVuetifyInstances', () => {
@@ -61,5 +99,26 @@ describe('debugVuetifyInstances', () => {
     );
 
     warnSpy.mockRestore();
+  });
+
+  it('should warn when multiple overlay containers exist', () => {
+    const first = document.createElement('div');
+    const second = document.createElement('div');
+
+    first.className = 'v-overlay-container';
+    second.className = 'v-overlay-container';
+    document.body.append(first, second);
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    debugVuetifyInstances();
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Multiple overlay containers detected'),
+    );
+
+    warnSpy.mockRestore();
+    first.remove();
+    second.remove();
   });
 });

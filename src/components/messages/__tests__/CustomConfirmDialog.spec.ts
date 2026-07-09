@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import { createPinia, setActivePinia } from 'pinia';
 import FzCustomConfirmDialog from '../FzCustomConfirmDialog.vue';
+import { useConfirmStore } from '@/utils/confirm';
 
 function createWrapper() {
   const vuetify = createVuetify();
@@ -169,5 +170,103 @@ describe('FzCustomConfirmDialog', () => {
     queryOverlay()?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     await expect(promise).resolves.toBe(false);
+  });
+
+  it('should not render the message block when message is empty', async () => {
+    openDialog('Title', '');
+
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.findComponent({ name: 'v-card-text' }).exists()).toBe(false);
+  });
+
+  it('should confirm on Enter when enterToConfirm is true', async () => {
+    const promise = openDialog('Title', 'Message', { enterToConfirm: true });
+
+    await wrapper.vm.$nextTick();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    await expect(promise).resolves.toBe(true);
+  });
+
+  it('should not confirm on Enter when enterToConfirm is false (default)', async () => {
+    openDialog('Title', 'Message');
+
+    await wrapper.vm.$nextTick();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    await wrapper.vm.$nextTick();
+
+    expect(queryOverlay()).not.toBeNull();
+  });
+
+  it('should cancel on Escape when not persistent', async () => {
+    const promise = openDialog('Title', 'Message', { persistent: false });
+
+    await wrapper.vm.$nextTick();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    await expect(promise).resolves.toBe(false);
+  });
+
+  it('should not cancel on Escape when persistent (default)', async () => {
+    openDialog('Title', 'Message');
+
+    await wrapper.vm.$nextTick();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await wrapper.vm.$nextTick();
+
+    expect(queryOverlay()).not.toBeNull();
+  });
+
+  it('should ignore unrelated keys', async () => {
+    openDialog('Title', 'Message', { enterToConfirm: true, persistent: false });
+
+    await wrapper.vm.$nextTick();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
+    await wrapper.vm.$nextTick();
+
+    expect(queryOverlay()).not.toBeNull();
+  });
+
+  it('should stop listening for keydown after the dialog is closed', async () => {
+    openDialog('Title', 'Message', { enterToConfirm: true });
+
+    await wrapper.vm.$nextTick();
+    await findConfirmBtn()?.trigger('click');
+    await wrapper.vm.$nextTick();
+
+    const promise = openDialog('Second', 'Message');
+
+    await wrapper.vm.$nextTick();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    await wrapper.vm.$nextTick();
+
+    expect(queryOverlay()).not.toBeNull();
+
+    await findCancelBtn()?.trigger('click');
+
+    await expect(promise).resolves.toBe(false);
+  });
+
+  it('should remove the keydown listener on unmount', async () => {
+    openDialog('Title', 'Message', { enterToConfirm: true });
+
+    await wrapper.vm.$nextTick();
+
+    wrapper.unmount();
+
+    expect(() => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    }).not.toThrow();
+  });
+
+  it('should resolve false when confirmDialog is called through the store after unmount', async () => {
+    const store = useConfirmStore();
+
+    wrapper.unmount();
+
+    const result = await store.show('Title', 'Message');
+
+    expect(result).toBe(false);
   });
 });
