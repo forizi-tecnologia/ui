@@ -3,6 +3,9 @@
 ## Folder structure
 
 ```
+docs/
+  specs/           ─ Component specs written before implementation
+    FzDatePicker.md
 src/
   components/       ─ Reusable Vue components
     buttons/        ─ Icon-only button with tooltip (FzIconToolTip)
@@ -19,6 +22,8 @@ src/
     useGlobals      ─ Access $notify/$loading/$confirm from setup
     useLoading      ─ Reactive loading state (isActive, message, show, hide)
     useFzDefaults   ─ Resolve component defaults from FzConfigProvider
+    useNumericInput ─ Shared numeric keydown handler + input formatting
+    useDatePicker   ─ Reactive calendar state (navigation, drill-down, focused month/year)
 
   types/            ─ Library-specific TypeScript types
     FzDefaults.ts   ─ Shared defaults interface for FzConfigProvider
@@ -31,6 +36,7 @@ src/
     loading.ts      ─ Global loading singleton (wraps useLoading)
     confirm.ts      ─ Global confirm dialog singleton
     api.ts          ─ Axios wrapper
+    date.ts         ─ Date parsing, formatting, validation, calendar grid
     types.ts        ─ Shared types and constants
     vuetify-check.ts
 

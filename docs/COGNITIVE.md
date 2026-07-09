@@ -175,6 +175,58 @@ Vuetify overlay (`v-menu`/`v-dialog`) test:
   `icon.classes()`/`classList.contains(...)`, matching the existing pattern used for
   `FzModalBase`'s `titleIcon`.
 
+### 28. `useLoadingRefs` singleton vs `useLoading` factory
+
+`useLoading()` (composable) creates a brand-new `isActive`/`message` pair every call.
+`useLoadingRefs()` (utility wrapper) caches the first call's return and returns the same
+refs on subsequent calls — a singleton. `App.vue` binds `FzLoadingOverlay` to the singleton,
+so any code calling `useLoading()` directly gets a separate instance that the overlay
+never sees.
+
+Why singleton wrapper instead of making the composable itself a singleton: the composable
+is intentionally a factory — tests rely on independent instances. The singleton lives in
+`utils/loading.ts` because it is an application-layer concern (one global loading state).
+Components and playground code that need the global overlay **must** use `useLoadingRefs()`,
+not `useLoading()`.
+
+### 29. `FzFloatingNotify` requestAnimationFrame lifecycle
+
+The progress-bar tick loop uses `requestAnimationFrame`. Every `rAF` call stores its
+return value in a module-level `rafId: number | null`. When the notification becomes
+invisible / the component unmounts / a hover state changes, the pending `rAF` is
+cancelled via `cancelAnimationFrame(rafId)`.
+
+Why store the ID: `rAF` is not automatically cleaned up. Without tracking the ID, the
+callback continues to execute after the component is destroyed, touching destroyed
+reactive state and throwing errors. The cleanup runs in `onUnmounted`, in the `watch`
+on visibility, and on hover transitions — any path that can pause or hide the timer.
+
+### 30. `docs/specs/` — component specs before implementation
+
+`FzDatePicker` was first designed as a spec (`docs/specs/FzDatePicker.md`) covering the
+public API, behavior per view, data model, test plan, and deferred decisions. The spec
+was written and reviewed before any code was written.
+
+Why specs-first: complex components (multi-view modal, v-model contract, locale separation)
+benefit from freezing the API contract upfront. The spec lives alongside the code so future
+maintainers understand the intentional design space, not just the current implementation.
+Simplicity components (single-field inputs) may skip this — specs are for multi-component
+families or components with non-trivial state machines.
+
+### 31. `FzDatePicker` — v-model (`ref`) vs `computed` for `v-menu` binding
+
+The `v-menu`'s `v-model` was originally bound to a `computed` that proxied `props.open`.
+Vue prop updates are batched asynchronously — when `v-menu` emits `update:modelValue`,
+the computed setter fires, the parent updates its ref, but `props.open` does not change
+until the parent's next render tick. The `v-menu` reads `modelValue` back immediately
+and sees the stale value, causing the overlay to blink open and then close.
+
+Why `ref` + `watch`: a local `ref` is synchronous — `v-menu` reads and writes it without
+any tick delay. Two `watch` calls sync the ref bidirectionally with the parent prop:
+`watch(isOpen, ...)` emits `update:open` outward, and `watch(() => props.open, ...)`
+pulls external changes inward. This pattern is the canonical way to wrap a Vuetify
+overlay component inside a library component that exposes its own `v-model`.
+
 ## Key decisions
 
 ### 1. Code in english, UI labels in pt-BR
