@@ -23,9 +23,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useLoading } from '@/composables/useLoading';
+import { useLoadingRefs } from '@/utils';
 
-const loadingState = useLoading();
+const loadingState = useLoadingRefs();
 const loadingSeconds = ref(3);
 let loadingTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
