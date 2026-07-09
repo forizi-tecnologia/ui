@@ -17,6 +17,7 @@ Forizi UI — Vue 3 + TypeScript + Vuetify 3 component library.
 - **`/unit-test <nome>`** — Cria um teste unitário para um componente, composable ou utility. Segue automaticamente as skills `unit-testing` e `code-style-frontend`, lê o código fonte, busca testes similares como referência de padrão, cria o arquivo `.spec.ts`, e executa `pnpm test` + `pnpm lint`.
 - **`/refactory <nome>`** — Refatora um componente, composable ou utility para seguir o code-style da BaseLib rigidamente. Converte para Composition API (`<script setup>`), async/await, early return, tipos corretos, aspas simples, ponto-e-vírgula, Vuetify utilities no CSS, zero `any`, zero `!important`, nomes auto-documentados (sem comentários), e mais. Executa `pnpm check`, `pnpm build` e `pnpm test` para verificar.
 - **`/learn`** — Analisa o `git diff` da sessão e atualiza documentação (ARCHITECTURE.md, COGNITIVE.md, skills) com novos padrões, decisões de design e convenções descobertas. Rode ao final de sessões significativas.
+- **`/pipeline`** — Pipeline completo de pré-merge: faz `git diff` contra `main`, verifica cobertura de testes unitários, detecta breaking changes, revisa code-style, corrige problemas encontrados, roda `pnpm check` + `pnpm build`, faz commit/push (SOMENTE neste contexto), e cria merge request no GitHub com descrição em inglês. Carrega automaticamente as skills `unit-testing`, `code-review` e `code-style-frontend`.
 
 ## Before making changes
 
