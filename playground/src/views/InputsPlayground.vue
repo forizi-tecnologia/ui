@@ -1,4 +1,41 @@
 <template>
+  <SectionCard title="FzDatePicker">
+    <template #description>
+      Campo de data com máscara e modal de calendário (3 telas: dias, meses, anos).
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzDatePicker v-model="dateValue" label="Data (dd/mm/aaaa)" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzDatePicker v-model="dateIso" label="Data (ISO yyyy-mm-dd)" format="yyyy-mm-dd" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzDatePicker v-model="dateEn" label="Date (English)" locale="en" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzDatePicker v-model="dateRequired" label="Data (obrigatória)" required />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzDatePicker v-model="dateRange" label="Com min/max" :min="minDate" :max="maxDate" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzDatePicker v-model="dateDisabled" label="Desabilitado" disabled />
+      </div>
+    </div>
+
+    <div class="mt-2 text-caption text-medium-emphasis">
+      v-model (ISO): {{ dateValue || '—' }} · ISO: {{ dateIso || '—' }} · EN: {{ dateEn || '—' }} · Range:
+      {{ dateRange || '—' }}
+    </div>
+  </SectionCard>
+
   <SectionCard title="FzEmailField">
     <template #description>
       Campo de e-mail com validação automática e ícone dinâmico.
@@ -184,6 +221,16 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+
+// DatePicker
+const dateValue = ref('');
+const dateIso = ref('');
+const dateEn = ref('');
+const dateRequired = ref('');
+const dateRange = ref('');
+const dateDisabled = ref('2026-07-08');
+const minDate = ref('2026-07-01');
+const maxDate = ref('2026-07-31');
 
 // Email
 const emailValue = ref('');
