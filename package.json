@@ -1,6 +1,6 @@
 {
   "name": "@forizi-tecnologia/ui",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Forizi UI — Vue 3 + TypeScript + Vuetify 3 component library",
   "packageManager": "pnpm@11.1.2",
   "publishConfig": {
