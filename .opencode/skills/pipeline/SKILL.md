@@ -71,7 +71,17 @@ pnpm build
 
 If any step fails, diagnose and fix before proceeding.
 
-### 6. Commit and push (ONLY in this pipeline)
+### 6. Auto-learning (antes do commit)
+
+Run `/learn` to analyze the `git diff` and update documentation:
+
+- `docs/ARCHITECTURE.md` — new patterns, folder structure changes, component additions
+- `docs/COGNITIVE.md` — design decisions, removed dependencies, convention changes
+- Skill files in `.opencode/skills/` — new conventions discovered
+
+Load the `/learn` workflow: analyze `git diff origin/main...HEAD`, identify new patterns/conventions/decisions, and update the relevant docs. Keep docs in sync with code.
+
+### 7. Commit and push (ONLY in this pipeline)
 
 **IMPORTANT**: Only commit and push when running this pipeline. Never commit in any other context.
 
@@ -90,7 +100,7 @@ git commit -m "<message>"
 git push origin HEAD
 ```
 
-### 7. Merge request
+### 8. Merge request
 
 Create a merge request description in **English** with this structure:
 
