@@ -7,6 +7,7 @@ src/
   components/       ─ Reusable Vue components
     buttons/        ─ Icon-only button with tooltip (FzIconToolTip)
     inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzMoneyField, etc.)
+      datepicker/   ─ FzDatePicker family (public component + internal calendar shell/views)
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
     messages/       ─ Notification/confirm (FzFloatingNotify, FzConfirmDialog, FzCustomConfirmDialog)
@@ -159,6 +160,38 @@ confirm.show('Tem certeza?', 'Essa ação é irreversível', {
 ```
 
 Both dialogs follow the same contract: the consumer explicitly opts into shortcuts. This prevents accidental confirmations on destructive operations.
+
+### FzDatePicker — component family
+
+`FzDatePicker` is composed of one public component and internal-only pieces under
+`src/components/inputs/datepicker/`. Only `FzDatePicker` is exported from the barrel;
+the rest are implementation details:
+
+```
+inputs/datepicker/
+  FzDatePicker.vue           ─ public: masked v-text-field + validation + calendar trigger
+  FzDatePickerCalendar.vue   ─ internal: v-menu dropdown shell (header nav + view switch)
+  FzDatePickerDaysView.vue   ─ internal: day grid + weekday initials + "Hoje" shortcut
+  FzDatePickerMonthsView.vue ─ internal: 3x4 month grid
+  FzDatePickerYearsView.vue  ─ internal: scrollable year list
+```
+
+Supporting layers, following the standard Component → Composable → Utility split:
+
+- `src/utils/date.ts` — pure date functions, no Vue dependency (parsing, formatting,
+  validation, calendar matrix, locale labels). Fully unit-tested in isolation.
+- `src/composables/useDatePicker.ts` — reactive calendar state (active view, focused
+  month/year, navigation, drill-down/up) built on top of `date.ts`.
+
+**v-model contract**: always a canonical ISO string (`yyyy-mm-dd`), independent of the
+`format` prop used for display/mask. This keeps the value backend-friendly regardless of
+how it is shown to the user.
+
+**Calendar UI**: a `v-menu` dropdown anchored to the calendar icon (`append-inner`), not
+a `v-dialog`. The dropdown keeps an identical fixed width/height across its three views
+(days → months → years) via a flex column with `flex: 1 1 0; min-height: 0` on the
+content area — without `min-height: 0` the years list (200+ items) stretches the
+container instead of scrolling internally.
 
 ## CSS — Vuetify utilities first
 

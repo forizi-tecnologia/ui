@@ -120,6 +120,8 @@ const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'und
 const resolvedPlaceholder = computed(() => {
   if (props.placeholder) return props.placeholder;
 
+  if (props.format === 'yyyy-mm-dd') return props.format;
+
   return props.locale === 'pt-BR' ? props.format.replace('yyyy', 'aaaa') : props.format;
 });
 

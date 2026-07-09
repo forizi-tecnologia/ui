@@ -120,6 +120,61 @@ The root `README.md` was completely rewritten to reflect the current state of th
 - Added API section
 - Labels in pt-BR in examples (consistent with code style)
 
+### 22. FzDatePicker — custom calendar instead of Vuetify's `v-date-picker`
+
+The requirements (fixed-size dropdown across three drill-down views, iOS-style scrollable
+year list, specific header/navigation behavior) do not match Vuetify's built-in date
+picker, and reshaping its internal CSS would fight the component more than build a small
+one from scratch. The custom implementation only uses components already present in
+`requiredVuetifyComponents` (`VMenu`, `VCard`, `VBtn`, `VIcon`, `VTextField`) — no new
+Vuetify component was added to the curated list.
+
+### 23. FzDatePicker — no date library dependency
+
+All date logic (`src/utils/date.ts`) is implemented with the native `Date` object and
+plain arithmetic — no `date-fns`/`dayjs`/`luxon`. The domain is small and fixed (parse,
+format, validate, build a month matrix, leap years) and does not justify a new peer
+dependency. This also keeps the pure functions trivially unit-testable.
+
+### 24. FzDatePicker — v-model is always canonical ISO, independent of display format
+
+`format` (`dd/mm/yyyy` or `yyyy-mm-dd`) only controls the text field's mask and displayed
+value. `v-model` always emits/receives `yyyy-mm-dd`, so consumers get a backend-friendly
+value regardless of what the user sees. `locale` is a separate prop (`pt-BR` | `en`) for
+month/weekday labels, decoupled from `format`, mirroring how `FzMoneyField` keeps
+`currency` and `locale` independent.
+
+### 25. FzDatePicker — dropdown (`v-menu`), not a modal (`v-dialog`)
+
+The calendar opens as a `v-menu` anchored to the calendar icon inside the field's
+`append-inner`, not a centered `v-dialog`. This reads as part of the field rather than an
+interruption, and lets the field remain directly typeable while the icon opens the
+picker. The dropdown keeps one fixed `width`/`height` (default `400x400`) across all
+three views — the content area needs `flex: 1 1 0; min-height: 0` or the years list (200+
+buttons) stretches its flex container instead of scrolling inside a fixed box.
+
+### 26. FzDatePicker — deferred props: `minYear`/`maxYear`, `weekStartsOn`
+
+The year list bounds derive from `min`/`max` (defaulting to 1900–2100) instead of adding
+separate `minYear`/`maxYear` props — one pair of bounds for both validation and the
+calendar, avoiding prop duplication. The week always starts on Sunday for both locales; a
+`weekStartsOn` prop was deferred until a concrete need appears (YAGNI).
+
+### 27. FzDatePicker tests — jsdom/Vuetify overlay quirks
+
+Testing the `v-menu`-based calendar surfaced three reusable gotchas for any future
+Vuetify overlay (`v-menu`/`v-dialog`) test:
+- jsdom lacks `visualViewport` and `ResizeObserver`, both required by Vuetify's overlay
+  positioning. Stub both via `vi.stubGlobal` in `beforeAll`.
+- `v-menu` teleports its content out of the wrapper's DOM subtree, so `wrapper.text()`
+  returns `''` for menu content — read `document.body.textContent` instead.
+  `findComponent`/`findAllComponents` still work across the teleport boundary because
+  Vue Test Utils walks the component tree, not the DOM.
+- `mdi-*` icons render as a CSS class on an inner `<i>`, not as text content — even
+  `<v-icon>mdi-foo</v-icon>` yields `icon.text() === ''`. Assert via
+  `icon.classes()`/`classList.contains(...)`, matching the existing pattern used for
+  `FzModalBase`'s `titleIcon`.
+
 ## Key decisions
 
 ### 1. Code in english, UI labels in pt-BR

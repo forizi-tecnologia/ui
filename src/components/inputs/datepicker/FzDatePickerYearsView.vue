@@ -45,10 +45,7 @@ function select(year: number): void {
 }
 
 function scrollToFocused(): void {
-  const container = listRef.value;
-
-  if (!container) return;
-
+  const container = listRef.value as HTMLElement;
   const target = container.querySelector<HTMLElement>(`[data-year="${props.focusedYear}"]`);
 
   if (!target) return;

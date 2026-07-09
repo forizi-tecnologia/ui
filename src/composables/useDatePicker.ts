@@ -8,6 +8,7 @@ import {
   parseIso,
   todayIso,
   type DateLocale,
+  type DateParts,
   type DayCell,
 } from '@/utils/date';
 
@@ -23,12 +24,11 @@ export interface UseDatePickerParams {
 export function useDatePicker(params: UseDatePickerParams) {
   const { selected, min, max, locale } = params;
 
-  const initial = parseIso(selected.value) ?? parseIso(todayIso());
-  const now = new Date();
+  const initial = parseIso(selected.value) ?? (parseIso(todayIso()) as DateParts);
 
   const activeView = ref<CalendarView>('days');
-  const focusedYear = ref(initial ? initial.year : now.getFullYear());
-  const focusedMonth = ref(initial ? initial.month : now.getMonth() + 1);
+  const focusedYear = ref(initial.year);
+  const focusedMonth = ref(initial.month);
 
   const isDaysView = computed(() => activeView.value === 'days');
   const isMonthsView = computed(() => activeView.value === 'months');
@@ -119,9 +119,7 @@ export function useDatePicker(params: UseDatePickerParams) {
   }
 
   function reset(): void {
-    const parts = parseIso(selected.value) ?? parseIso(todayIso());
-
-    if (!parts) return;
+    const parts = (parseIso(selected.value) ?? parseIso(todayIso())) as DateParts;
 
     focusedYear.value = parts.year;
     focusedMonth.value = parts.month;
