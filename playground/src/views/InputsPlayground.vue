@@ -42,13 +42,13 @@
     </template>
 
     <div class="d-flex flex-column ga-4">
-      <div style="max-width: 700px;">
+      <div style="max-width: 350px;">
         <div class="text-subtitle-2 mb-2">Padrão</div>
 
         <FzDateRangeField v-model="dateRangeValue" />
       </div>
 
-      <div style="max-width: 700px;">
+      <div style="max-width: 350px;">
         <div class="text-subtitle-2 mb-2">Com datas preenchidas</div>
 
         <FzDateRangeField v-model="dateRangeFilled" />
@@ -65,7 +65,7 @@
         />
       </div>
 
-      <div style="max-width: 700px;">
+      <div style="max-width: 350px;">
         <div class="text-subtitle-2 mb-2">Desabilitado</div>
 
         <FzDateRangeField

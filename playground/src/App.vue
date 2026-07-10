@@ -5,6 +5,17 @@
         Forizi UI — Playground
       </v-app-bar-title>
 
+      <v-select
+        v-model="variant"
+        :items="variants"
+        label="Variante"
+        variant="outlined"
+        density="compact"
+        hide-details
+        class="mr-4"
+        style="max-width: 140px;"
+      />
+
       <template #append>
         <v-btn
           :icon="themeIcon"
@@ -15,43 +26,45 @@
     </v-app-bar>
 
     <v-main>
-      <v-tabs
-        v-model="activeTab"
-        color="primary"
-        grow
-      >
-        <v-tab value="botoes">Botões</v-tab>
-        <v-tab value="inputs">Inputs</v-tab>
-        <v-tab value="modal">Modal</v-tab>
-        <v-tab value="mensagens">Mensagens</v-tab>
-        <v-tab value="layout">Layout</v-tab>
-      </v-tabs>
+      <FzConfigProvider :defaults="{ variant }">
+        <v-tabs
+          v-model="activeTab"
+          color="primary"
+          grow
+        >
+          <v-tab value="botoes">Botões</v-tab>
+          <v-tab value="inputs">Inputs</v-tab>
+          <v-tab value="modal">Modal</v-tab>
+          <v-tab value="mensagens">Mensagens</v-tab>
+          <v-tab value="layout">Layout</v-tab>
+        </v-tabs>
 
-      <v-divider />
+        <v-divider />
 
-      <div style="height: calc(100dvh - 200px); overflow-y: auto;">
-        <v-window v-model="activeTab">
-          <v-window-item value="botoes" class="pa-6">
-            <ButtonsPlayground />
-          </v-window-item>
+        <div style="height: calc(100dvh - 200px); overflow-y: auto;">
+          <v-window v-model="activeTab">
+            <v-window-item value="botoes" class="pa-6">
+              <ButtonsPlayground />
+            </v-window-item>
 
-          <v-window-item value="inputs" class="pa-6">
-            <InputsPlayground />
-          </v-window-item>
+            <v-window-item value="inputs" class="pa-6">
+              <InputsPlayground />
+            </v-window-item>
 
-          <v-window-item value="modal" class="pa-6">
-            <ModalPlayground />
-          </v-window-item>
+            <v-window-item value="modal" class="pa-6">
+              <ModalPlayground />
+            </v-window-item>
 
-          <v-window-item value="mensagens" class="pa-6">
-            <MessagesPlayground />
-          </v-window-item>
+            <v-window-item value="mensagens" class="pa-6">
+              <MessagesPlayground />
+            </v-window-item>
 
-          <v-window-item value="layout" class="pa-6">
-            <LayoutPlayground />
-          </v-window-item>
-        </v-window>
-      </div>
+            <v-window-item value="layout" class="pa-6">
+              <LayoutPlayground />
+            </v-window-item>
+          </v-window>
+        </div>
+      </FzConfigProvider>
     </v-main>
 
     <FzFloatingNotify />
@@ -64,6 +77,8 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useTheme } from 'vuetify';
 import { useLoadingRefs } from '@/utils';
+import type { TextFieldVariant } from '@/utils/types';
+import FzConfigProvider from '@/components/FzConfigProvider.vue';
 import ButtonsPlayground from './views/ButtonsPlayground.vue';
 import InputsPlayground from './views/InputsPlayground.vue';
 import ModalPlayground from './views/ModalPlayground.vue';
@@ -72,8 +87,13 @@ import LayoutPlayground from './views/LayoutPlayground.vue';
 
 const STORAGE_THEME = 'playground-theme';
 const STORAGE_TAB = 'playground-tab';
+const STORAGE_VARIANT = 'playground-variant';
 
 const activeTab = ref(localStorage.getItem(STORAGE_TAB) || 'botoes');
+
+const variants: TextFieldVariant[] = ['underlined', 'outlined', 'filled', 'plain', 'solo', 'solo-filled', 'solo-inverted'];
+
+const variant = ref<TextFieldVariant>((localStorage.getItem(STORAGE_VARIANT) as TextFieldVariant) || 'underlined');
 
 const { isActive, message } = useLoadingRefs();
 
@@ -93,6 +113,10 @@ function toggleTheme() {
 
 watch(activeTab, (tab) => {
   localStorage.setItem(STORAGE_TAB, tab);
+});
+
+watch(variant, (val) => {
+  localStorage.setItem(STORAGE_VARIANT, val);
 });
 
 onMounted(() => {

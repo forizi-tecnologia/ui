@@ -1,6 +1,6 @@
 <template>
-  <v-row>
-    <v-col cols="12" sm="5">
+  <v-row align="center">
+    <v-col cols="12" sm>
       <FzDatePicker
         v-model="startModel"
         :label="labelStart"
@@ -19,11 +19,11 @@
       />
     </v-col>
 
-    <v-col cols="12" sm="2" class="d-flex align-center justify-center">
+    <v-col cols="12" sm="auto" class="px-0">
       <span class="text-body-2 text-medium-emphasis">{{ separator }}</span>
     </v-col>
 
-    <v-col cols="12" sm="5">
+    <v-col cols="12" sm>
       <FzDatePicker
         v-model="endModel"
         :label="labelEnd"
