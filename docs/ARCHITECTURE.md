@@ -9,7 +9,7 @@ docs/
 src/
   components/       ─ Reusable Vue components
     buttons/        ─ Icon-only button with tooltip (FzIconToolTip)
-    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzMoneyField, etc.)
+    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzMoneyField, FzDateRangeField, etc.)
       datepicker/   ─ FzDatePicker family (public component + internal calendar shell/views)
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
@@ -198,6 +198,22 @@ a `v-dialog`. The dropdown keeps an identical fixed width/height across its thre
 (days → months → years) via a flex column with `flex: 1 1 0; min-height: 0` on the
 content area — without `min-height: 0` the years list (200+ items) stretches the
 container instead of scrolling internally.
+
+### FzDateRangeField — composite input
+
+`FzDateRangeField` wraps two `FzDatePicker` instances side by side in a `v-row`/`v-col`
+layout, separated by a configurable text (default `"até"`). It reuses all existing date
+logic (parsing, formatting, calendar, validation) from `FzDatePicker`.
+
+**v-model contract**: a `DateRange` object `{ start: string | null, end: string | null }`
+with canonical ISO strings. `null` means "no date selected", distinct from an empty string.
+
+**Range validation**: a cross-field rule on the end date checks that `start > end` never
+occurs. The rule parses the displayed text to ISO before comparing. Custom message
+overridable via `rangeInvalidMessage` prop.
+
+**Global min/max**: `min` and `max` props pass through to both `FzDatePicker` instances
+to constrain valid date ranges consistently.
 
 ## CSS — Vuetify utilities first
 
