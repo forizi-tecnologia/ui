@@ -25,3 +25,5 @@ export { default as FzZipCodeField, type ZipCodeResponse } from './inputs/FzZipC
 export { default as FzDatePicker } from './inputs/datepicker/FzDatePicker.vue';
 
 export { default as FzFullAddress, type Address, type AddressLabels } from './inputs/FzFullAddress.vue';
+
+export { default as FzDateRangeField, type DateRange } from './inputs/FzDateRangeField.vue';

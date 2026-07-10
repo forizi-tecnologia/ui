@@ -303,3 +303,14 @@ Build artifacts are not committed. `prepublishOnly` builds fresh on `npm publish
 ### 7. 100% coverage — no exceptions
 
 All `src/` files must reach 100% coverage (statements, branch, functions, lines). If a branch is unreachable, remove it — code morto não deve existir.
+
+### 28. FzDateRangeField — composite date range input
+
+`FzDateRangeField` wraps two `FzDatePicker` instances for start/end date filtering. Key design decisions:
+
+- **Reuses FzDatePicker internally** rather than duplicating date logic — DRY, inherits all future improvements automatically.
+- **No dynamic min/max between fields** — passing `start` as `min` for the end field would cause FzDatePicker's built-in `isWithinRange` validator to reject dates before the range rule fires. Instead, cross-field validation is handled by a dedicated `validateDateRange` rule on the end date only.
+- **ISO comparison after parsing** — the range rule calls `parseDisplay() + toIso()` to convert the displayed text to ISO before comparing with the start date. Direct string comparison between ISO (`2024-06-20`) and display text (`15/03/2024`) would produce incorrect results.
+- **`DateRange` type**: `{ start: string | null, end: string | null }` — using `null` instead of empty string to distinguish "no date" from "invalid date". The computed `startModel`/`endModel` convert `null ↔ ''` for FzDatePicker compatibility.
+- **Layout**: `v-row` with `v-col cols="12" sm="5"` for fields and `sm="2"` for the separator — responsive, stacks vertically on mobile.
+- **Labels**: `labelStart` ("Data inicial") and `labelEnd` ("Data final"), both overridable. Separator defaults to "até".

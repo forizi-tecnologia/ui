@@ -36,6 +36,50 @@
     </div>
   </SectionCard>
 
+  <SectionCard title="FzDateRangeField">
+    <template #description>
+      Intervalo de datas (inicial e final) com validação de período.
+    </template>
+
+    <div class="d-flex flex-column ga-4">
+      <div style="max-width: 700px;">
+        <div class="text-subtitle-2 mb-2">Padrão</div>
+
+        <FzDateRangeField v-model="dateRangeValue" />
+      </div>
+
+      <div style="max-width: 700px;">
+        <div class="text-subtitle-2 mb-2">Com datas preenchidas</div>
+
+        <FzDateRangeField v-model="dateRangeFilled" />
+      </div>
+
+      <div style="max-width: 700px;">
+        <div class="text-subtitle-2 mb-2">Com limites min/max</div>
+
+        <FzDateRangeField
+          v-model="dateRangeMinMax"
+          :min="rangeMinDate"
+          :max="rangeMaxDate"
+          hint="Período entre 01/07/2026 e 31/07/2026"
+        />
+      </div>
+
+      <div style="max-width: 700px;">
+        <div class="text-subtitle-2 mb-2">Desabilitado</div>
+
+        <FzDateRangeField
+          v-model="dateRangeDisabled"
+          disabled
+        />
+      </div>
+    </div>
+
+    <div class="mt-2 text-caption text-medium-emphasis">
+      v-model: {{ JSON.stringify(dateRangeValue) }}
+    </div>
+  </SectionCard>
+
   <SectionCard title="FzEmailField">
     <template #description>
       Campo de e-mail com validação automática e ícone dinâmico.
@@ -221,6 +265,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { DateRange } from '@/components';
 
 // DatePicker
 const dateValue = ref('');
@@ -231,6 +276,14 @@ const dateRange = ref('');
 const dateDisabled = ref('2026-07-08');
 const minDate = ref('2026-07-01');
 const maxDate = ref('2026-07-31');
+
+// DateRangeField
+const dateRangeValue = ref<DateRange>({ start: null, end: null });
+const dateRangeFilled = ref<DateRange>({ start: '2026-07-01', end: '2026-07-10' });
+const rangeMinDate = ref('2026-07-01');
+const rangeMaxDate = ref('2026-07-31');
+const dateRangeMinMax = ref<DateRange>({ start: null, end: null });
+const dateRangeDisabled = ref<DateRange>({ start: '2026-07-15', end: '2026-07-20' });
 
 // Email
 const emailValue = ref('');
