@@ -9,6 +9,7 @@
     :hint="hint"
     :persistent-hint="hasHint"
     :variant="resolvedVariant"
+    :density="resolvedDensity"
     inputmode="numeric"
     autocomplete="off"
     @update:focused="onFocusChange"
@@ -52,7 +53,7 @@ import {
   type DateFormat,
   type DateLocale,
 } from '@/utils/date';
-import type { TextFieldVariant } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity } from '@/utils/types';
 import FzDatePickerCalendar from './FzDatePickerCalendar.vue';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -73,6 +74,7 @@ interface Props {
   requiredMessage?: string;
   invalidMessage?: string;
   variant?: TextFieldVariant;
+  density?: TextFieldDensity;
   min?: string | null;
   max?: string | null;
   icon?: string;
@@ -95,6 +97,7 @@ const props = withDefaults(defineProps<Props>(), {
   requiredMessage: '',
   invalidMessage: '',
   variant: undefined,
+  density: undefined,
   min: null,
   max: null,
   icon: 'mdi-calendar',
@@ -117,6 +120,8 @@ const isValid = ref(false);
 const hasHint = computed(() => !!props.hint);
 
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
+
+const resolvedDensity = computed(() => props.density ?? defaults.density ?? 'comfortable');
 
 const resolvedPlaceholder = computed(() => {
   if (props.placeholder) return props.placeholder;

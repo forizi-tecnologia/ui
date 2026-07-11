@@ -14,6 +14,7 @@ const meta = {
     disabled: { control: 'boolean', description: 'Disable both date fields' },
     hint: { control: 'text', description: 'Persistent helper text displayed below each field' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    density: { control: 'select', options: ['default', 'comfortable', 'compact'], description: 'Vuetify text field density. Default: "comfortable"' },
     min: { control: 'text', description: 'Minimum selectable date (global) as ISO string. null = unbounded' },
     max: { control: 'text', description: 'Maximum selectable date (global) as ISO string. null = unbounded' },
     separator: { control: 'text', description: 'Text between start and end fields. Default: "até"' },

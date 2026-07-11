@@ -12,6 +12,7 @@
         :min="min"
         :max="max"
         :variant="resolvedVariant"
+        :density="density"
         :required="required"
         :validate-on-blur="validateOnBlur"
         :required-message="requiredMessage"
@@ -35,6 +36,7 @@
         :min="min"
         :max="max"
         :variant="resolvedVariant"
+        :density="density"
         :required="required"
         :validate-on-blur="validateOnBlur"
         :required-message="requiredMessage"
@@ -48,7 +50,7 @@
 import { computed } from 'vue';
 import { useFzDefaults } from '@/composables/useFzDefaults';
 import { parseDisplay, toIso, type DateFormat, type DateLocale } from '@/utils/date';
-import type { TextFieldVariant } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity } from '@/utils/types';
 import FzDatePicker from '@/components/inputs/datepicker/FzDatePicker.vue';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -67,6 +69,7 @@ interface Props {
   disabled?: boolean;
   hint?: string;
   variant?: TextFieldVariant;
+  density?: TextFieldDensity;
   min?: string | null;
   max?: string | null;
   separator?: string;
@@ -87,6 +90,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   hint: '',
   variant: undefined,
+  density: undefined,
   min: null,
   max: null,
   separator: 'até',
