@@ -25,3 +25,5 @@ export const NOTIFY_DURATION = 3000;
 export const API_TIMEOUT = 30000;
 
 export type TextFieldVariant = 'outlined' | 'filled' | 'plain' | 'solo' | 'solo-filled' | 'solo-inverted' | 'underlined';
+
+export type TextFieldDensity = 'default' | 'comfortable' | 'compact';

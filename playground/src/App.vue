@@ -12,6 +12,17 @@
         variant="outlined"
         density="compact"
         hide-details
+        class="mr-2"
+        style="max-width: 130px;"
+      />
+
+      <v-select
+        v-model="density"
+        :items="densities"
+        label="Densidade"
+        variant="outlined"
+        density="compact"
+        hide-details
         class="mr-4"
         style="max-width: 140px;"
       />
@@ -26,7 +37,7 @@
     </v-app-bar>
 
     <v-main>
-      <FzConfigProvider :defaults="{ variant }">
+      <FzConfigProvider :defaults="{ variant, density }">
         <v-tabs
           v-model="activeTab"
           color="primary"
@@ -41,7 +52,7 @@
 
         <v-divider />
 
-        <div style="height: calc(100dvh - 200px); overflow-y: auto;">
+        <div style="height: calc(100dvh - 100px); overflow-y: auto;">
           <v-window v-model="activeTab">
             <v-window-item value="botoes" class="pa-6">
               <ButtonsPlayground />
@@ -77,7 +88,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useTheme } from 'vuetify';
 import { useLoadingRefs } from '@/utils';
-import type { TextFieldVariant } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity } from '@/utils/types';
 import FzConfigProvider from '@/components/FzConfigProvider.vue';
 import ButtonsPlayground from './views/ButtonsPlayground.vue';
 import InputsPlayground from './views/InputsPlayground.vue';
@@ -88,12 +99,17 @@ import LayoutPlayground from './views/LayoutPlayground.vue';
 const STORAGE_THEME = 'playground-theme';
 const STORAGE_TAB = 'playground-tab';
 const STORAGE_VARIANT = 'playground-variant';
+const STORAGE_DENSITY = 'playground-density';
 
 const activeTab = ref(localStorage.getItem(STORAGE_TAB) || 'botoes');
 
 const variants: TextFieldVariant[] = ['underlined', 'outlined', 'filled', 'plain', 'solo', 'solo-filled', 'solo-inverted'];
 
 const variant = ref<TextFieldVariant>((localStorage.getItem(STORAGE_VARIANT) as TextFieldVariant) || 'underlined');
+
+const densities: TextFieldDensity[] = ['default', 'comfortable', 'compact'];
+
+const density = ref<TextFieldDensity>((localStorage.getItem(STORAGE_DENSITY) as TextFieldDensity) || 'comfortable');
 
 const { isActive, message } = useLoadingRefs();
 
@@ -117,6 +133,10 @@ watch(activeTab, (tab) => {
 
 watch(variant, (val) => {
   localStorage.setItem(STORAGE_VARIANT, val);
+});
+
+watch(density, (val) => {
+  localStorage.setItem(STORAGE_DENSITY, val);
 });
 
 onMounted(() => {
