@@ -41,20 +41,20 @@
       Intervalo de datas (inicial e final) com validação de período.
     </template>
 
-    <div class="d-flex flex-column ga-4">
-      <div style="max-width: 350px;">
+    <div class="d-flex flex-column ga-6">
+      <div>
         <div class="text-subtitle-2 mb-2">Padrão</div>
 
         <FzDateRangeField v-model="dateRangeValue" />
       </div>
 
-      <div style="max-width: 350px;">
+      <div>
         <div class="text-subtitle-2 mb-2">Com datas preenchidas</div>
 
         <FzDateRangeField v-model="dateRangeFilled" />
       </div>
 
-      <div style="max-width: 700px;">
+      <div>
         <div class="text-subtitle-2 mb-2">Com limites min/max</div>
 
         <FzDateRangeField
@@ -65,7 +65,13 @@
         />
       </div>
 
-      <div style="max-width: 350px;">
+      <div>
+        <div class="text-subtitle-2 mb-2">Custom width (300px)</div>
+
+        <FzDateRangeField v-model="dateRangeValue" field-width="300px" />
+      </div>
+
+      <div>
         <div class="text-subtitle-2 mb-2">Desabilitado</div>
 
         <FzDateRangeField
