@@ -8,6 +8,7 @@
     :disabled="disabled"
     :hint="hint"
     :persistent-hint="hasHint"
+    :hide-details="hideDetails"
     :variant="resolvedVariant"
     :density="resolvedDensity"
     inputmode="numeric"
@@ -75,6 +76,7 @@ interface Props {
   invalidMessage?: string;
   variant?: TextFieldVariant;
   density?: TextFieldDensity;
+  hideDetails?: boolean;
   min?: string | null;
   max?: string | null;
   icon?: string;
@@ -98,6 +100,7 @@ const props = withDefaults(defineProps<Props>(), {
   invalidMessage: '',
   variant: undefined,
   density: undefined,
+  hideDetails: false,
   min: null,
   max: null,
   icon: 'mdi-calendar',

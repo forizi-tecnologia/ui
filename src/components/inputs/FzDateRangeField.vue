@@ -13,6 +13,7 @@
         :max="max"
         :variant="resolvedVariant"
         :density="density"
+        :hide-details="hideDetails"
         :required="required"
         :validate-on-blur="validateOnBlur"
         :required-message="requiredMessage"
@@ -37,6 +38,7 @@
         :max="max"
         :variant="resolvedVariant"
         :density="density"
+        :hide-details="hideDetails"
         :required="required"
         :validate-on-blur="validateOnBlur"
         :required-message="requiredMessage"
@@ -70,6 +72,7 @@ interface Props {
   hint?: string;
   variant?: TextFieldVariant;
   density?: TextFieldDensity;
+  hideDetails?: boolean;
   min?: string | null;
   max?: string | null;
   separator?: string;
@@ -91,6 +94,7 @@ const props = withDefaults(defineProps<Props>(), {
   hint: '',
   variant: undefined,
   density: undefined,
+  hideDetails: false,
   min: null,
   max: null,
   separator: 'até',

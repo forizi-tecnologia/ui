@@ -19,6 +19,7 @@ const meta = {
     invalidMessage: { control: 'text', description: 'Override for the invalid/out-of-range validation message' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
     density: { control: 'select', options: ['default', 'comfortable', 'compact'], description: 'Vuetify text field density. Default: "comfortable"' },
+    hideDetails: { control: 'boolean', description: 'Hide the hint and error messages area. Default: false' },
     min: { control: 'text', description: 'Minimum selectable date as ISO string. null = unbounded' },
     max: { control: 'text', description: 'Maximum selectable date as ISO string. null = unbounded' },
     icon: { control: 'text', description: 'Calendar trigger icon (mdi-*). Default: "mdi-calendar"' },
