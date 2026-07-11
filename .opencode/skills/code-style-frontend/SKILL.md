@@ -14,6 +14,7 @@ Code rules for Vue 3 + TypeScript. Public library. No exceptions.
 - NEVER `var` — always const/let
 - NEVER unnecessary `any` — type everything
 - NEVER `!important` in CSS — use Vuetify variables
+- NEVER inline styles in template (`style="..."`) — use Vuetify utility classes or scoped CSS. Dynamic `:style` bindings with computed values are allowed for truly dynamic properties (e.g. widths, positions) that Vuetify classes cannot express.
 - NEVER hardcode colors — use `useTheme()` from Vuetify
 - NEVER `console.log` in delivered code
 - Booleans ALWAYS with is/has/can prefix: `isValid`, `hasError`, `canSave`

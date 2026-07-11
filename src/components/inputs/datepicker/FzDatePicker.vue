@@ -8,8 +8,10 @@
     :disabled="disabled"
     :hint="hint"
     :persistent-hint="hasHint"
+    :hide-details="hideDetails"
     :variant="resolvedVariant"
     :density="resolvedDensity"
+    :style="fieldStyle"
     inputmode="numeric"
     autocomplete="off"
     @update:focused="onFocusChange"
@@ -75,6 +77,8 @@ interface Props {
   invalidMessage?: string;
   variant?: TextFieldVariant;
   density?: TextFieldDensity;
+  hideDetails?: boolean;
+  fieldWidth?: string;
   min?: string | null;
   max?: string | null;
   icon?: string;
@@ -98,6 +102,8 @@ const props = withDefaults(defineProps<Props>(), {
   invalidMessage: '',
   variant: undefined,
   density: undefined,
+  hideDetails: false,
+  fieldWidth: '160px',
   min: null,
   max: null,
   icon: 'mdi-calendar',
@@ -122,6 +128,8 @@ const hasHint = computed(() => !!props.hint);
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 const resolvedDensity = computed(() => props.density ?? defaults.density ?? 'comfortable');
+
+const fieldStyle = computed(() => ({ width: props.fieldWidth }));
 
 const resolvedPlaceholder = computed(() => {
   if (props.placeholder) return props.placeholder;

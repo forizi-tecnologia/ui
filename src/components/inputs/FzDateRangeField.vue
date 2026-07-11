@@ -1,49 +1,47 @@
 <template>
-  <v-row align="center">
-    <v-col cols="12" sm>
-      <FzDatePicker
-        v-model="startModel"
-        :label="labelStart"
-        :rules="rules"
-        :disabled="disabled"
-        :hint="hint"
-        :format="format"
-        :locale="locale"
-        :min="min"
-        :max="max"
-        :variant="resolvedVariant"
-        :density="density"
-        :required="required"
-        :validate-on-blur="validateOnBlur"
-        :required-message="requiredMessage"
-        :invalid-message="invalidMessage"
-      />
-    </v-col>
+  <div class="d-flex flex-wrap align-center">
+    <FzDatePicker
+      v-model="startModel"
+      :label="labelStart"
+      :rules="rules"
+      :disabled="disabled"
+      :hint="hint"
+      :format="format"
+      :locale="locale"
+      :min="min"
+      :max="max"
+      :variant="resolvedVariant"
+      :density="density"
+      :hide-details="hideDetails"
+      :field-width="fieldWidth"
+      :required="required"
+      :validate-on-blur="validateOnBlur"
+      :required-message="requiredMessage"
+      :invalid-message="invalidMessage"
+    />
 
-    <v-col cols="12" sm="auto" class="px-0">
-      <span class="text-body-2 text-medium-emphasis">{{ separator }}</span>
-    </v-col>
+    <span class="px-2 text-body-2 text-medium-emphasis">{{ separator }}</span>
 
-    <v-col cols="12" sm>
-      <FzDatePicker
-        v-model="endModel"
-        :label="labelEnd"
-        :rules="endRules"
-        :disabled="disabled"
-        :hint="hint"
-        :format="format"
-        :locale="locale"
-        :min="min"
-        :max="max"
-        :variant="resolvedVariant"
-        :density="density"
-        :required="required"
-        :validate-on-blur="validateOnBlur"
-        :required-message="requiredMessage"
-        :invalid-message="invalidMessage"
-      />
-    </v-col>
-  </v-row>
+    <FzDatePicker
+      v-model="endModel"
+      :label="labelEnd"
+      :rules="endRules"
+      :disabled="disabled"
+      :hint="hint"
+      :format="format"
+      :locale="locale"
+      :min="min"
+      :max="max"
+      :variant="resolvedVariant"
+      :density="density"
+      :hide-details="hideDetails"
+      :field-width="fieldWidth"
+      :required="required"
+      :validate-on-blur="validateOnBlur"
+      :required-message="requiredMessage"
+      :invalid-message="invalidMessage"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -70,6 +68,8 @@ interface Props {
   hint?: string;
   variant?: TextFieldVariant;
   density?: TextFieldDensity;
+  hideDetails?: boolean;
+  fieldWidth?: string;
   min?: string | null;
   max?: string | null;
   separator?: string;
@@ -91,6 +91,8 @@ const props = withDefaults(defineProps<Props>(), {
   hint: '',
   variant: undefined,
   density: undefined,
+  hideDetails: false,
+  fieldWidth: '160px',
   min: null,
   max: null,
   separator: 'até',
