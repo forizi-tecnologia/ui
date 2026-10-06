@@ -230,6 +230,49 @@
     </div>
   </SectionCard>
 
+  <SectionCard title="FzChipsSelect">
+    <template #description>
+      Autocomplete múltiplo que adiciona as opções como chips, sem checkbox no menu.
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 320px; max-width: 420px;">
+        <FzChipsSelect v-model="chipsValue" label="Estados" :items="chipsOptions" />
+      </div>
+
+      <div style="min-width: 320px; max-width: 420px;">
+        <FzChipsSelect
+          v-model="chipsLimited"
+          label="Máx. 2 visíveis"
+          :items="chipsOptions"
+          :max-visible-chips="2"
+        />
+      </div>
+
+      <div style="min-width: 320px; max-width: 420px;">
+        <FzChipsSelect
+          v-model="chipsRequired"
+          label="Obrigatório"
+          :items="chipsOptions"
+          required
+        />
+      </div>
+
+      <div style="min-width: 320px; max-width: 420px;">
+        <FzChipsSelect
+          v-model="chipsDisabled"
+          label="Desabilitado"
+          :items="chipsOptions"
+          disabled
+        />
+      </div>
+    </div>
+
+    <div class="mt-2 text-caption text-medium-emphasis">
+      v-model: {{ JSON.stringify(chipsValue) }}
+    </div>
+  </SectionCard>
+
   <SectionCard title="FzZipCodeField">
     <template #description>
       Campo de CEP com busca automática via ViaCEP.
@@ -370,6 +413,20 @@ const numberNegative = ref(0);
 const phoneValue = ref('');
 const phoneCustom = ref('');
 const phoneDisabled = ref('11999999999');
+
+// ChipsSelect
+const chipsOptions = [
+  { title: 'São Paulo', value: 'SP' },
+  { title: 'Rio de Janeiro', value: 'RJ' },
+  { title: 'Minas Gerais', value: 'MG' },
+  { title: 'Paraná', value: 'PR' },
+  { title: 'Santa Catarina', value: 'SC' },
+  { title: 'Rio Grande do Sul', value: 'RS' },
+];
+const chipsValue = ref<string[]>([]);
+const chipsLimited = ref<string[]>(['SP', 'RJ', 'MG', 'PR']);
+const chipsRequired = ref<string[]>([]);
+const chipsDisabled = ref<string[]>(['SP', 'RJ']);
 
 // ZipCode
 const zipValue = ref('');

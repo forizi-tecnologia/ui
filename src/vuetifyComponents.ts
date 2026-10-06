@@ -20,11 +20,13 @@
 import type { Component } from 'vue';
 import {
   VAlert,
+  VAutocomplete,
   VBtn,
   VCard,
   VCardActions,
   VCardText,
   VCardTitle,
+  VChip,
   VCol,
   VDialog,
   VIcon,
@@ -39,11 +41,13 @@ import {
 
 export const requiredVuetifyComponents: Record<string, Component> = {
   VAlert,
+  VAutocomplete,
   VBtn,
   VCard,
   VCardActions,
   VCardText,
   VCardTitle,
+  VChip,
   VCol,
   VDialog,
   VIcon,

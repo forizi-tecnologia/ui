@@ -9,7 +9,7 @@ docs/
 src/
   components/       ─ Reusable Vue components
     buttons/        ─ Icon-only button with tooltip (FzIconToolTip)
-    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzCpfCnpjField, FzFullAddress, FzDateRangeField, etc.)
+    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzCpfCnpjField, FzChipsSelect, FzFullAddress, FzDateRangeField, etc.)
       datepicker/   ─ FzDatePicker family (public component + internal calendar shell/views)
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
@@ -251,6 +251,31 @@ covers numeric and alphanumeric CNPJs:
 
 Reference vectors (covered in `document.spec.ts`): `12ABC34501DE35` (official
 example), `11222333000181` and `18781203000128` (classic numeric).
+
+### FzChipsSelect — multi-select with chips
+
+`FzChipsSelect` wraps `VAutocomplete` (Vuetify) to build a multi-select that turns
+options into removable chips, with a filtered menu and no selection checkbox.
+
+- **Base**: `v-autocomplete` with `multiple`, `chips`, `closable-chips` and
+  `clear-on-select` (the typed search is cleared after each pick so another can be
+  added immediately).
+- **No checkbox**: `hideSelected` (default `true`). Vuetify only renders the item
+  checkbox for `multiple && !hideSelected`, so hiding the already-selected options
+  also removes the checkmark — the user clicks a plain row to add.
+- **Chips + overflow**: a custom `#chip` slot renders each chip; beyond
+  `maxVisibleChips` the remainder collapses into a single non-closable `+N` chip.
+- **Validation**: `rules`, `required`/`requiredMessage`, `validateOnBlur` and an
+  `isValid` event, following the other inputs. `variant`/`density` resolve through
+  `FzConfigProvider`.
+- **Chip spacing**: Vuetify's non-outlined variants render `.v-field__input` with
+  `padding-bottom: 0`, and each chip (26px) is taller than its selection wrapper (24px),
+  so chips end up ~1px from the field line. A `fz-chips-select--padded` class (applied
+  for every variant except `outlined`) adds 4px to the input's bottom padding via
+  `:deep()`, yielding a visible ~3px gap. `outlined` already has 12px bottom padding and
+  is left untouched. Measured with Playwright; the field height does not change.
+- **Vuetify registration**: `requiredVuetifyComponents` gained `VAutocomplete` and
+  `VChip` so consumers using the curated list still get this component.
 
 ### FzFullAddress — per-field validation and grid
 

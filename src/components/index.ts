@@ -24,6 +24,8 @@ export { default as FzZipCodeField, type ZipCodeResponse } from './inputs/FzZipC
 
 export { default as FzCpfCnpjField } from './inputs/FzCpfCnpjField.vue';
 
+export { default as FzChipsSelect, type ChipsSelectItem } from './inputs/FzChipsSelect.vue';
+
 export { default as FzDatePicker } from './inputs/datepicker/FzDatePicker.vue';
 
 export {

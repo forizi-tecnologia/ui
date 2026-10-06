@@ -365,3 +365,27 @@ line).
 Both values are exposed as `menuLocation`/`menuOrigin` on `FzDatePicker` and forwarded by
 `FzDateRangeField`. Defaults are `top right`/`auto`; a custom `menuLocation` is respected
 and `menuOrigin` stays `auto`, following Vuetify's standard placement.
+
+### 38. FzChipsSelect — built on VAutocomplete, not from scratch
+
+The multi-select-chips input is a thin wrapper around Vuetify's `VAutocomplete` rather
+than a custom `v-menu` + `v-list` (which is what `FzDatePicker` needed). Autocomplete
+already ships the hard parts: type-to-filter, keyboard navigation, teleport/positioning
+and accessibility. The requirements map to existing props/slots:
+
+- **No selection checkbox**: `hideSelected` (default `true`). Vuetify only renders the
+  checkbox when `multiple && !hideSelected`, so hiding selected items removes the check
+  in one prop. No custom `#item` slot or CSS override needed.
+- **Clear text after picking**: `clearOnSelect` (default `true`) empties the search so
+  the next item can be typed right away.
+- **Overflow `+N`**: the `#chip` slot receives `{ item, index, props }`. Items with
+  `index < maxVisibleChips` render a closable chip; the item at `index === maxVisibleChips`
+  renders a single non-closable `+N` chip (remaining slots return nothing). When
+  `maxVisibleChips` is unset the threshold is `Infinity`, so every chip renders and no
+  overflow appears.
+- **Removable chips**: `chips` + `closable-chips`; the close handler comes from the slot
+  `props`.
+
+`hideSelected` is exposed as a prop (not hardcoded) so consumers can opt back into the
+Vuetify checkbox behavior if they ever need it. `requiredVuetifyComponents` was extended
+with `VAutocomplete` and `VChip`.
