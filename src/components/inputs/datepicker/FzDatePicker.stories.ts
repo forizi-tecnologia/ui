@@ -26,6 +26,8 @@ const meta = {
     todayLabel: { control: 'text', description: 'Label of the "today" shortcut button. Defaults to "Hoje" (pt-BR) or "Today" (en)' },
     width: { control: 'number', description: 'Calendar dropdown width in pixels. Default: 400' },
     height: { control: 'number', description: 'Calendar dropdown height in pixels. Default: 400' },
+    menuLocation: { control: 'text', description: 'Vuetify menu location. Default: "top right", so the calendar opens above and its right edge aligns with the calendar icon' },
+    menuOrigin: { control: 'text', description: 'Vuetify menu origin. Default: "auto"' },
   },
 } satisfies Meta<typeof FzDatePicker>;
 
@@ -82,5 +84,12 @@ export const Disabled: Story = {
     label: 'Data (desabilitado)',
     modelValue: '2026-07-08',
     disabled: true,
+  },
+};
+
+export const CustomMenuLocation: Story = {
+  args: {
+    label: 'Location custom (bottom end)',
+    menuLocation: 'bottom end',
   },
 };

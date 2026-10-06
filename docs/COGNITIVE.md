@@ -314,3 +314,98 @@ All `src/` files must reach 100% coverage (statements, branch, functions, lines)
 - **`DateRange` type**: `{ start: string | null, end: string | null }` — using `null` instead of empty string to distinguish "no date" from "invalid date". The computed `startModel`/`endModel` convert `null ↔ ''` for FzDatePicker compatibility.
 - **Layout**: `v-row` with `v-col cols="12" sm="5"` for fields and `sm="2"` for the separator — responsive, stacks vertically on mobile.
 - **Labels**: `labelStart` ("Data inicial") and `labelEnd` ("Data final"), both overridable. Separator defaults to "até".
+
+### 33. No generic Vuetify wrappers (FzTextField, FzTextareaField, FzSelect, FzFieldRow/Col)
+
+The improvement backlog proposed generic wrappers around `v-text-field`, `v-textarea`,
+`v-select` and `v-row`/`v-col`. They were intentionally **not** built. Vuetify already
+delivers these with full APIs; a thin wrapper only re-exports props (`rules`,
+`maxlength`, `counter`, `density`...) and adds maintenance surface without adding
+behavior. Same rationale as "No button wrappers — use `v-btn` directly" (decision #4).
+
+The library keeps only components that add domain value Vuetify does not have:
+`FzCpfCnpjField` (check-digit validation), `FzFullAddress` (address semantics),
+`FzMoneyField`/`FzNumberField`/`FzPhoneField`/`FzZipCodeField`/`FzDatePicker`.
+Consumers use Vuetify primitives directly for everything generic.
+
+### 34. FzCpfCnpjField — one field, dynamic mask by document type
+
+A single `FzCpfCnpjField` auto-detects the document instead of separate `FzCpfField`
+and `FzCnpjField`. Detection is by content, not only length: any letter forces CNPJ,
+otherwise more than 11 characters means CNPJ, else CPF. This lets a partial
+alphanumeric CNPJ be recognized from the first letters typed, not only when it reaches
+14 characters. The `v-model` is always unmasked and uppercase (mirrors
+`FzPhoneField`/`FzZipCodeField`) so the consumer gets a backend-friendly value while
+the field shows the mask.
+
+### 35. CNPJ alfanumérico — unified check-digit algorithm
+
+The new alphanumeric CNPJ (July 2026) is validated with a single implementation that
+also covers legacy numeric CNPJs: each character maps to `charCodeAt - 48` and the
+classic modulo-11 weights are applied. No `if (isAlphanumeric)` branch is needed
+because digits map to the same values (0–9). The official Receita Federal example
+`12.ABC.345/01DE-35` is part of the test vectors. All-zero bases are rejected (they
+would otherwise produce valid zero check digits).
+
+### 36. FzFullAddress — validation and grid are opt-in
+
+`rules`, `maxlength`, `counter` and `required` are opt-in props with pt-BR defaults for
+the limits used by the Montagens project. When `required` is set, the required rule is
+injected into every field except complemento. The address grid uses `sm` breakpoints
+so it collapses to one column on mobile without duplicating markup.
+
+### 37. FzDatePicker — menu anchored to the field
+
+The `v-menu` opens with `location="top right"` and `origin="auto"`. With `auto`, the
+content origin is `flipSide(location)`, so the menu's bottom-right anchors to the
+activator's top-right: the calendar opens above the field with its right edge aligned to
+the calendar icon, growing leftwards (the icon and the menu's right edge share a vertical
+line).
+
+Both values are exposed as `menuLocation`/`menuOrigin` on `FzDatePicker` and forwarded by
+`FzDateRangeField`. Defaults are `top right`/`auto`; a custom `menuLocation` is respected
+and `menuOrigin` stays `auto`, following Vuetify's standard placement.
+
+### 38. FzChipsSelect — built on VAutocomplete, not from scratch
+
+The multi-select-chips input is a thin wrapper around Vuetify's `VAutocomplete` rather
+than a custom `v-menu` + `v-list` (which is what `FzDatePicker` needed). Autocomplete
+already ships the hard parts: type-to-filter, keyboard navigation, teleport/positioning
+and accessibility. The requirements map to existing props/slots:
+
+- **No selection checkbox**: `hideSelected` (default `true`). Vuetify only renders the
+  checkbox when `multiple && !hideSelected`, so hiding selected items removes the check
+  in one prop. No custom `#item` slot or CSS override needed.
+- **Clear text after picking**: `clearOnSelect` (default `true`) empties the search so
+  the next item can be typed right away.
+- **Overflow `+N`**: the `#chip` slot receives `{ item, index, props }`. Items with
+  `index < maxVisibleChips` render a closable chip; the item at `index === maxVisibleChips`
+  renders a single non-closable `+N` chip (remaining slots return nothing). When
+  `maxVisibleChips` is unset the threshold is `Infinity`, so every chip renders and no
+  overflow appears.
+- **Removable chips**: `chips` + `closable-chips`; the close handler comes from the slot
+  `props`.
+
+`hideSelected` is exposed as a prop (not hardcoded) so consumers can opt back into the
+Vuetify checkbox behavior if they ever need it. `requiredVuetifyComponents` was extended
+with `VAutocomplete` and `VChip`.
+
+### 39. FzPasswordField — encapsulating the show/hide toggle
+
+The show/hide toggle uses a custom `#append-inner` slot with a `v-icon` rather than
+Vuetify's `append-inner-icon` prop. The prop is easier, but Vuetify's `InputIcon` always
+sets `tabindex="0"` when clickable, and there is no way to opt out — which breaks the
+common "password + confirm password" flow where Tab should jump between fields, not stop
+on the eye icon.
+
+So the icon is rendered with `tabindex="-1"` (and `aria-hidden`) by default:
+**Tab skips the toggle**. The `toggleFocusable` prop opts back in, in which case the icon
+gets `role="button"`, `aria-label` (`showLabel`/`hideLabel`) and Enter/Space handling
+(Vuetify's VIcon sets `role`/`tabindex` automatically when it has a click handler, but an
+explicit `tabindex` passed to it wins). The component owns `isVisible`, so toggling never
+emits `update:modelValue`.
+
+Validation mirrors the other inputs (`required`, `minlength`, custom `rules`,
+`validateOnBlur`, `isValid`), with `minlength`/`minlengthMessage` replacing the
+`invalidMessage` used by format-based fields (`FzEmailField`/`FzCpfCnpjField`) since a
+password has no format rule.

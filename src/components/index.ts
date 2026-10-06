@@ -22,8 +22,20 @@ export { default as FzPhoneField } from './inputs/FzPhoneField.vue';
 
 export { default as FzZipCodeField, type ZipCodeResponse } from './inputs/FzZipCodeField.vue';
 
+export { default as FzCpfCnpjField } from './inputs/FzCpfCnpjField.vue';
+
+export { default as FzChipsSelect, type ChipsSelectItem } from './inputs/FzChipsSelect.vue';
+
+export { default as FzPasswordField } from './inputs/FzPasswordField.vue';
+
 export { default as FzDatePicker } from './inputs/datepicker/FzDatePicker.vue';
 
-export { default as FzFullAddress, type Address, type AddressLabels } from './inputs/FzFullAddress.vue';
+export {
+  default as FzFullAddress,
+  type Address,
+  type AddressLabels,
+  type AddressRules,
+  type AddressMaxLengths,
+} from './inputs/FzFullAddress.vue';
 
 export { default as FzDateRangeField, type DateRange } from './inputs/FzDateRangeField.vue';

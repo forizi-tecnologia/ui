@@ -32,6 +32,8 @@
         :width="width"
         :height="height"
         :today-label="todayLabel"
+        :location="menuLocation"
+        :origin="resolvedMenuOrigin"
         @select="onSelect"
       />
     </template>
@@ -55,7 +57,7 @@ import {
   type DateFormat,
   type DateLocale,
 } from '@/utils/date';
-import type { TextFieldVariant, TextFieldDensity } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity, MenuAnchor, MenuOrigin } from '@/utils/types';
 import FzDatePickerCalendar from './FzDatePickerCalendar.vue';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -85,6 +87,8 @@ interface Props {
   todayLabel?: string;
   width?: string | number;
   height?: string | number;
+  menuLocation?: MenuAnchor;
+  menuOrigin?: MenuOrigin;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -110,6 +114,8 @@ const props = withDefaults(defineProps<Props>(), {
   todayLabel: '',
   width: 400,
   height: 400,
+  menuLocation: 'top right',
+  menuOrigin: undefined,
 });
 
 const emit = defineEmits<{
@@ -128,6 +134,8 @@ const hasHint = computed(() => !!props.hint);
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 const resolvedDensity = computed(() => props.density ?? defaults.density ?? 'comfortable');
+
+const resolvedMenuOrigin = computed<MenuOrigin>(() => props.menuOrigin ?? 'auto');
 
 const fieldStyle = computed(() => ({ width: props.fieldWidth }));
 

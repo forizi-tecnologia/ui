@@ -120,14 +120,21 @@ Create a merge request description in **English** with this structure:
 - [x] `pnpm build` passing
 ```
 
-Then create the MR on GitHub:
+Then switch to the Forizi GitHub account and create the MR:
 ```bash
+gh auth switch --user forizi-tecnologia
 gh pr create \
+  --repo forizi-tecnologia/ui \
   --base main \
   --head $(git branch --show-current) \
   --title "<conventional commit title in English>" \
   --body "<MR description>"
 ```
+
+> The personal `gh` accounts only have read access to `forizi-tecnologia/ui`.
+> Without `gh auth switch --user forizi-tecnologia` the API fails with
+> `must be a collaborator (createPullRequest)`. The `git push` itself works through
+> the `github-forizi` SSH alias, so only the MR creation needs the account switch.
 
 Report the PR URL to the user.
 
@@ -142,3 +149,4 @@ If this PR introduces new patterns, conventions, or architectural decisions, sug
 - **Breaking changes must be explicit** — never hide them
 - **English for docs/commits/code** — Portuguese only for UI labels
 - **Verify before MR** — never create an MR with failing checks
+- **GitHub account** — run `gh auth switch --user forizi-tecnologia` before `gh pr create`; the personal accounts cannot open PRs on `forizi-tecnologia/ui`

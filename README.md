@@ -77,7 +77,7 @@ import { FzConfigProvider, FzFloatingNotify } from '@forizi/ui';
 </template>
 ```
 
-All `Fz` input components (`FzPhoneField`, `FzMoneyField`, `FzEmailField`, `FzNumberField`, `FzZipCodeField`, `FzFullAddress`) will use `outlined` automatically. Override individually when needed:
+All `Fz` input components (`FzPhoneField`, `FzMoneyField`, `FzEmailField`, `FzCpfCnpjField`, `FzChipsSelect`, `FzPasswordField`, `FzNumberField`, `FzZipCodeField`, `FzFullAddress`) will use `outlined` automatically. Override individually when needed:
 
 ```vue
 <FzPhoneField variant="underlined" />  <!-- one-off override -->
@@ -109,8 +109,11 @@ export interface FzDefaults {
   <FzNumberField v-model="quantity" label="Quantidade" :decimal-places="0" />
   <FzEmailField v-model="email" label="E-mail" required />
   <FzPhoneField v-model="phone" label="Telefone" />
+  <FzCpfCnpjField v-model="document" label="CPF/CNPJ" required />
+  <FzChipsSelect v-model="states" label="Estados" :items="states" :max-visible-chips="3" />
+  <FzPasswordField v-model="password" label="Senha" :minlength="8" required />
   <FzZipCodeField v-model="cep" label="CEP" @zip-code-found="onAddress" />
-  <FzFullAddress v-model="address" />
+  <FzFullAddress v-model="address" required counter />
 </template>
 ```
 

@@ -71,6 +71,27 @@ describe('FzDatePickerCalendar', () => {
     expect(icon?.classes()).toContain('mdi-calendar');
   });
 
+  it('should anchor the menu to the top right of the trigger by default', () => {
+    const menu = findMenu();
+
+    expect(menu.props('location')).toBe('top right');
+    expect(menu.props('origin')).toBe('auto');
+  });
+
+  it('should respect custom location and origin', () => {
+    wrapper.unmount();
+
+    wrapper = createComponent(FzDatePickerCalendar, {
+      attachTo: document.body,
+      props: { open: true, selected: '', location: 'bottom end', origin: 'auto' },
+    });
+
+    const menu = findMenu();
+
+    expect(menu.props('location')).toBe('bottom end');
+    expect(menu.props('origin')).toBe('auto');
+  });
+
   it('should render a custom trigger icon', () => {
     wrapper.unmount();
 

@@ -1,5 +1,12 @@
 <template>
-  <v-menu v-model="isOpen" :disabled="disabled" :close-on-content-click="false" offset="4">
+  <v-menu
+    v-model="isOpen"
+    :disabled="disabled"
+    :close-on-content-click="false"
+    :location="location"
+    :origin="origin"
+    offset="4"
+  >
     <template #activator="{ props: activatorProps }">
       <v-icon v-bind="activatorProps" :class="triggerClass">{{ icon }}</v-icon>
     </template>
@@ -59,6 +66,7 @@
 import { computed, toRef, watch } from 'vue';
 import { useDatePicker } from '@/composables/useDatePicker';
 import { todayIso, type DateLocale } from '@/utils/date';
+import type { MenuAnchor, MenuOrigin } from '@/utils/types';
 import FzDatePickerDaysView from './FzDatePickerDaysView.vue';
 import FzDatePickerMonthsView from './FzDatePickerMonthsView.vue';
 import FzDatePickerYearsView from './FzDatePickerYearsView.vue';
@@ -74,6 +82,8 @@ interface Props {
   width?: string | number;
   height?: string | number;
   todayLabel?: string;
+  location?: MenuAnchor;
+  origin?: MenuOrigin;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -86,6 +96,8 @@ const props = withDefaults(defineProps<Props>(), {
   width: 400,
   height: 400,
   todayLabel: '',
+  location: 'top right',
+  origin: 'auto',
 });
 
 const emit = defineEmits<{

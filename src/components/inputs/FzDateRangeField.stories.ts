@@ -25,6 +25,8 @@ const meta = {
     requiredMessage: { control: 'text', description: 'Override for the required validation message' },
     invalidMessage: { control: 'text', description: 'Override for the invalid date message' },
     rangeInvalidMessage: { control: 'text', description: 'Override for the range validation message. Default: "Data inicial não pode ser maior que a data final"' },
+    menuLocation: { control: 'text', description: 'Vuetify menu location for both calendars. Default: "top right", aligning the menu right edge with the calendar icon' },
+    menuOrigin: { control: 'text', description: 'Vuetify menu origin for both calendars. Default: "auto"' },
   },
 } satisfies Meta<typeof FzDateRangeField>;
 
@@ -88,5 +90,13 @@ export const CustomSeparator: Story = {
     labelStart: 'Início',
     labelEnd: 'Fim',
     separator: 'a',
+  },
+};
+
+export const CustomMenuLocation: Story = {
+  args: {
+    labelStart: 'Data inicial',
+    labelEnd: 'Data final',
+    menuLocation: 'bottom end',
   },
 };

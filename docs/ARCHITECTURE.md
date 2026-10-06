@@ -9,7 +9,7 @@ docs/
 src/
   components/       ─ Reusable Vue components
     buttons/        ─ Icon-only button with tooltip (FzIconToolTip)
-    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzMoneyField, FzDateRangeField, etc.)
+    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzCpfCnpjField, FzChipsSelect, FzPasswordField, FzFullAddress, FzDateRangeField, etc.)
       datepicker/   ─ FzDatePicker family (public component + internal calendar shell/views)
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
@@ -37,6 +37,7 @@ src/
     confirm.ts      ─ Global confirm dialog singleton
     api.ts          ─ Axios wrapper
     date.ts         ─ Date parsing, formatting, validation, calendar grid
+    document.ts     ─ CPF/CNPJ (numeric + alphanumeric) normalization, detection, validation, formatting
     types.ts        ─ Shared types and constants
     vuetify-check.ts
 
@@ -214,6 +215,109 @@ overridable via `rangeInvalidMessage` prop.
 
 **Global min/max**: `min` and `max` props pass through to both `FzDatePicker` instances
 to constrain valid date ranges consistently.
+
+### FzCpfCnpjField — dynamic CPF/CNPJ input
+
+A single input that auto-detects the document type and validates the check digits
+(CPF and both numeric and alphanumeric CNPJ).
+
+- **`src/utils/document.ts`** — pure logic, no Vue dependency (fully unit-tested):
+  `normalizeDocument`, `detectDocumentType`, `isValidCpf`, `isValidCnpj`,
+  `isValidCpfCnpj`, `formatCpf`, `formatCnpj`, `formatCpfCnpj`.
+- **Detection** — `detectDocumentType(value)` returns `'cnpj'` when the value contains
+  letters or has more than 11 characters, otherwise `'cpf'`. This drives the mask
+  dynamically: 11 characters → CPF mask, 14 characters (or any letter) → CNPJ mask.
+- **Canonical `v-model`** — always unmasked and uppercase (e.g. `12ABC34501DE35`),
+  independent of the mask shown. Mirrors `FzPhoneField`/`FzZipCodeField`.
+- **Masking** — `maska` with a function mask that chooses between `###.###.###-##` and
+  `**.***.***/****-##`. A custom `*` token (`[a-zA-Z0-9]` + uppercase `transform`)
+  allows the alphanumeric CNPJ. The display value is built with a `Mask` instance
+  (`eager: true`) so the field and the directive agree on the partially-typed format.
+- **Validation** — same contract as `FzEmailField`: `rules`, `required`,
+  `requiredMessage`, `invalidMessage`, `validateOnBlur`, and an `isValid` event.
+  Custom rules run after the built-in document rule.
+
+### CNPJ alfanumérico — check digit algorithm
+
+Source: *Manual de Cálculo do DV do CNPJ* (Receita Federal). Applies to new
+registrations from July 2026; existing numeric CNPJs remain valid. The same algorithm
+covers numeric and alphanumeric CNPJs:
+
+1. Value of each character = `charCodeAt - 48` (`0-9` → 0–9, `A-Z` → 17–42).
+2. First DV weights `5,4,3,2,9,8,7,6,5,4,3,2`; second DV weights
+   `6,5,4,3,2,9,8,7,6,5,4,3,2` (second includes the first DV).
+3. `dv = remainder < 2 ? 0 : 11 - remainder` where `remainder = sum % 11`.
+4. The two DVs are always numeric; all-zero bases are rejected.
+
+Reference vectors (covered in `document.spec.ts`): `12ABC34501DE35` (official
+example), `11222333000181` and `18781203000128` (classic numeric).
+
+### FzChipsSelect — multi-select with chips
+
+`FzChipsSelect` wraps `VAutocomplete` (Vuetify) to build a multi-select that turns
+options into removable chips, with a filtered menu and no selection checkbox.
+
+- **Base**: `v-autocomplete` with `multiple`, `chips`, `closable-chips` and
+  `clear-on-select` (the typed search is cleared after each pick so another can be
+  added immediately).
+- **No checkbox**: `hideSelected` (default `true`). Vuetify only renders the item
+  checkbox for `multiple && !hideSelected`, so hiding the already-selected options
+  also removes the checkmark — the user clicks a plain row to add.
+- **Chips + overflow**: a custom `#chip` slot renders each chip; beyond
+  `maxVisibleChips` the remainder collapses into a single non-closable `+N` chip.
+- **Validation**: `rules`, `required`/`requiredMessage`, `validateOnBlur` and an
+  `isValid` event, following the other inputs. `variant`/`density` resolve through
+  `FzConfigProvider`.
+- **Chip spacing**: Vuetify's non-outlined variants render `.v-field__input` with
+  `padding-bottom: 0`, and each chip (26px) is taller than its selection wrapper (24px),
+  so chips end up ~1px from the field line. A `fz-chips-select--padded` class (applied
+  for every variant except `outlined`) adds 4px to the input's bottom padding via
+  `:deep()`, yielding a visible ~3px gap. `outlined` already has 12px bottom padding and
+  is left untouched. Measured with Playwright; the field height does not change.
+- **Vuetify registration**: `requiredVuetifyComponents` gained `VAutocomplete` and
+  `VChip` so consumers using the curated list still get this component.
+
+### FzPasswordField — password input with visibility toggle
+
+A password field that encapsulates the show/hide toggle and the usual validation.
+
+- **Toggle**: `type` switches between `password` and `text`; the icon in
+  `append-inner` toggles `isVisible`. The value is never touched by the toggle (no
+  `update:modelValue` emitted).
+- **Icons**: a custom `#append-inner` slot renders a `v-icon` (defaults `mdi-eye-outline`
+  hidden / `mdi-eye-off-outline` visible, overridable via `showIcon`/`hideIcon`). The slot
+  is used instead of the `append-inner-icon` prop because it allows controlling the
+  element's `tabindex`.
+- **Not in the tab order by default**: the toggle has `tabindex="-1"` and `aria-hidden`,
+  so Tab moves straight to the next field (e.g. confirm password). Set `toggleFocusable`
+  to include it in the tab order — then it gets `role="button"`, an `aria-label`
+  (`showLabel`/`hideLabel`) and Enter/Space handling.
+- **Validation**: `rules`, `required`/`requiredMessage`, `minlength`/`minlengthMessage`,
+  `validateOnBlur` and an `isValid` event, following the other inputs. `variant`/`density`
+  resolve through `FzConfigProvider`.
+- **Extra props**: `maxlength` and `autocomplete` (default `current-password`).
+
+### FzFullAddress — per-field validation and grid
+
+`FzFullAddress` exposes per-field `rules` (`AddressRules`) and `maxlength`
+(`AddressMaxLengths`, with pt-BR defaults: CEP 9, logradouro 200, número 20,
+complemento 100, bairro 100, cidade 100, estado 2), plus `counter`, `required` and
+`requiredMessage`. When `required` is set, a required rule is added to every field
+except complemento. The layout is a responsive `v-row`/`v-col` grid
+(`sm` breakpoints), stacking on mobile.
+
+### FzDatePicker — calendar placement
+
+`FzDatePickerCalendar` anchors its `v-menu` with `location="top right"` and
+`origin="auto"` by default, so the calendar opens above the field with its **right edge
+aligned to the calendar icon**, growing leftwards. Both values come from `FzDatePicker`'s
+`menuLocation`/`menuOrigin` props (forwarded by `FzDateRangeField`).
+
+Vuetify 3 does keep the `origin` prop (part of `VOverlay`'s location-strategy props,
+default `auto`). With `origin="auto"`, the content's origin is `flipSide(location)`:
+`top right` → content bottom-right at the activator's top-right, keeping the icon and the
+menu's right edge on the same vertical line. A consumer-provided `menuLocation` is
+respected and `menuOrigin` defaults to `auto` (Vuetify's standard behavior).
 
 ## CSS — Vuetify utilities first
 

@@ -10,6 +10,11 @@ const meta = {
     disabled: { control: 'boolean', description: 'Disable all address fields' },
     disabledFields: { control: 'boolean', description: 'Lock auto-completed fields (street, neighborhood, city, state) after a CEP is found via lookup' },
     labels: { description: 'Override individual field labels: { zipCode, street, number, complement, neighborhood, city, state }. Defaults in pt-BR.' },
+    rules: { description: 'Per-field custom validation rules: { zipCode, street, number, complement, neighborhood, city, state } — each an array of ValidationRule.' },
+    maxlength: { description: 'Per-field maximum length. Defaults: CEP 9, logradouro 200, número 20, complemento 100, bairro 100, cidade 100, estado 2.' },
+    counter: { control: 'boolean', description: 'Show the character counter on the text fields' },
+    required: { control: 'boolean', description: 'Add a required rule to every field except complemento' },
+    requiredMessage: { control: 'text', description: 'Custom message for empty required fields. Default: "<label> é obrigatório"' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
   },
 } satisfies Meta<typeof FzFullAddress>;
@@ -48,4 +53,12 @@ export const FullyDisabled: Story = {
       state: 'SP',
     },
   },
+};
+
+export const WithCounter: Story = {
+  args: { counter: true },
+};
+
+export const Required: Story = {
+  args: { required: true },
 };

@@ -28,6 +28,14 @@
       <div style="min-width: 280px; max-width: 360px;">
         <FzDatePicker v-model="dateDisabled" label="Desabilitado" disabled />
       </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzDatePicker
+          v-model="dateCustomLocation"
+          label="Location custom (bottom end)"
+          menu-location="bottom end"
+        />
+      </div>
     </div>
 
     <div class="mt-2 text-caption text-medium-emphasis">
@@ -78,6 +86,12 @@
           v-model="dateRangeDisabled"
           disabled
         />
+      </div>
+
+      <div>
+        <div class="text-subtitle-2 mb-2">Location customizada (bottom end)</div>
+
+        <FzDateRangeField v-model="dateRangeValue" menu-location="bottom end" />
       </div>
     </div>
 
@@ -216,6 +230,49 @@
     </div>
   </SectionCard>
 
+  <SectionCard title="FzChipsSelect">
+    <template #description>
+      Autocomplete múltiplo que adiciona as opções como chips, sem checkbox no menu.
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 320px; max-width: 420px;">
+        <FzChipsSelect v-model="chipsValue" label="Estados" :items="chipsOptions" />
+      </div>
+
+      <div style="min-width: 320px; max-width: 420px;">
+        <FzChipsSelect
+          v-model="chipsLimited"
+          label="Máx. 2 visíveis"
+          :items="chipsOptions"
+          :max-visible-chips="2"
+        />
+      </div>
+
+      <div style="min-width: 320px; max-width: 420px;">
+        <FzChipsSelect
+          v-model="chipsRequired"
+          label="Obrigatório"
+          :items="chipsOptions"
+          required
+        />
+      </div>
+
+      <div style="min-width: 320px; max-width: 420px;">
+        <FzChipsSelect
+          v-model="chipsDisabled"
+          label="Desabilitado"
+          :items="chipsOptions"
+          disabled
+        />
+      </div>
+    </div>
+
+    <div class="mt-2 text-caption text-medium-emphasis">
+      v-model: {{ JSON.stringify(chipsValue) }}
+    </div>
+  </SectionCard>
+
   <SectionCard title="FzZipCodeField">
     <template #description>
       Campo de CEP com busca automática via ViaCEP.
@@ -236,6 +293,86 @@
     </div>
   </SectionCard>
 
+  <SectionCard title="FzCpfCnpjField">
+    <template #description>
+      Campo único de CPF/CNPJ com detecção automática e validação do dígito verificador
+      (aceita CNPJ alfanumérico).
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentValue" label="CPF/CNPJ" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentCpf" label="CPF válido" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentCnpj" label="CNPJ numérico válido" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentAlphanumeric" label="CNPJ alfanumérico" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentRequired" label="Obrigatório" required />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentDisabled" label="Desabilitado" disabled />
+      </div>
+    </div>
+
+    <div class="mt-2 text-caption text-medium-emphasis">
+      v-model: {{ documentValue || '—' }} · CPF: {{ documentCpf }} · CNPJ: {{ documentCnpj }} · Alfa:
+      {{ documentAlphanumeric }}
+    </div>
+  </SectionCard>
+
+  <SectionCard title="FzPasswordField">
+    <template #description>
+      Campo de senha com botão para mostrar/ocultar e validação de tamanho.
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField v-model="passwordValue" label="Senha" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField
+          v-model="passwordRequired"
+          label="Senha (obrigatória)"
+          required
+          :minlength="8"
+          hint="Mínimo de 8 caracteres"
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField v-model="passwordConfirm" label="Confirmar senha" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField
+          v-model="passwordFocusable"
+          label="Ícone focável via Tab"
+          toggle-focusable
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField
+          v-model="passwordDisabled"
+          label="Desabilitado"
+          disabled
+        />
+      </div>
+    </div>
+  </SectionCard>
+
   <SectionCard title="FzFullAddress">
     <template #description>
       Formulário completo de endereço com busca por CEP.
@@ -246,6 +383,12 @@
         <div class="text-subtitle-2 mb-2">Padrão</div>
 
         <FzFullAddress v-model="addressValue" />
+      </div>
+
+      <div style="min-width: 400px; max-width: 600px;">
+        <div class="text-subtitle-2 mb-2">Com validação e contador</div>
+
+        <FzFullAddress v-model="addressValidated" required counter />
       </div>
 
       <div style="min-width: 400px; max-width: 600px;">
@@ -280,6 +423,7 @@ const dateEn = ref('');
 const dateRequired = ref('');
 const dateRange = ref('');
 const dateDisabled = ref('2026-07-08');
+const dateCustomLocation = ref('');
 const minDate = ref('2026-07-01');
 const maxDate = ref('2026-07-31');
 
@@ -312,12 +456,42 @@ const phoneValue = ref('');
 const phoneCustom = ref('');
 const phoneDisabled = ref('11999999999');
 
+// ChipsSelect
+const chipsOptions = [
+  { title: 'São Paulo', value: 'SP' },
+  { title: 'Rio de Janeiro', value: 'RJ' },
+  { title: 'Minas Gerais', value: 'MG' },
+  { title: 'Paraná', value: 'PR' },
+  { title: 'Santa Catarina', value: 'SC' },
+  { title: 'Rio Grande do Sul', value: 'RS' },
+];
+const chipsValue = ref<string[]>([]);
+const chipsLimited = ref<string[]>(['SP', 'RJ', 'MG', 'PR']);
+const chipsRequired = ref<string[]>([]);
+const chipsDisabled = ref<string[]>(['SP', 'RJ']);
+
 // ZipCode
 const zipValue = ref('');
 const zipDisabled = ref('');
 
+// CpfCnpj
+const documentValue = ref('');
+const documentCpf = ref('11144477735');
+const documentCnpj = ref('11222333000181');
+const documentAlphanumeric = ref('12ABC34501DE35');
+const documentRequired = ref('');
+const documentDisabled = ref('11144477735');
+
+// Password
+const passwordValue = ref('');
+const passwordRequired = ref('');
+const passwordConfirm = ref('');
+const passwordFocusable = ref('');
+const passwordDisabled = ref('super-secret');
+
 // FullAddress
 const addressValue = ref({});
+const addressValidated = ref({});
 const addressDisabled = ref({});
 const addressAllDisabled = ref({
   zipCode: '01001000',

@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import { createComponent } from '@/testutils';
 import FzDatePicker from '../FzDatePicker.vue';
+import FzDatePickerCalendar from '../FzDatePickerCalendar.vue';
 import FzConfigProvider from '@/components/FzConfigProvider.vue';
 
 beforeAll(() => {
@@ -467,5 +468,27 @@ describe('FzDatePicker', () => {
 
   it('should fallback to underlined when no variant is provided', () => {
     expect(wrapper.findComponent({ name: 'v-text-field' }).props('variant')).toBe('underlined');
+  });
+
+  it('should pass the default top-right menu placement to the calendar', () => {
+    const calendar = wrapper.findComponent(FzDatePickerCalendar);
+
+    expect(calendar.props('location')).toBe('top right');
+    expect(calendar.props('origin')).toBe('auto');
+  });
+
+  it('should respect a custom menu location and origin', async () => {
+    await wrapper.setProps({ menuLocation: 'bottom start', menuOrigin: 'top left' });
+
+    const calendar = wrapper.findComponent(FzDatePickerCalendar);
+
+    expect(calendar.props('location')).toBe('bottom start');
+    expect(calendar.props('origin')).toBe('top left');
+  });
+
+  it('should fall back to auto origin when a custom location is provided', async () => {
+    await wrapper.setProps({ menuLocation: 'bottom end' });
+
+    expect(wrapper.findComponent(FzDatePickerCalendar).props('origin')).toBe('auto');
   });
 });
