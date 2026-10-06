@@ -409,3 +409,24 @@ Validation mirrors the other inputs (`required`, `minlength`, custom `rules`,
 `validateOnBlur`, `isValid`), with `minlength`/`minlengthMessage` replacing the
 `invalidMessage` used by format-based fields (`FzEmailField`/`FzCpfCnpjField`) since a
 password has no format rule.
+
+### 40. Release workflow — OIDC trusted publishing to npm
+
+`.github/workflows/release.yml` publishes to npm with **Trusted Publishing (OIDC)** — no
+long-lived `NPM_TOKEN` secret. Requirements:
+
+- Workflow permission `id-token: write` (plus `contents: write` for the version commit,
+  tag, and GitHub Release).
+- A **Trusted Publisher** configured on npmjs.com for `@forizi-tecnologia/ui` pointing to
+  GitHub org `forizi-tecnologia`, repository `ui`, workflow filename `release.yml`, empty
+  environment. The fields must match **exactly** — a wrong repo casing or filename makes
+  npm answer a misleading `404 {"message":"OIDC token exchange error - package not found"}`.
+- `actions/setup-node` **without `registry-url`**. When `registry-url` is set, setup-node
+  writes `_authToken=${NODE_AUTH_TOKEN}` to `.npmrc`; with pnpm 11 (bug pnpm#11513) an
+  unset `NODE_AUTH_TOKEN` is passed through as the literal placeholder and the publish
+  fails with 404. Dropping `registry-url` keeps OIDC as the sole auth source (the default
+  registry is already registry.npmjs.org).
+- `workflow_dispatch` is enabled so the release can be re-run manually without a dummy
+  commit.
+
+`pnpm publish --no-git-checks` performs the OIDC exchange; `--provenance` is not needed.
