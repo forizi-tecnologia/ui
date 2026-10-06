@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
 import { createComponent } from '@/testutils';
 import FzDateRangeField from '../FzDateRangeField.vue';
+import FzDatePicker from '@/components/inputs/datepicker/FzDatePicker.vue';
 
 beforeAll(() => {
   vi.stubGlobal('visualViewport', {
@@ -280,5 +281,21 @@ describe('FzDateRangeField', () => {
 
     expect(getStartInputValue()).toBe('');
     expect(getEndInputValue()).toBe('');
+  });
+
+  it('should forward the default top-right menu placement to both date pickers', () => {
+    for (const picker of wrapper.findAllComponents(FzDatePicker)) {
+      expect(picker.props('menuLocation')).toBe('top right');
+      expect(picker.props('menuOrigin')).toBeUndefined();
+    }
+  });
+
+  it('should forward custom menu location and origin to both date pickers', async () => {
+    await wrapper.setProps({ menuLocation: 'bottom start', menuOrigin: 'top left' });
+
+    for (const picker of wrapper.findAllComponents(FzDatePicker)) {
+      expect(picker.props('menuLocation')).toBe('bottom start');
+      expect(picker.props('menuOrigin')).toBe('top left');
+    }
   });
 });

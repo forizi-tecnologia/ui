@@ -7,7 +7,8 @@
     :disabled="disabled"
     :hint="hint"
     :persistent-hint="hasHint"
-        :variant="resolvedVariant"
+    :maxlength="maxlength"
+    :variant="resolvedVariant"
     :loading="isSearching"
     inputmode="numeric"
   >
@@ -59,6 +60,7 @@ interface Props {
   disabled?: boolean
   hint?: string
   variant?: TextFieldVariant
+  maxlength?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -68,6 +70,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   hint: '',
   variant: undefined,
+  maxlength: undefined,
 });
 
 const emit = defineEmits<{

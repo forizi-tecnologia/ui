@@ -28,6 +28,14 @@
       <div style="min-width: 280px; max-width: 360px;">
         <FzDatePicker v-model="dateDisabled" label="Desabilitado" disabled />
       </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzDatePicker
+          v-model="dateCustomLocation"
+          label="Location custom (bottom end)"
+          menu-location="bottom end"
+        />
+      </div>
     </div>
 
     <div class="mt-2 text-caption text-medium-emphasis">
@@ -78,6 +86,12 @@
           v-model="dateRangeDisabled"
           disabled
         />
+      </div>
+
+      <div>
+        <div class="text-subtitle-2 mb-2">Location customizada (bottom end)</div>
+
+        <FzDateRangeField v-model="dateRangeValue" menu-location="bottom end" />
       </div>
     </div>
 
@@ -236,6 +250,44 @@
     </div>
   </SectionCard>
 
+  <SectionCard title="FzCpfCnpjField">
+    <template #description>
+      Campo único de CPF/CNPJ com detecção automática e validação do dígito verificador
+      (aceita CNPJ alfanumérico).
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentValue" label="CPF/CNPJ" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentCpf" label="CPF válido" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentCnpj" label="CNPJ numérico válido" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentAlphanumeric" label="CNPJ alfanumérico" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentRequired" label="Obrigatório" required />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzCpfCnpjField v-model="documentDisabled" label="Desabilitado" disabled />
+      </div>
+    </div>
+
+    <div class="mt-2 text-caption text-medium-emphasis">
+      v-model: {{ documentValue || '—' }} · CPF: {{ documentCpf }} · CNPJ: {{ documentCnpj }} · Alfa:
+      {{ documentAlphanumeric }}
+    </div>
+  </SectionCard>
+
   <SectionCard title="FzFullAddress">
     <template #description>
       Formulário completo de endereço com busca por CEP.
@@ -246,6 +298,12 @@
         <div class="text-subtitle-2 mb-2">Padrão</div>
 
         <FzFullAddress v-model="addressValue" />
+      </div>
+
+      <div style="min-width: 400px; max-width: 600px;">
+        <div class="text-subtitle-2 mb-2">Com validação e contador</div>
+
+        <FzFullAddress v-model="addressValidated" required counter />
       </div>
 
       <div style="min-width: 400px; max-width: 600px;">
@@ -280,6 +338,7 @@ const dateEn = ref('');
 const dateRequired = ref('');
 const dateRange = ref('');
 const dateDisabled = ref('2026-07-08');
+const dateCustomLocation = ref('');
 const minDate = ref('2026-07-01');
 const maxDate = ref('2026-07-31');
 
@@ -316,8 +375,17 @@ const phoneDisabled = ref('11999999999');
 const zipValue = ref('');
 const zipDisabled = ref('');
 
+// CpfCnpj
+const documentValue = ref('');
+const documentCpf = ref('11144477735');
+const documentCnpj = ref('11222333000181');
+const documentAlphanumeric = ref('12ABC34501DE35');
+const documentRequired = ref('');
+const documentDisabled = ref('11144477735');
+
 // FullAddress
 const addressValue = ref({});
+const addressValidated = ref({});
 const addressDisabled = ref({});
 const addressAllDisabled = ref({
   zipCode: '01001000',

@@ -1,56 +1,84 @@
 <template>
   <v-row>
-    <v-col cols="12" md="4">
+    <v-col cols="12" sm="4">
       <FzZipCodeField
         v-model="internal.zipCode"
         :disabled="disabled"
+        :rules="fieldRules.zipCode"
+        :maxlength="maxLengths.zipCode"
         @zip-code-found="onZipCodeFound"
         @zip-code-not-found="onZipCodeNotFound"
       />
     </v-col>
 
-    <v-col cols="12" md="8">
+    <v-col cols="12" sm="8">
       <v-text-field
         v-model="internal.street"
         :label="labels.street"
+        :rules="fieldRules.street"
+        :maxlength="maxLengths.street"
+        :counter="counter"
         :disabled="isAutoDisabled"
         :variant="resolvedVariant"
       />
     </v-col>
 
-    <v-col cols="12" md="3">
-      <v-text-field v-model="internal.number" :label="labels.number" :disabled="disabled" :variant="variant" />
+    <v-col cols="12" sm="3">
+      <v-text-field
+        v-model="internal.number"
+        :label="labels.number"
+        :rules="fieldRules.number"
+        :maxlength="maxLengths.number"
+        :counter="counter"
+        :disabled="disabled"
+        :variant="resolvedVariant"
+      />
     </v-col>
 
-    <v-col cols="12" md="5">
-      <v-text-field v-model="internal.complement" :label="labels.complement" :disabled="disabled" :variant="variant" />
+    <v-col cols="12" sm="5">
+      <v-text-field
+        v-model="internal.complement"
+        :label="labels.complement"
+        :rules="fieldRules.complement"
+        :maxlength="maxLengths.complement"
+        :counter="counter"
+        :disabled="disabled"
+        :variant="resolvedVariant"
+      />
     </v-col>
 
-    <v-col cols="12" md="4">
+    <v-col cols="12" sm="4">
       <v-text-field
         v-model="internal.neighborhood"
         :label="labels.neighborhood"
+        :rules="fieldRules.neighborhood"
+        :maxlength="maxLengths.neighborhood"
+        :counter="counter"
         :disabled="isAutoDisabled"
         :variant="resolvedVariant"
       />
     </v-col>
 
-    <v-col cols="12" md="6">
+    <v-col cols="12" sm="8">
       <v-text-field
         v-model="internal.city"
         :label="labels.city"
+        :rules="fieldRules.city"
+        :maxlength="maxLengths.city"
+        :counter="counter"
         :disabled="isAutoDisabled"
         :variant="resolvedVariant"
       />
     </v-col>
 
-    <v-col cols="12" md="6">
+    <v-col cols="12" sm="4">
       <v-select
         v-model="internal.state"
         :label="labels.state"
         :items="brazilianStates"
         item-title="name"
         item-value="uf"
+        :rules="fieldRules.state"
         :disabled="isAutoDisabled"
         :variant="resolvedVariant"
       />
@@ -63,6 +91,8 @@ import { reactive, ref, watch, computed, nextTick } from 'vue';
 import type { TextFieldVariant } from '@/utils/types';
 import { useFzDefaults } from '@/composables/useFzDefaults';
 import FzZipCodeField, { type ZipCodeResponse } from './FzZipCodeField.vue';
+
+type ValidationRule = (value: string) => boolean | string;
 
 export interface Address {
   zipCode: string
@@ -84,11 +114,36 @@ export interface AddressLabels {
   state?: string
 }
 
+export interface AddressRules {
+  zipCode?: ValidationRule[]
+  street?: ValidationRule[]
+  number?: ValidationRule[]
+  complement?: ValidationRule[]
+  neighborhood?: ValidationRule[]
+  city?: ValidationRule[]
+  state?: ValidationRule[]
+}
+
+export interface AddressMaxLengths {
+  zipCode?: number
+  street?: number
+  number?: number
+  complement?: number
+  neighborhood?: number
+  city?: number
+  state?: number
+}
+
 interface Props {
   modelValue?: Partial<Address>
   disabled?: boolean
   disabledFields?: boolean
   labels?: AddressLabels
+  rules?: AddressRules
+  maxlength?: AddressMaxLengths
+  counter?: boolean
+  required?: boolean
+  requiredMessage?: string
   variant?: TextFieldVariant
 }
 
@@ -97,12 +152,36 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   disabledFields: false,
   labels: () => ({}),
+  rules: () => ({}),
+  maxlength: () => ({}),
+  counter: false,
+  required: false,
+  requiredMessage: '',
   variant: undefined,
 });
 
 const emit = defineEmits<{
   'update:modelValue': [value: Address]
 }>();
+
+const DEFAULT_MAX_LENGTHS: Required<AddressMaxLengths> = {
+  zipCode: 9,
+  street: 200,
+  number: 20,
+  complement: 100,
+  neighborhood: 100,
+  city: 100,
+  state: 2,
+};
+
+const REQUIRED_FIELDS: (keyof Address)[] = [
+  'zipCode',
+  'street',
+  'number',
+  'neighborhood',
+  'city',
+  'state',
+];
 
 let skipInternalEmit = false;
 
@@ -164,6 +243,35 @@ const defaults = useFzDefaults();
 const isAutoDisabled = computed(() => props.disabled || (props.disabledFields && zipCodeFound.value));
 
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
+
+const maxLengths = computed<Required<AddressMaxLengths>>(() => ({
+  ...DEFAULT_MAX_LENGTHS,
+  ...props.maxlength,
+}));
+
+const fieldRules = computed<Record<keyof Address, ValidationRule[]>>(() => ({
+  zipCode: resolveRules('zipCode'),
+  street: resolveRules('street'),
+  number: resolveRules('number'),
+  complement: resolveRules('complement'),
+  neighborhood: resolveRules('neighborhood'),
+  city: resolveRules('city'),
+  state: resolveRules('state'),
+}));
+
+function resolveRules(field: keyof Address): ValidationRule[] {
+  const customRules = props.rules[field] ?? [];
+
+  if (!props.required) return customRules;
+
+  if (!REQUIRED_FIELDS.includes(field)) return customRules;
+
+  return [buildRequiredRule(labels.value[field]), ...customRules];
+}
+
+function buildRequiredRule(label: string): ValidationRule {
+  return (value: string) => value ? true : (props.requiredMessage || `${label} é obrigatório`);
+}
 
 function onZipCodeFound(data: ZipCodeResponse) {
   internal.street = data.street;

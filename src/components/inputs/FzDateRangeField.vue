@@ -18,6 +18,8 @@
       :validate-on-blur="validateOnBlur"
       :required-message="requiredMessage"
       :invalid-message="invalidMessage"
+      :menu-location="menuLocation"
+      :menu-origin="menuOrigin"
     />
 
     <span class="px-2 text-body-2 text-medium-emphasis">{{ separator }}</span>
@@ -40,6 +42,8 @@
       :validate-on-blur="validateOnBlur"
       :required-message="requiredMessage"
       :invalid-message="invalidMessage"
+      :menu-location="menuLocation"
+      :menu-origin="menuOrigin"
     />
   </div>
 </template>
@@ -48,7 +52,7 @@
 import { computed } from 'vue';
 import { useFzDefaults } from '@/composables/useFzDefaults';
 import { parseDisplay, toIso, type DateFormat, type DateLocale } from '@/utils/date';
-import type { TextFieldVariant, TextFieldDensity } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity, MenuAnchor, MenuOrigin } from '@/utils/types';
 import FzDatePicker from '@/components/inputs/datepicker/FzDatePicker.vue';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -79,6 +83,8 @@ interface Props {
   requiredMessage?: string;
   invalidMessage?: string;
   rangeInvalidMessage?: string;
+  menuLocation?: MenuAnchor;
+  menuOrigin?: MenuOrigin;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -102,6 +108,8 @@ const props = withDefaults(defineProps<Props>(), {
   requiredMessage: '',
   invalidMessage: '',
   rangeInvalidMessage: '',
+  menuLocation: 'top right',
+  menuOrigin: undefined,
 });
 
 const emit = defineEmits<{

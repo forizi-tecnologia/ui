@@ -9,7 +9,7 @@ docs/
 src/
   components/       ─ Reusable Vue components
     buttons/        ─ Icon-only button with tooltip (FzIconToolTip)
-    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzMoneyField, FzDateRangeField, etc.)
+    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzCpfCnpjField, FzFullAddress, FzDateRangeField, etc.)
       datepicker/   ─ FzDatePicker family (public component + internal calendar shell/views)
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
@@ -37,6 +37,7 @@ src/
     confirm.ts      ─ Global confirm dialog singleton
     api.ts          ─ Axios wrapper
     date.ts         ─ Date parsing, formatting, validation, calendar grid
+    document.ts     ─ CPF/CNPJ (numeric + alphanumeric) normalization, detection, validation, formatting
     types.ts        ─ Shared types and constants
     vuetify-check.ts
 
@@ -214,6 +215,64 @@ overridable via `rangeInvalidMessage` prop.
 
 **Global min/max**: `min` and `max` props pass through to both `FzDatePicker` instances
 to constrain valid date ranges consistently.
+
+### FzCpfCnpjField — dynamic CPF/CNPJ input
+
+A single input that auto-detects the document type and validates the check digits
+(CPF and both numeric and alphanumeric CNPJ).
+
+- **`src/utils/document.ts`** — pure logic, no Vue dependency (fully unit-tested):
+  `normalizeDocument`, `detectDocumentType`, `isValidCpf`, `isValidCnpj`,
+  `isValidCpfCnpj`, `formatCpf`, `formatCnpj`, `formatCpfCnpj`.
+- **Detection** — `detectDocumentType(value)` returns `'cnpj'` when the value contains
+  letters or has more than 11 characters, otherwise `'cpf'`. This drives the mask
+  dynamically: 11 characters → CPF mask, 14 characters (or any letter) → CNPJ mask.
+- **Canonical `v-model`** — always unmasked and uppercase (e.g. `12ABC34501DE35`),
+  independent of the mask shown. Mirrors `FzPhoneField`/`FzZipCodeField`.
+- **Masking** — `maska` with a function mask that chooses between `###.###.###-##` and
+  `**.***.***/****-##`. A custom `*` token (`[a-zA-Z0-9]` + uppercase `transform`)
+  allows the alphanumeric CNPJ. The display value is built with a `Mask` instance
+  (`eager: true`) so the field and the directive agree on the partially-typed format.
+- **Validation** — same contract as `FzEmailField`: `rules`, `required`,
+  `requiredMessage`, `invalidMessage`, `validateOnBlur`, and an `isValid` event.
+  Custom rules run after the built-in document rule.
+
+### CNPJ alfanumérico — check digit algorithm
+
+Source: *Manual de Cálculo do DV do CNPJ* (Receita Federal). Applies to new
+registrations from July 2026; existing numeric CNPJs remain valid. The same algorithm
+covers numeric and alphanumeric CNPJs:
+
+1. Value of each character = `charCodeAt - 48` (`0-9` → 0–9, `A-Z` → 17–42).
+2. First DV weights `5,4,3,2,9,8,7,6,5,4,3,2`; second DV weights
+   `6,5,4,3,2,9,8,7,6,5,4,3,2` (second includes the first DV).
+3. `dv = remainder < 2 ? 0 : 11 - remainder` where `remainder = sum % 11`.
+4. The two DVs are always numeric; all-zero bases are rejected.
+
+Reference vectors (covered in `document.spec.ts`): `12ABC34501DE35` (official
+example), `11222333000181` and `18781203000128` (classic numeric).
+
+### FzFullAddress — per-field validation and grid
+
+`FzFullAddress` exposes per-field `rules` (`AddressRules`) and `maxlength`
+(`AddressMaxLengths`, with pt-BR defaults: CEP 9, logradouro 200, número 20,
+complemento 100, bairro 100, cidade 100, estado 2), plus `counter`, `required` and
+`requiredMessage`. When `required` is set, a required rule is added to every field
+except complemento. The layout is a responsive `v-row`/`v-col` grid
+(`sm` breakpoints), stacking on mobile.
+
+### FzDatePicker — calendar placement
+
+`FzDatePickerCalendar` anchors its `v-menu` with `location="top right"` and
+`origin="auto"` by default, so the calendar opens above the field with its **right edge
+aligned to the calendar icon**, growing leftwards. Both values come from `FzDatePicker`'s
+`menuLocation`/`menuOrigin` props (forwarded by `FzDateRangeField`).
+
+Vuetify 3 does keep the `origin` prop (part of `VOverlay`'s location-strategy props,
+default `auto`). With `origin="auto"`, the content's origin is `flipSide(location)`:
+`top right` → content bottom-right at the activator's top-right, keeping the icon and the
+menu's right edge on the same vertical line. A consumer-provided `menuLocation` is
+respected and `menuOrigin` defaults to `auto` (Vuetify's standard behavior).
 
 ## CSS — Vuetify utilities first
 

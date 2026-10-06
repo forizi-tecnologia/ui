@@ -11,6 +11,7 @@ const meta = {
     rules: { description: 'Array of custom validation rules. Each receives the unmasked value and returns true or an error string.' },
     disabled: { control: 'boolean', description: 'Disable the input' },
     hint: { control: 'text', description: 'Hint text displayed below the field' },
+    maxlength: { control: 'number', description: 'Maximum input length. Undefined by default (the mask limits to 9 characters).' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
     'update:modelValue': { description: 'Emitted when the unmasked CEP value changes', table: { category: 'Events' } },
     'zip-code-found': { description: 'Emitted when a valid CEP is found via ViaCEP API. Payload: ZipCodeResponse with street, neighborhood, city, state, zipCode, complement.', table: { category: 'Events' } },

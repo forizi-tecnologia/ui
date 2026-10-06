@@ -251,4 +251,121 @@ describe('FzFullAddress', () => {
 
     expect(wrapper.find('input').exists()).toBe(true);
   });
+
+  function getRules(fieldIndex: number) {
+    const fields = wrapper.findAllComponents({ name: 'VTextField' });
+
+    return fields[fieldIndex].props('rules') as ((value: string) => boolean | string)[];
+  }
+
+  function getTextField(fieldIndex: number) {
+    return wrapper.findAllComponents({ name: 'VTextField' })[fieldIndex];
+  }
+
+  function getInputMaxlength(inputIndex: number): string | undefined {
+    return wrapper.findAll('input')[inputIndex].attributes('maxlength');
+  }
+
+  const DEFAULT_MAX_LENGTHS = [
+    { inputIndex: 0, expected: '9' },
+    { inputIndex: 1, expected: '200' },
+    { inputIndex: 2, expected: '20' },
+    { inputIndex: 3, expected: '100' },
+    { inputIndex: 4, expected: '100' },
+    { inputIndex: 5, expected: '100' },
+  ] as const;
+
+  it('should pass custom rules to the matching field', () => {
+    const customRule = (value: string) => value.length > 3 ? true : 'Muito curto';
+
+    wrapper = createComponent(FzFullAddress, {
+      props: { rules: { street: [customRule] } },
+    });
+
+    expect(getRules(1)).toContain(customRule);
+  });
+
+  it('should apply default maxlength per field', () => {
+    for (const { inputIndex, expected } of DEFAULT_MAX_LENGTHS) {
+      expect(getInputMaxlength(inputIndex)).toBe(expected);
+    }
+  });
+
+  it('should override maxlength per field', () => {
+    wrapper = createComponent(FzFullAddress, {
+      props: { maxlength: { street: 50, number: 5 } },
+    });
+
+    expect(getInputMaxlength(1)).toBe('50');
+    expect(getInputMaxlength(2)).toBe('5');
+    expect(getInputMaxlength(4)).toBe('100');
+  });
+
+  it('should enable counter on text fields when counter is true', () => {
+    wrapper = createComponent(FzFullAddress, {
+      props: { counter: true },
+    });
+
+    for (const index of [1, 2, 3, 4, 5]) {
+      expect(getTextField(index).props('counter')).toBe(true);
+    }
+  });
+
+  it('should not enable counter by default', () => {
+    expect(getTextField(1).props('counter')).toBe(false);
+  });
+
+  it('should build a required rule with the field label when required is true', () => {
+    wrapper = createComponent(FzFullAddress, {
+      props: { required: true },
+    });
+
+    const rules = getRules(1);
+
+    expect(rules[0]('')).toBe('Logradouro é obrigatório');
+    expect(rules[0]('Rua X')).toBe(true);
+  });
+
+  it('should use custom requiredMessage when provided', () => {
+    wrapper = createComponent(FzFullAddress, {
+      props: { required: true, requiredMessage: 'Campo obrigatório' },
+    });
+
+    expect(getRules(1)[0]('')).toBe('Campo obrigatório');
+  });
+
+  it('should not add a required rule to complement', () => {
+    wrapper = createComponent(FzFullAddress, {
+      props: { required: true },
+    });
+
+    expect(getRules(3)).toHaveLength(0);
+  });
+
+  it('should add a required rule to the state select', () => {
+    wrapper = createComponent(FzFullAddress, {
+      props: { required: true },
+    });
+
+    const select = wrapper.findComponent({ name: 'VSelect' });
+    const rules = select.props('rules') as ((value: string) => boolean | string)[];
+
+    expect(rules[0]('')).toBe('Estado é obrigatório');
+  });
+
+  it('should not add required rules by default', () => {
+    expect(getRules(1)).toHaveLength(0);
+  });
+
+  it('should render a responsive grid layout', () => {
+    const columns = wrapper.findAll('.v-col-12');
+
+    expect(columns[0].classes()).toContain('v-col-sm-4');
+    expect(columns[1].classes()).toContain('v-col-sm-8');
+    expect(columns[2].classes()).toContain('v-col-sm-3');
+    expect(columns[3].classes()).toContain('v-col-sm-5');
+    expect(columns[4].classes()).toContain('v-col-sm-4');
+    expect(columns[5].classes()).toContain('v-col-sm-8');
+    expect(columns[6].classes()).toContain('v-col-sm-4');
+  });
 });
