@@ -389,3 +389,23 @@ and accessibility. The requirements map to existing props/slots:
 `hideSelected` is exposed as a prop (not hardcoded) so consumers can opt back into the
 Vuetify checkbox behavior if they ever need it. `requiredVuetifyComponents` was extended
 with `VAutocomplete` and `VChip`.
+
+### 39. FzPasswordField — encapsulating the show/hide toggle
+
+The show/hide toggle uses a custom `#append-inner` slot with a `v-icon` rather than
+Vuetify's `append-inner-icon` prop. The prop is easier, but Vuetify's `InputIcon` always
+sets `tabindex="0"` when clickable, and there is no way to opt out — which breaks the
+common "password + confirm password" flow where Tab should jump between fields, not stop
+on the eye icon.
+
+So the icon is rendered with `tabindex="-1"` (and `aria-hidden`) by default:
+**Tab skips the toggle**. The `toggleFocusable` prop opts back in, in which case the icon
+gets `role="button"`, `aria-label` (`showLabel`/`hideLabel`) and Enter/Space handling
+(Vuetify's VIcon sets `role`/`tabindex` automatically when it has a click handler, but an
+explicit `tabindex` passed to it wins). The component owns `isVisible`, so toggling never
+emits `update:modelValue`.
+
+Validation mirrors the other inputs (`required`, `minlength`, custom `rules`,
+`validateOnBlur`, `isValid`), with `minlength`/`minlengthMessage` replacing the
+`invalidMessage` used by format-based fields (`FzEmailField`/`FzCpfCnpjField`) since a
+password has no format rule.

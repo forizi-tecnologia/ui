@@ -331,6 +331,48 @@
     </div>
   </SectionCard>
 
+  <SectionCard title="FzPasswordField">
+    <template #description>
+      Campo de senha com botão para mostrar/ocultar e validação de tamanho.
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField v-model="passwordValue" label="Senha" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField
+          v-model="passwordRequired"
+          label="Senha (obrigatória)"
+          required
+          :minlength="8"
+          hint="Mínimo de 8 caracteres"
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField v-model="passwordConfirm" label="Confirmar senha" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField
+          v-model="passwordFocusable"
+          label="Ícone focável via Tab"
+          toggle-focusable
+        />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzPasswordField
+          v-model="passwordDisabled"
+          label="Desabilitado"
+          disabled
+        />
+      </div>
+    </div>
+  </SectionCard>
+
   <SectionCard title="FzFullAddress">
     <template #description>
       Formulário completo de endereço com busca por CEP.
@@ -439,6 +481,13 @@ const documentCnpj = ref('11222333000181');
 const documentAlphanumeric = ref('12ABC34501DE35');
 const documentRequired = ref('');
 const documentDisabled = ref('11144477735');
+
+// Password
+const passwordValue = ref('');
+const passwordRequired = ref('');
+const passwordConfirm = ref('');
+const passwordFocusable = ref('');
+const passwordDisabled = ref('super-secret');
 
 // FullAddress
 const addressValue = ref({});

@@ -9,7 +9,7 @@ docs/
 src/
   components/       ─ Reusable Vue components
     buttons/        ─ Icon-only button with tooltip (FzIconToolTip)
-    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzCpfCnpjField, FzChipsSelect, FzFullAddress, FzDateRangeField, etc.)
+    inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzCpfCnpjField, FzChipsSelect, FzPasswordField, FzFullAddress, FzDateRangeField, etc.)
       datepicker/   ─ FzDatePicker family (public component + internal calendar shell/views)
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
@@ -276,6 +276,26 @@ options into removable chips, with a filtered menu and no selection checkbox.
   is left untouched. Measured with Playwright; the field height does not change.
 - **Vuetify registration**: `requiredVuetifyComponents` gained `VAutocomplete` and
   `VChip` so consumers using the curated list still get this component.
+
+### FzPasswordField — password input with visibility toggle
+
+A password field that encapsulates the show/hide toggle and the usual validation.
+
+- **Toggle**: `type` switches between `password` and `text`; the icon in
+  `append-inner` toggles `isVisible`. The value is never touched by the toggle (no
+  `update:modelValue` emitted).
+- **Icons**: a custom `#append-inner` slot renders a `v-icon` (defaults `mdi-eye-outline`
+  hidden / `mdi-eye-off-outline` visible, overridable via `showIcon`/`hideIcon`). The slot
+  is used instead of the `append-inner-icon` prop because it allows controlling the
+  element's `tabindex`.
+- **Not in the tab order by default**: the toggle has `tabindex="-1"` and `aria-hidden`,
+  so Tab moves straight to the next field (e.g. confirm password). Set `toggleFocusable`
+  to include it in the tab order — then it gets `role="button"`, an `aria-label`
+  (`showLabel`/`hideLabel`) and Enter/Space handling.
+- **Validation**: `rules`, `required`/`requiredMessage`, `minlength`/`minlengthMessage`,
+  `validateOnBlur` and an `isValid` event, following the other inputs. `variant`/`density`
+  resolve through `FzConfigProvider`.
+- **Extra props**: `maxlength` and `autocomplete` (default `current-password`).
 
 ### FzFullAddress — per-field validation and grid
 
