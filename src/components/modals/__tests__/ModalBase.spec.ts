@@ -476,4 +476,45 @@ describe('FzModalBase', () => {
       expect(findDialog().props('contentClass')).toContain('v-theme--');
     });
   });
+
+  describe('spacing', () => {
+    it('should keep only horizontal padding on the body when title is provided', async () => {
+      await wrapper.setProps({ modelValue: true, title: 'Confirmação' });
+
+      const cardText = wrapper.findComponent({ name: 'v-card-text' });
+
+      expect(cardText.classes()).toContain('px-6');
+      expect(cardText.classes()).toContain('py-0');
+    });
+
+    it('should add top padding to the body when title is absent', async () => {
+      await wrapper.setProps({ modelValue: true });
+
+      const cardText = wrapper.findComponent({ name: 'v-card-text' });
+
+      expect(cardText.classes()).toContain('px-6');
+      expect(cardText.classes()).toContain('pt-6');
+      expect(cardText.classes()).toContain('pb-0');
+    });
+
+    it('should align title, body and actions with the same horizontal padding', async () => {
+      await wrapper.setProps({ modelValue: true, title: 'Confirmação' });
+
+      const title = wrapper.findComponent({ name: 'v-card-title' });
+      const cardText = wrapper.findComponent({ name: 'v-card-text' });
+      const actions = wrapper.findComponent({ name: 'v-card-actions' });
+
+      expect(title.classes()).toContain('px-6');
+      expect(cardText.classes()).toContain('px-6');
+      expect(actions.classes()).toContain('px-6');
+    });
+
+    it('should apply vertical padding only to the actions', async () => {
+      await wrapper.setProps({ modelValue: true });
+
+      const actions = wrapper.findComponent({ name: 'v-card-actions' });
+
+      expect(actions.classes()).toContain('py-4');
+    });
+  });
 });

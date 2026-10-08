@@ -12,6 +12,10 @@
       <v-btn color="secondary" @click="openModalLarge = true">
         Modal Grande
       </v-btn>
+
+      <v-btn color="info" @click="openModalNoTitle = true">
+        Modal sem título
+      </v-btn>
     </div>
 
     <FzModalBase
@@ -42,6 +46,12 @@
         density="comfortable"
       />
     </FzModalBase>
+
+    <FzModalBase
+      v-model="openModalNoTitle"
+      message="Modal sem título, apenas com mensagem e ações."
+      :actions="noTitleActions"
+    />
   </SectionCard>
 </template>
 
@@ -51,12 +61,17 @@ import type { ModalAction } from '@/components';
 
 const openModal = ref(false);
 const openModalLarge = ref(false);
+const openModalNoTitle = ref(false);
 const modalField = ref('');
 const modalSelect = ref('');
 
 const defaultActions: ModalAction[] = [
   { text: 'Cancelar', color: 'secondary', handler: () => { openModal.value = false; } },
   { text: 'Confirmar', color: 'primary', handler: () => { openModal.value = false; } },
+];
+
+const noTitleActions: ModalAction[] = [
+  { text: 'OK', color: 'primary', handler: () => { openModalNoTitle.value = false; } },
 ];
 
 const largeModalActions: ModalAction[] = [

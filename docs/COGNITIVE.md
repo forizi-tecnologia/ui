@@ -430,3 +430,21 @@ long-lived `NPM_TOKEN` secret. Requirements:
   commit.
 
 `pnpm publish --no-git-checks` performs the OIDC exchange; `--provenance` is not needed.
+
+### 41. FzModalBase — body carries only lateral padding
+
+The `v-card-text` body previously shipped its own vertical padding (`pt-4` plus Vuetify's
+default bottom padding), so slot content was padded twice and consumers could not control
+the vertical rhythm without overriding classes. The body now renders with `px-6 py-0`:
+only lateral padding, zero vertical. The chrome owns the vertical space — title
+`pt-6 pb-4`, actions `py-4` — so a modal with `title` + `message` still gets 16px gaps
+with no work from the consumer, while slot content can add its own spacing (`py-*`)
+freely.
+
+The horizontal padding was also unified: title, body and actions all use `px-6`. Before,
+`v-card-actions` kept Vuetify's default 8px, so the action buttons did not align with the
+title/body content (they stuck out to the card edge). No retro-compatibility layer was
+kept — consumers adjust their modals after upgrading.
+
+Edge case: without a `title`, the body switches to `px-6 pt-6 pb-0` so the first line of
+content (e.g. the `message` prop) keeps a top inset instead of touching the card edge.

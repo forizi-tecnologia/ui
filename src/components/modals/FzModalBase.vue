@@ -12,19 +12,19 @@
     <v-card>
       <v-card-title
         v-if="title"
-        class="text-h5 d-flex align-center px-6 pt-6 modal-title"
+        class="text-h5 d-flex align-center px-6 pt-6 pb-4 modal-title"
       >
         <v-icon v-if="titleIcon" class="mr-2">{{ titleIcon }}</v-icon>
         <span>{{ title }}</span>
       </v-card-title>
 
-      <v-card-text class="px-6 pt-4">
+      <v-card-text :class="bodySpacingClass">
         <slot>
           {{ message }}
         </slot>
       </v-card-text>
 
-      <v-card-actions>
+      <v-card-actions class="px-6 py-4">
         <v-spacer />
         <v-btn
           v-for="(action, index) in actions"
@@ -98,6 +98,8 @@ const dialogContentClass = computed(() => {
 
   return `${dialogThemeClass.value} ${props.contentClass}`;
 });
+
+const bodySpacingClass = computed(() => props.title ? 'px-6 py-0' : 'px-6 pt-6 pb-0');
 
 function findCancelAction(): ModalAction | undefined {
   return props.actions.find((a) => a.color === 'secondary' || a.color === 'error');

@@ -168,6 +168,24 @@ confirm.show('Tem certeza?', 'Essa ação é irreversível', {
 
 Both dialogs follow the same contract: the consumer explicitly opts into shortcuts. This prevents accidental confirmations on destructive operations.
 
+### FzModalBase — spacing contract
+
+Vertical rhythm lives entirely in the modal chrome; the body is neutral so consumers
+control the spacing of the content they pass through the default slot.
+
+| Section | Classes | Result |
+|---------|---------|--------|
+| Title | `px-6 pt-6 pb-4` | 24px top inset, 16px below the title |
+| Body (`v-card-text`) | `px-6 py-0` (with title) / `px-6 pt-6 pb-0` (no title) | lateral only; top inset only when there is no title |
+| Actions | `px-6 py-4` | 16px above and below the buttons |
+
+All three sections use `px-6` (24px), so the title, body content and action buttons share
+the same horizontal guides. The body has no vertical padding so consumers can add their
+own (e.g. `<div class="py-4">` in the slot) without fighting the component. When no title
+is provided, the body gets `pt-6`/`pb-0` so content never touches the card's top edge.
+
+Measured with Playwright against the playground (`ModalPlayground.vue`).
+
 ### FzDatePicker — component family
 
 `FzDatePicker` is composed of one public component and internal-only pieces under
