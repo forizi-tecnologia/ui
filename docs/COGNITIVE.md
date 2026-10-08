@@ -469,3 +469,23 @@ utils + composable) and adds a generic `FzTimeWheel`. Decisions:
 - **Live update, menu stays open**: unlike the calendar (one pick → close), the wheel emits
   on every change and the dropdown closes only by clicking outside — the iOS scrolling
   behavior.
+
+### 43. `hideDetails` is a global default (`'auto'`) resolved via FzConfigProvider
+
+Vuetify already types `hide-details` as `"auto" | boolean`. The library now exposes the
+shared `HideDetails = boolean | 'auto'` type (`src/utils/types.ts`) on **every** `Fz*`
+input and resolves it as `props.hideDetails ?? defaults.hideDetails ?? 'auto'`, with
+`FzDefaults` gaining a `hideDetails` field.
+
+Why `'auto'` as the factory default: with `auto` the field reserves no vertical space until
+a hint/error message exists, keeping dense forms compact. UX research backs this as long as
+the shift is user-initiated — our inputs validate on blur (`validateOnBlur: true`) and
+submit, so the message appearing falls within the CLS "recent input" exclusion; the
+Vuetify error state keeps the border width constant, so the only movement is the message
+line. Consumers set `hide-details="false"` per field when they need stable space
+(live/async validation, critical fields).
+
+Previously only `FzDatePicker`/`FzTimePicker`/`FzDateRangeField` declared the prop (as
+`boolean`), which rejected `"auto"` at type-check and logged a runtime warning; the other
+inputs relied on attribute fallthrough. All inputs now declare and resolve it explicitly,
+so the provider default reaches every field.

@@ -16,6 +16,7 @@ const meta = {
     requiredMessage: { control: 'text', description: 'Custom error message when required field is empty. Default: "Email é obrigatório"' },
     invalidMessage: { control: 'text', description: 'Custom error message for invalid email format. Default: "Formato de e-mail inválido"' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area. "auto" hides it until there are messages. Default: "auto"' },
     maxlength: { control: 'number', description: 'Maximum character length. Default: 100' },
   },
 } satisfies Meta<typeof FzEmailField>;

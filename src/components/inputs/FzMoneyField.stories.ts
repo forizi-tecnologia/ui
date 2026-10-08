@@ -16,6 +16,7 @@ const meta = {
     max: { control: 'number', description: 'Maximum allowed value' },
     min: { control: 'number', description: 'Minimum allowed value' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area. "auto" hides it until there are messages. Default: "auto"' },
   },
 } satisfies Meta<typeof FzMoneyField>;
 

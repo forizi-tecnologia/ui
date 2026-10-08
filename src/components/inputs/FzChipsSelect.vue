@@ -12,6 +12,7 @@
     :persistent-hint="hasHint"
     :variant="resolvedVariant"
     :density="resolvedDensity"
+    :hide-details="resolvedHideDetails"
     :multiple="true"
     :chips="true"
     :closable-chips="true"
@@ -54,7 +55,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useFzDefaults } from '@/composables/useFzDefaults';
-import type { TextFieldVariant, TextFieldDensity } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity, HideDetails } from '@/utils/types';
 
 type ValidationRule = (value: unknown) => boolean | string;
 
@@ -82,6 +83,7 @@ interface Props {
   noDataText?: string
   chipColor?: string
   chipVariant?: ChipVariant
+  hideDetails?: HideDetails
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -104,6 +106,7 @@ const props = withDefaults(defineProps<Props>(), {
   noDataText: 'Nenhum item encontrado',
   chipColor: 'primary',
   chipVariant: 'tonal',
+  hideDetails: undefined,
 });
 
 const emit = defineEmits<{
@@ -120,6 +123,8 @@ const hasHint = computed(() => !!props.hint);
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 const resolvedDensity = computed(() => props.density ?? defaults.density ?? 'comfortable');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 const maxVisibleCount = computed(() => props.maxVisibleChips ?? Infinity);
 

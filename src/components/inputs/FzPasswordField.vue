@@ -8,6 +8,7 @@
     :persistent-hint="hasHint"
     :variant="resolvedVariant"
     :density="resolvedDensity"
+    :hide-details="resolvedHideDetails"
     :type="inputType"
     :maxlength="maxlength"
     :autocomplete="autocomplete"
@@ -39,7 +40,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useFzDefaults } from '@/composables/useFzDefaults';
-import type { TextFieldVariant, TextFieldDensity } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity, HideDetails } from '@/utils/types';
 
 type ValidationRule = (value: string) => boolean | string;
 
@@ -63,6 +64,7 @@ interface Props {
   toggleFocusable?: boolean
   showLabel?: string
   hideLabel?: string
+  hideDetails?: HideDetails
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -85,6 +87,7 @@ const props = withDefaults(defineProps<Props>(), {
   toggleFocusable: false,
   showLabel: 'Mostrar senha',
   hideLabel: 'Ocultar senha',
+  hideDetails: undefined,
 });
 
 const emit = defineEmits<{
@@ -103,6 +106,8 @@ const hasHint = computed(() => !!props.hint);
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 const resolvedDensity = computed(() => props.density ?? defaults.density ?? 'comfortable');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 const inputType = computed(() => isVisible.value ? 'text' : 'password');
 

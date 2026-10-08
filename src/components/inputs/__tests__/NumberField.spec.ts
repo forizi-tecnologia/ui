@@ -292,4 +292,14 @@ describe('FzNumberField', () => {
     expect(emitted).toBeTruthy();
     expect(emitted![0][0]).toBe(123);
   });
+
+  it('should default hideDetails to auto', () => {
+    expect(wrapper.findComponent({ name: 'v-text-field' }).props('hideDetails')).toBe('auto');
+  });
+
+  it('should forward a hideDetails override', async () => {
+    await wrapper.setProps({ hideDetails: false });
+
+    expect(wrapper.findComponent({ name: 'v-text-field' }).props('hideDetails')).toBe(false);
+  });
 });

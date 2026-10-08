@@ -27,6 +27,7 @@ const meta = {
     validateOnBlur: { control: 'boolean', description: 'Validate on blur (true) or on every change (false). Default: true' },
     requiredMessage: { control: 'text', description: 'Custom error message when required and empty. Default: "Selecione ao menos um item"' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area. "auto" hides it until there are messages. Default: "auto"' },
     density: { control: 'select', options: ['default', 'comfortable', 'compact'], description: 'Vuetify text field density. Default: "comfortable"' },
     maxVisibleChips: { control: 'number', description: 'Maximum number of chips shown before collapsing into a "+N" chip. Undefined shows all.' },
     hideSelected: { control: 'boolean', description: 'Hide already-selected options from the menu and remove the selection checkbox. Default: true' },

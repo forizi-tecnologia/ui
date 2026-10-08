@@ -16,6 +16,7 @@ const meta = {
     requiredMessage: { control: 'text', description: 'Custom error message when required field is empty. Default: "CPF/CNPJ é obrigatório"' },
     invalidMessage: { control: 'text', description: 'Custom error message for an invalid document. Default: "CPF/CNPJ inválido"' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area. "auto" hides it until there are messages. Default: "auto"' },
     density: { control: 'select', options: ['default', 'comfortable', 'compact'], description: 'Vuetify text field density. Default: "comfortable"' },
   },
 } satisfies Meta<typeof FzCpfCnpjField>;

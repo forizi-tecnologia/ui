@@ -16,6 +16,7 @@ const meta = {
     required: { control: 'boolean', description: 'Add a required rule to every field except complemento' },
     requiredMessage: { control: 'text', description: 'Custom message for empty required fields. Default: "<label> é obrigatório"' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area on every field. "auto" hides it until there are messages. Default: "auto"' },
   },
 } satisfies Meta<typeof FzFullAddress>;
 

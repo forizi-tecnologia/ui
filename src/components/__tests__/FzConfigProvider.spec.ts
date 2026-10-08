@@ -4,6 +4,7 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 import { h, defineComponent } from 'vue';
 import { createVuetify } from 'vuetify';
 import FzConfigProvider from '../FzConfigProvider.vue';
+import FzMoneyField from '../inputs/FzMoneyField.vue';
 import { useFzDefaults } from '@/composables/useFzDefaults';
 
 const vuetify = createVuetify();
@@ -124,6 +125,28 @@ describe('FzConfigProvider', () => {
 
     it('should let inner provider override outer provider', () => {
       expect(wrapper.find('[data-test="variant"]').text()).toBe('solo');
+    });
+  });
+
+  describe('provide/inject — hideDetails default', () => {
+    it('should apply the provider hideDetails to a field', () => {
+      const wrapper = mount(FzConfigProvider, {
+        props: { defaults: { hideDetails: false } },
+        slots: { default: () => h(FzMoneyField) },
+        global: { plugins: [vuetify] },
+      });
+
+      expect(wrapper.findComponent({ name: 'v-text-field' }).props('hideDetails')).toBe(false);
+
+      wrapper.unmount();
+    });
+
+    it('should default hideDetails to auto without a provider', () => {
+      const wrapper = mount(FzMoneyField, { global: { plugins: [vuetify] } });
+
+      expect(wrapper.findComponent({ name: 'v-text-field' }).props('hideDetails')).toBe('auto');
+
+      wrapper.unmount();
     });
   });
 });

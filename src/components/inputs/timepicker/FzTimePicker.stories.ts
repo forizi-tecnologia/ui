@@ -19,7 +19,7 @@ const meta = {
     invalidMessage: { control: 'text', description: 'Override for the invalid validation message' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
     density: { control: 'select', options: ['default', 'comfortable', 'compact'], description: 'Vuetify text field density. Default: "comfortable"' },
-    hideDetails: { control: 'boolean', description: 'Hide the hint and error messages area. Default: false' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area. "auto" hides it until there are messages. Default: "auto"' },
     fieldWidth: { control: 'text', description: 'Field width. Default: "160px"' },
     icon: { control: 'text', description: 'Trigger icon (mdi-*). Default: "mdi-clock-outline"' },
     width: { control: 'number', description: 'Picker dropdown width in pixels. Defaults to 180 (24h) or 240 (12h)' },

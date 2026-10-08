@@ -16,6 +16,7 @@ const meta = {
     locale: { control: 'text', description: 'Locale for number formatting (e.g. pt-BR, en-US). Default: "pt-BR"' },
     allowNegative: { control: 'boolean', description: 'Allow negative values. Default: true' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area. "auto" hides it until there are messages. Default: "auto"' },
     max: { control: 'number', description: 'Maximum allowed value. Default: 999000000' },
     min: { control: 'number', description: 'Minimum allowed value. Default: undefined (no limit)' },
   },

@@ -481,4 +481,14 @@ describe('FzTimePicker', () => {
     expect(menu.props('minuteLabel')).toBe('Minute');
     expect(menu.props('meridiemLabel')).toBe('Period');
   });
+
+  it('should default hideDetails to auto', () => {
+    expect(wrapper.findComponent({ name: 'v-text-field' }).props('hideDetails')).toBe('auto');
+  });
+
+  it('should forward a hideDetails override to the text field', async () => {
+    await wrapper.setProps({ hideDetails: false });
+
+    expect(wrapper.findComponent({ name: 'v-text-field' }).props('hideDetails')).toBe(false);
+  });
 });

@@ -201,6 +201,18 @@ describe('FzDateRangeField', () => {
     expect(getValidationMessages()).not.toContain('Data inicial não pode ser maior que a data final');
   });
 
+  it('should not show range validation error when the end date is incomplete', async () => {
+    await wrapper.setProps({ modelValue: { start: '2024-06-20', end: null } });
+
+    const endField = wrapper.findAllComponents({ name: 'v-text-field' })[1];
+    const rules = endField.props('rules') as ((value: string) => boolean | string)[];
+    const rangeRule = rules.find(
+      (rule) => rule('01/01/2000') === 'Data inicial não pode ser maior que a data final',
+    );
+
+    expect(rangeRule?.('20')).toBe(true);
+  });
+
   it('should disable both fields when disabled is true', async () => {
     await wrapper.setProps({ disabled: true });
 
@@ -297,5 +309,22 @@ describe('FzDateRangeField', () => {
       expect(picker.props('menuLocation')).toBe('bottom start');
       expect(picker.props('menuOrigin')).toBe('top left');
     }
+  });
+
+  it('should default hideDetails to auto on both fields', () => {
+    const fields = wrapper.findAllComponents({ name: 'v-text-field' });
+
+    expect(fields).toHaveLength(2);
+    expect(fields[0].props('hideDetails')).toBe('auto');
+    expect(fields[1].props('hideDetails')).toBe('auto');
+  });
+
+  it('should forward a hideDetails override to both fields', async () => {
+    await wrapper.setProps({ hideDetails: false });
+
+    const fields = wrapper.findAllComponents({ name: 'v-text-field' });
+
+    expect(fields[0].props('hideDetails')).toBe(false);
+    expect(fields[1].props('hideDetails')).toBe(false);
   });
 });

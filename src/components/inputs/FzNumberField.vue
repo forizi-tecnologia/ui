@@ -6,7 +6,8 @@
     :disabled="disabled"
     :hint="hint"
     :persistent-hint="persistentHint"
-        :variant="resolvedVariant"
+    :variant="resolvedVariant"
+    :hide-details="resolvedHideDetails"
     inputmode="decimal"
     @update:model-value="handleInput"
     @focus="handleFocus"
@@ -26,7 +27,7 @@
 import { toRef, computed } from 'vue';
 import { useNumericInput, createNumericKeydownHandler } from '@/composables/useNumericInput';
 import { useFzDefaults } from '@/composables/useFzDefaults';
-import type { TextFieldVariant } from '@/utils/types';
+import type { TextFieldVariant, HideDetails } from '@/utils/types';
 
 type ValidationRule = (value: string) => boolean | string;
 
@@ -43,6 +44,7 @@ interface Props {
   variant?: TextFieldVariant
   max?: number
   min?: number
+  hideDetails?: HideDetails
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -58,6 +60,7 @@ const props = withDefaults(defineProps<Props>(), {
   variant: undefined,
   max: 999000000,
   min: undefined,
+  hideDetails: undefined,
 });
 
 const emit = defineEmits<{
@@ -67,6 +70,8 @@ const emit = defineEmits<{
 const defaults = useFzDefaults();
 
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 function formatNumber(value: number): string {
   const absValue = Math.abs(value);

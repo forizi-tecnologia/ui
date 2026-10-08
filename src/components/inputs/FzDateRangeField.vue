@@ -12,7 +12,7 @@
       :max="max"
       :variant="resolvedVariant"
       :density="density"
-      :hide-details="hideDetails"
+      :hide-details="resolvedHideDetails"
       :field-width="fieldWidth"
       :required="required"
       :validate-on-blur="validateOnBlur"
@@ -36,7 +36,7 @@
       :max="max"
       :variant="resolvedVariant"
       :density="density"
-      :hide-details="hideDetails"
+      :hide-details="resolvedHideDetails"
       :field-width="fieldWidth"
       :required="required"
       :validate-on-blur="validateOnBlur"
@@ -52,7 +52,7 @@
 import { computed } from 'vue';
 import { useFzDefaults } from '@/composables/useFzDefaults';
 import { parseDisplay, toIso, type DateFormat, type DateLocale } from '@/utils/date';
-import type { TextFieldVariant, TextFieldDensity, MenuAnchor, MenuOrigin } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity, MenuAnchor, MenuOrigin, HideDetails } from '@/utils/types';
 import FzDatePicker from '@/components/inputs/datepicker/FzDatePicker.vue';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -72,7 +72,7 @@ interface Props {
   hint?: string;
   variant?: TextFieldVariant;
   density?: TextFieldDensity;
-  hideDetails?: boolean;
+  hideDetails?: HideDetails;
   fieldWidth?: string;
   min?: string | null;
   max?: string | null;
@@ -97,7 +97,7 @@ const props = withDefaults(defineProps<Props>(), {
   hint: '',
   variant: undefined,
   density: undefined,
-  hideDetails: false,
+  hideDetails: undefined,
   fieldWidth: '160px',
   min: null,
   max: null,
@@ -119,6 +119,8 @@ const emit = defineEmits<{
 const defaults = useFzDefaults();
 
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 const rangeValidationMessage = computed(() => props.rangeInvalidMessage || 'Data inicial não pode ser maior que a data final');
 

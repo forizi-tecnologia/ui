@@ -9,6 +9,7 @@
     :persistent-hint="hasHint"
     :variant="resolvedVariant"
     :density="resolvedDensity"
+    :hide-details="resolvedHideDetails"
     inputmode="text"
     autocomplete="off"
     @blur="handleBlur"
@@ -32,7 +33,7 @@ import { ref, computed } from 'vue';
 import { vMaska } from 'maska/vue';
 import { Mask } from 'maska';
 import { useFzDefaults } from '@/composables/useFzDefaults';
-import type { TextFieldVariant, TextFieldDensity } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity, HideDetails } from '@/utils/types';
 import { detectDocumentType, isValidCpfCnpj, normalizeDocument } from '@/utils/document';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -51,6 +52,7 @@ interface Props {
   invalidMessage?: string
   variant?: TextFieldVariant
   density?: TextFieldDensity
+  hideDetails?: HideDetails
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -65,6 +67,7 @@ const props = withDefaults(defineProps<Props>(), {
   invalidMessage: '',
   variant: undefined,
   density: undefined,
+  hideDetails: undefined,
 });
 
 const emit = defineEmits<{
@@ -101,6 +104,8 @@ const hasHint = computed(() => !!props.hint);
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 const resolvedDensity = computed(() => props.density ?? defaults.density ?? 'comfortable');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 const displayValue = computed(() => documentMask.masked(normalizeDocument(props.modelValue ?? '')));
 

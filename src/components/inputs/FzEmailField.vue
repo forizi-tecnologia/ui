@@ -7,7 +7,8 @@
     :hint="hint"
     :persistent-hint="hasHint"
     :required="required"
-        :variant="resolvedVariant"
+    :variant="resolvedVariant"
+    :hide-details="resolvedHideDetails"
     :maxlength="maxlength"
     type="email"
     inputmode="email"
@@ -30,7 +31,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import type { TextFieldVariant } from '@/utils/types';
+import type { TextFieldVariant, HideDetails } from '@/utils/types';
 import { useFzDefaults } from '@/composables/useFzDefaults';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -47,6 +48,7 @@ interface Props {
   invalidMessage?: string
   variant?: TextFieldVariant
   maxlength?: number
+  hideDetails?: HideDetails
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -61,6 +63,7 @@ const props = withDefaults(defineProps<Props>(), {
   invalidMessage: '',
   variant: undefined,
   maxlength: 100,
+  hideDetails: undefined,
 });
 
 const emit = defineEmits<{
@@ -77,6 +80,8 @@ const defaults = useFzDefaults();
 const hasHint = computed(() => !!props.hint);
 
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 const emailIcon = computed(() => isValid.value ? 'mdi-email-check' : 'mdi-email-outline');
 

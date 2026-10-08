@@ -17,6 +17,7 @@ const meta = {
     minlength: { control: 'number', description: 'Minimum number of characters. 0 disables the check. Default: 0' },
     minlengthMessage: { control: 'text', description: 'Custom error message for the minlength rule. Default: "Senha deve ter ao menos N caracteres"' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area. "auto" hides it until there are messages. Default: "auto"' },
     density: { control: 'select', options: ['default', 'comfortable', 'compact'], description: 'Vuetify text field density. Default: "comfortable"' },
     maxlength: { control: 'number', description: 'Maximum character length' },
     autocomplete: { control: 'text', description: 'Autocomplete hint for the browser. Default: "current-password"' },

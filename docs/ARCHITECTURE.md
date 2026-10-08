@@ -113,7 +113,7 @@ The `FzConfigProvider` component uses Vue's `provide`/`inject` to set default pr
 
 1. Prop passed directly to the component (highest)
 2. Default from `FzConfigProvider`
-3. Hardcoded fallback in the component (`'underlined'`)
+3. Hardcoded fallback in the component (`'underlined'`, `'auto'` for `hideDetails`)
 
 ```vue
 <!-- App.vue -->
@@ -134,6 +134,8 @@ Architecture:
 - Each component → `props.variant ?? defaults.variant ?? 'underlined'`
 
 The `FzDefaults` interface is extensible for future shared props (density, color, etc.).
+
+`hideDetails` is a shared default: every input resolves `props.hideDetails ?? defaults.hideDetails ?? 'auto'`, so setting `hideDetails: 'auto'` (or `false`) once in `FzConfigProvider` applies to all fields, and a single field can still override it with `hide-details`.
 
 ### Global utilities
 

@@ -210,4 +210,14 @@ describe('FzZipCodeField', () => {
 
     expect(input.attributes('inputmode')).toBe('numeric');
   });
+
+  it('should default hideDetails to auto', () => {
+    expect(wrapper.findComponent({ name: 'v-text-field' }).props('hideDetails')).toBe('auto');
+  });
+
+  it('should forward a hideDetails override', async () => {
+    await wrapper.setProps({ hideDetails: false });
+
+    expect(wrapper.findComponent({ name: 'v-text-field' }).props('hideDetails')).toBe(false);
+  });
 });

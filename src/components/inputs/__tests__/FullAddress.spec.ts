@@ -368,4 +368,20 @@ describe('FzFullAddress', () => {
     expect(columns[5].classes()).toContain('v-col-sm-8');
     expect(columns[6].classes()).toContain('v-col-sm-4');
   });
+
+  it('should default hideDetails to auto on every field', () => {
+    for (const field of wrapper.findAllComponents({ name: 'v-text-field' })) {
+      expect(field.props('hideDetails')).toBe('auto');
+    }
+
+    expect(wrapper.findComponent({ name: 'VSelect' }).props('hideDetails')).toBe('auto');
+  });
+
+  it('should forward a hideDetails override to every field', async () => {
+    await wrapper.setProps({ hideDetails: false });
+
+    for (const field of wrapper.findAllComponents({ name: 'v-text-field' })) {
+      expect(field.props('hideDetails')).toBe(false);
+    }
+  });
 });

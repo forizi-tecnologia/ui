@@ -6,6 +6,7 @@
         :disabled="disabled"
         :rules="fieldRules.zipCode"
         :maxlength="maxLengths.zipCode"
+        :hide-details="resolvedHideDetails"
         @zip-code-found="onZipCodeFound"
         @zip-code-not-found="onZipCodeNotFound"
       />
@@ -20,6 +21,7 @@
         :counter="counter"
         :disabled="isAutoDisabled"
         :variant="resolvedVariant"
+        :hide-details="resolvedHideDetails"
       />
     </v-col>
 
@@ -32,6 +34,7 @@
         :counter="counter"
         :disabled="disabled"
         :variant="resolvedVariant"
+        :hide-details="resolvedHideDetails"
       />
     </v-col>
 
@@ -44,6 +47,7 @@
         :counter="counter"
         :disabled="disabled"
         :variant="resolvedVariant"
+        :hide-details="resolvedHideDetails"
       />
     </v-col>
 
@@ -56,6 +60,7 @@
         :counter="counter"
         :disabled="isAutoDisabled"
         :variant="resolvedVariant"
+        :hide-details="resolvedHideDetails"
       />
     </v-col>
 
@@ -68,6 +73,7 @@
         :counter="counter"
         :disabled="isAutoDisabled"
         :variant="resolvedVariant"
+        :hide-details="resolvedHideDetails"
       />
     </v-col>
 
@@ -81,6 +87,7 @@
         :rules="fieldRules.state"
         :disabled="isAutoDisabled"
         :variant="resolvedVariant"
+        :hide-details="resolvedHideDetails"
       />
     </v-col>
   </v-row>
@@ -88,7 +95,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch, computed, nextTick } from 'vue';
-import type { TextFieldVariant } from '@/utils/types';
+import type { TextFieldVariant, HideDetails } from '@/utils/types';
 import { useFzDefaults } from '@/composables/useFzDefaults';
 import FzZipCodeField, { type ZipCodeResponse } from './FzZipCodeField.vue';
 
@@ -145,6 +152,7 @@ interface Props {
   required?: boolean
   requiredMessage?: string
   variant?: TextFieldVariant
+  hideDetails?: HideDetails
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -158,6 +166,7 @@ const props = withDefaults(defineProps<Props>(), {
   required: false,
   requiredMessage: '',
   variant: undefined,
+  hideDetails: undefined,
 });
 
 const emit = defineEmits<{
@@ -243,6 +252,8 @@ const defaults = useFzDefaults();
 const isAutoDisabled = computed(() => props.disabled || (props.disabledFields && zipCodeFound.value));
 
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 const maxLengths = computed<Required<AddressMaxLengths>>(() => ({
   ...DEFAULT_MAX_LENGTHS,

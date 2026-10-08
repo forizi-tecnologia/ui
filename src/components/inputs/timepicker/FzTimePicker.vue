@@ -8,7 +8,7 @@
     :disabled="disabled"
     :hint="hint"
     :persistent-hint="hasHint"
-    :hide-details="hideDetails"
+    :hide-details="resolvedHideDetails"
     :variant="resolvedVariant"
     :density="resolvedDensity"
     :style="fieldStyle"
@@ -56,7 +56,7 @@ import {
   parseDisplay,
   toCanonical,
 } from '@/utils/time';
-import type { TextFieldVariant, TextFieldDensity, MenuAnchor, MenuOrigin } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity, MenuAnchor, MenuOrigin, HideDetails } from '@/utils/types';
 import FzTimePickerMenu from './FzTimePickerMenu.vue';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -89,7 +89,7 @@ interface Props {
   invalidMessage?: string;
   variant?: TextFieldVariant;
   density?: TextFieldDensity;
-  hideDetails?: boolean;
+  hideDetails?: HideDetails;
   fieldWidth?: string;
   icon?: string;
   width?: string | number;
@@ -117,7 +117,7 @@ const props = withDefaults(defineProps<Props>(), {
   invalidMessage: '',
   variant: undefined,
   density: undefined,
-  hideDetails: false,
+  hideDetails: undefined,
   fieldWidth: '160px',
   icon: 'mdi-clock-outline',
   width: undefined,
@@ -146,6 +146,8 @@ const hasHint = computed(() => !!props.hint);
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 const resolvedDensity = computed(() => props.density ?? defaults.density ?? 'comfortable');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 const resolvedMenuOrigin = computed<MenuOrigin>(() => props.menuOrigin ?? 'auto');
 

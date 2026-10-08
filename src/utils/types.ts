@@ -28,6 +28,8 @@ export type TextFieldVariant = 'outlined' | 'filled' | 'plain' | 'solo' | 'solo-
 
 export type TextFieldDensity = 'default' | 'comfortable' | 'compact';
 
+export type HideDetails = boolean | 'auto';
+
 type MenuBlock = 'top' | 'bottom';
 type MenuInline = 'start' | 'end' | 'left' | 'right';
 

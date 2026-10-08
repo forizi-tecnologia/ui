@@ -13,6 +13,7 @@ const meta = {
     hint: { control: 'text', description: 'Hint text displayed below the field' },
     icon: { control: 'text', description: 'MDI icon name for the prepend-inner slot. Default: "mdi-phone-outline"' },
     variant: { control: 'select', options: ['underlined', 'outlined', 'filled', 'plain', 'solo'], description: 'Vuetify text field variant. Default: "underlined"' },
+    hideDetails: { control: 'select', options: [true, false, 'auto'], description: 'Hide the hint and error messages area. "auto" hides it until there are messages. Default: "auto"' },
   },
 } satisfies Meta<typeof FzPhoneField>;
 

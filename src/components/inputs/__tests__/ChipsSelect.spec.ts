@@ -261,4 +261,14 @@ describe('FzChipsSelect', () => {
 
     expect((wrapper.find('input').element as HTMLInputElement).disabled).toBe(true);
   });
+
+  it('should default hideDetails to auto', () => {
+    expect(getAutocomplete().props('hideDetails')).toBe('auto');
+  });
+
+  it('should forward a hideDetails override', async () => {
+    await wrapper.setProps({ hideDetails: false });
+
+    expect(getAutocomplete().props('hideDetails')).toBe(false);
+  });
 });

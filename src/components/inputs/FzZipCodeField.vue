@@ -9,6 +9,7 @@
     :persistent-hint="hasHint"
     :maxlength="maxlength"
     :variant="resolvedVariant"
+    :hide-details="resolvedHideDetails"
     :loading="isSearching"
     inputmode="numeric"
   >
@@ -29,7 +30,7 @@ import { ref, computed, onBeforeUnmount } from 'vue';
 import { vMaska } from 'maska/vue';
 import { Mask } from 'maska';
 import { useFzDefaults } from '@/composables/useFzDefaults';
-import type { TextFieldVariant } from '@/utils/types';
+import type { TextFieldVariant, HideDetails } from '@/utils/types';
 
 type ValidationRule = (value: string) => boolean | string;
 
@@ -61,6 +62,7 @@ interface Props {
   hint?: string
   variant?: TextFieldVariant
   maxlength?: number
+  hideDetails?: HideDetails
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -71,6 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
   hint: '',
   variant: undefined,
   maxlength: undefined,
+  hideDetails: undefined,
 });
 
 const emit = defineEmits<{
@@ -92,7 +95,7 @@ const hasHint = computed(() => !!props.hint);
 
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
-
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 function mapResponse(data: ViaCepApiResponse): ZipCodeResponse {
   return {

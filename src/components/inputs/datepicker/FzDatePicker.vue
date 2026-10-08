@@ -8,7 +8,7 @@
     :disabled="disabled"
     :hint="hint"
     :persistent-hint="hasHint"
-    :hide-details="hideDetails"
+    :hide-details="resolvedHideDetails"
     :variant="resolvedVariant"
     :density="resolvedDensity"
     :style="fieldStyle"
@@ -57,7 +57,7 @@ import {
   type DateFormat,
   type DateLocale,
 } from '@/utils/date';
-import type { TextFieldVariant, TextFieldDensity, MenuAnchor, MenuOrigin } from '@/utils/types';
+import type { TextFieldVariant, TextFieldDensity, MenuAnchor, MenuOrigin, HideDetails } from '@/utils/types';
 import FzDatePickerCalendar from './FzDatePickerCalendar.vue';
 
 type ValidationRule = (value: string) => boolean | string;
@@ -79,7 +79,7 @@ interface Props {
   invalidMessage?: string;
   variant?: TextFieldVariant;
   density?: TextFieldDensity;
-  hideDetails?: boolean;
+  hideDetails?: HideDetails;
   fieldWidth?: string;
   min?: string | null;
   max?: string | null;
@@ -106,7 +106,7 @@ const props = withDefaults(defineProps<Props>(), {
   invalidMessage: '',
   variant: undefined,
   density: undefined,
-  hideDetails: false,
+  hideDetails: undefined,
   fieldWidth: '160px',
   min: null,
   max: null,
@@ -134,6 +134,8 @@ const hasHint = computed(() => !!props.hint);
 const resolvedVariant = computed(() => props.variant ?? defaults.variant ?? 'underlined');
 
 const resolvedDensity = computed(() => props.density ?? defaults.density ?? 'comfortable');
+
+const resolvedHideDetails = computed(() => props.hideDetails ?? defaults.hideDetails ?? 'auto');
 
 const resolvedMenuOrigin = computed<MenuOrigin>(() => props.menuOrigin ?? 'auto');
 
