@@ -10,6 +10,8 @@ export * from './types';
 
 export type { DateFormat, DateLocale, DateParts, DayCell } from './date';
 
+export type { Meridiem, TimeParts, TimeWheelOption } from './time';
+
 export {
   normalizeDocument,
   detectDocumentType,

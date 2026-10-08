@@ -9,3 +9,5 @@ export { useLoading } from './useLoading';
 export { useNumericInput, NAVIGATION_KEYS, createNumericKeydownHandler } from './useNumericInput';
 
 export { useDatePicker, type CalendarView, type UseDatePickerParams } from './useDatePicker';
+
+export { useTimePicker, type UseTimePickerParams } from './useTimePicker';

@@ -44,6 +44,38 @@
     </div>
   </SectionCard>
 
+  <SectionCard title="FzTimePicker">
+    <template #description>
+      Campo de hora com máscara e menu de seleção (rodas de hora e minuto, estilo iOS).
+    </template>
+
+    <div class="d-flex flex-wrap ga-4">
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzTimePicker v-model="timeValue" label="Hora (24h)" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzTimePicker v-model="timeTwelve" label="Hora (12h)" :use-24-hour="false" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzTimePicker v-model="timeStep" label="Passo de 15 min" :minute-step="15" />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzTimePicker v-model="timeRequired" label="Hora (obrigatória)" required />
+      </div>
+
+      <div style="min-width: 280px; max-width: 360px;">
+        <FzTimePicker v-model="timeDisabled" label="Desabilitada" disabled />
+      </div>
+    </div>
+
+    <div class="mt-2 text-caption text-medium-emphasis">
+      v-model: {{ timeValue || '—' }} · 12h: {{ timeTwelve || '—' }} · Step: {{ timeStep || '—' }}
+    </div>
+  </SectionCard>
+
   <SectionCard title="FzDateRangeField">
     <template #description>
       Intervalo de datas (inicial e final) com validação de período.
@@ -426,6 +458,13 @@ const dateDisabled = ref('2026-07-08');
 const dateCustomLocation = ref('');
 const minDate = ref('2026-07-01');
 const maxDate = ref('2026-07-31');
+
+// TimePicker
+const timeValue = ref('');
+const timeTwelve = ref('14:30');
+const timeStep = ref('');
+const timeRequired = ref('');
+const timeDisabled = ref('09:00');
 
 // DateRangeField
 const dateRangeValue = ref<DateRange>({ start: null, end: null });

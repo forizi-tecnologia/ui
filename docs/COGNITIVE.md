@@ -448,3 +448,24 @@ kept — consumers adjust their modals after upgrading.
 
 Edge case: without a `title`, the body switches to `px-6 pt-6 pb-0` so the first line of
 content (e.g. the `message` prop) keeps a top inset instead of touching the card edge.
+
+### 42. FzTimePicker — native scroll-snap wheel, canonical 24h v-model
+
+The time picker reuses the date picker's architecture (masked field + dropdown + pure
+utils + composable) and adds a generic `FzTimeWheel`. Decisions:
+
+- **No 3D wheel**: the iOS selector is reproduced with native `scroll-snap-type: y
+  mandatory` plus top/bottom spacers (so the first/last item can center), not CSS 3D
+  transforms. A theme-aware highlight band and a mask gradient complete the look. Zero new
+  dependencies.
+- **Canonical 24h `v-model`**: the value is always `HH:mm` in 24h, mirroring
+  `FzDatePicker`'s ISO contract. `use24Hour=false` only changes the display/mask and adds
+  the AM/PM wheel, so the backend value never depends on the UI mode.
+- **12h mask via custom maska tokens**: `##:## AM` with tokens `A` (`[AaPp]`) and `M`
+  (`[Mm]`), both uppercasing, so typing lowercase still yields `PM`.
+- **`minuteStep` affects the wheel only**: typed minutes remain 0–59; the wheel filters its
+  options and snaps non-aligned minutes on open. This keeps free typing predictable and
+  avoids flagging consumer-provided values as invalid.
+- **Live update, menu stays open**: unlike the calendar (one pick → close), the wheel emits
+  on every change and the dropdown closes only by clicking outside — the iOS scrolling
+  behavior.

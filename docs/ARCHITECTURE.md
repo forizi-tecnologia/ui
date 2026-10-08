@@ -11,6 +11,7 @@ src/
     buttons/        ─ Icon-only button with tooltip (FzIconToolTip)
     inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzCpfCnpjField, FzChipsSelect, FzPasswordField, FzFullAddress, FzDateRangeField, etc.)
       datepicker/   ─ FzDatePicker family (public component + internal calendar shell/views)
+      timepicker/   ─ FzTimePicker family (public component + internal menu/wheel)
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
     messages/       ─ Notification/confirm (FzFloatingNotify, FzConfirmDialog, FzCustomConfirmDialog)
@@ -233,6 +234,41 @@ overridable via `rangeInvalidMessage` prop.
 
 **Global min/max**: `min` and `max` props pass through to both `FzDatePicker` instances
 to constrain valid date ranges consistently.
+
+### FzTimePicker — component family
+
+`FzTimePicker` is a time-only input (mask + wheel picker) built in the same style as
+`FzDatePicker`, grouped under `src/components/inputs/timepicker/`. Only `FzTimePicker` is
+exported.
+
+```
+inputs/timepicker/
+  FzTimePicker.vue        ─ public: masked field + validation + wheel trigger
+  FzTimePickerMenu.vue    ─ internal: v-menu shell + wheel row + highlight band
+  FzTimeWheel.vue         ─ internal: generic scroll-snap wheel
+```
+
+Supporting layers, following the Component → Composable → Utility split:
+
+- `src/utils/time.ts` — pure functions (parse/format 24h & 12h, wheel options, step
+  snapping), fully unit-tested.
+- `src/composables/useTimePicker.ts` — wheel state (`hour`/`minute`/`meridiem`) + option
+  lists.
+
+**v-model contract**: always canonical 24h `HH:mm`, independent of the display mode.
+`use24Hour=false` only changes the mask/display (`hh:mm AM/PM`) and adds an AM/PM wheel.
+
+**Wheel behavior**: native `scroll-snap-type: y mandatory` with top/bottom spacers so the
+first and last items can center; a theme-aware highlight band marks the selection and a
+mask gradient fades the edges. Scrolling updates the value live and emits on every change
+(the menu stays open, unlike the calendar); `minuteStep` filters the minute options and
+snaps non-aligned minutes on open.
+
+**12h mask**: maska custom tokens (`A` → `[AaPp]`, `M` → `[Mm]`, both uppercasing) turn
+`0230pm` into `02:30 PM`.
+
+No new Vuetify component was added (`VMenu`, `VCard`, `VIcon`, `VTextField` are already in
+`requiredVuetifyComponents`).
 
 ### FzCpfCnpjField — dynamic CPF/CNPJ input
 

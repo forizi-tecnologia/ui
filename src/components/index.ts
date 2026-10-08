@@ -30,6 +30,8 @@ export { default as FzPasswordField } from './inputs/FzPasswordField.vue';
 
 export { default as FzDatePicker } from './inputs/datepicker/FzDatePicker.vue';
 
+export { default as FzTimePicker } from './inputs/timepicker/FzTimePicker.vue';
+
 export {
   default as FzFullAddress,
   type Address,
