@@ -106,6 +106,21 @@ Zero logic. Conditionals and class bindings → computed. Boolean props without 
 <v-btn v-if="canProceed" :disabled="submitting">Save</v-btn>
 ```
 
+Boolean props are `true` when present — never bind `="true"`. Only `false` needs an explicit binding:
+
+```vue
+<!-- WRONG -->
+<FzDataTable :mobile="true" />
+<v-autocomplete :multiple="true" :chips="true" />
+
+<!-- CORRECT -->
+<FzDataTable mobile />
+<v-autocomplete multiple chips />
+
+<!-- CORRECT: false stays explicit -->
+<v-autocomplete :closable-chips="false" />
+```
+
 ```ts
 const canProceed = computed(() => items.value.length > 0 && !loading.value)
 ```

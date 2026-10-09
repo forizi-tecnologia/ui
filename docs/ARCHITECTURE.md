@@ -15,6 +15,8 @@ src/
     layout/         ─ App shell components (FzLoadingOverlay)
     modals/         ─ Modal dialogs (FzModalBase)
     messages/       ─ Notification/confirm (FzFloatingNotify, FzConfirmDialog, FzCustomConfirmDialog)
+    navigation/     ─ Page navigation (FzPagination)
+    tables/         ─ Responsive data table (FzDataTable family)
     FzConfigProvider.vue ─ Global defaults via provide/inject
     index.ts        ─ Barrel — exports every component
 
@@ -39,6 +41,7 @@ src/
     api.ts          ─ Axios wrapper
     date.ts         ─ Date parsing, formatting, validation, calendar grid
     document.ts     ─ CPF/CNPJ (numeric + alphanumeric) normalization, detection, validation, formatting
+    table.ts        ─ Data table helpers (getValueByPath, getVisibleColumns) and Vuetify prop types
     types.ts        ─ Shared types and constants
     vuetify-check.ts
 
@@ -385,6 +388,45 @@ default `auto`). With `origin="auto"`, the content's origin is `flipSide(locatio
 `top right` → content bottom-right at the activator's top-right, keeping the icon and the
 menu's right edge on the same vertical line. A consumer-provided `menuLocation` is
 respected and `menuOrigin` defaults to `auto` (Vuetify's standard behavior).
+
+### FzDataTable — responsive table + cards family
+
+`FzDataTable` is a single public wrapper that renders a server-side table on
+large screens and a list of cards below the mobile breakpoint. It follows the
+component-family split used by `FzDatePicker`:
+
+```
+tables/
+  FzDataTable.vue          ─ public: decides table vs cards, routes props/slots/models
+  FzDataTableDesktop.vue   ─ internal: v-data-table-server
+  FzDataTableCards.vue     ─ internal: v-for → v-card + FzPagination
+navigation/
+  FzPagination.vue         ─ public: prev / current page / total / next
+utils/table.ts             ─ pure helpers + Vuetify-derived prop types
+```
+
+- **Server-side by default**: `items` is the current page, `itemsLength` the total.
+  `page`/`itemsPerPage`/`sortBy` are proxied with `defineModel`; `update:options`
+  is the single fetch hook. `search` is a plain prop (Vuetify never emits
+  `update:search`).
+- **Props**: a small set of controlled props plus `tableProps` (typed from
+  `VDataTableServer['$props']`) for any other Vuetify prop.
+- **Breakpoint**: `useBreakpoint().isMobileOrTablet` (`smAndDown`) unless the
+  `mobile` prop forces one layout.
+- **Slots**: all slots are forwarded to the internal table; `item.<key>` is also
+  reused as the value renderer inside the cards. `#card="{ item, index }"`
+  replaces the card body.
+- **Height / scroll**: the `height` prop confines the scroll to the list — the
+  table scrolls internally on desktop and the card area scrolls (pagination
+  pinned below) on mobile. Page layout (e.g. a field above the table) is the
+  consumer's responsibility.
+- **Card styling (mobile)**: cards are flat by default (`elevation: 0`, 8px
+  padding). `elevation` overrides the shadow and `accentColor`/`accentWidth`
+  draw an optional colored left border.
+- **FzPagination** is exported publicly and used by the card layout.
+
+`requiredVuetifyComponents` gained `VDataTableServer`. `VCard`, `VProgressCircular`,
+`VBtn`, `VIcon` were already listed.
 
 ## CSS — Vuetify utilities first
 

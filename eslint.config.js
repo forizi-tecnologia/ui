@@ -36,6 +36,7 @@ export default [
         HTMLElement: 'readonly',
         HTMLInputElement: 'readonly',
         localStorage: 'readonly',
+        URLSearchParams: 'readonly',
         fetch: 'readonly',
         AbortController: 'readonly',
       },
@@ -59,6 +60,7 @@ export default [
   {
     rules: {
       'vue/multi-word-component-names': 'off',
+      'vue/valid-v-slot': ['error', { allowModifiers: true }],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'curly': ['error', 'multi-line'],

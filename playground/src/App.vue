@@ -48,6 +48,7 @@
           <v-tab value="modal">Modal</v-tab>
           <v-tab value="mensagens">Mensagens</v-tab>
           <v-tab value="layout">Layout</v-tab>
+          <v-tab value="tabela">Tabela</v-tab>
         </v-tabs>
 
         <v-divider />
@@ -73,6 +74,10 @@
             <v-window-item value="layout" class="pa-6">
               <LayoutPlayground />
             </v-window-item>
+
+            <v-window-item value="tabela" class="pa-6">
+              <TablesPlayground />
+            </v-window-item>
           </v-window>
         </div>
       </FzConfigProvider>
@@ -95,13 +100,14 @@ import InputsPlayground from './views/InputsPlayground.vue';
 import ModalPlayground from './views/ModalPlayground.vue';
 import MessagesPlayground from './views/MessagesPlayground.vue';
 import LayoutPlayground from './views/LayoutPlayground.vue';
+import TablesPlayground from './views/TablesPlayground.vue';
 
 const STORAGE_THEME = 'playground-theme';
 const STORAGE_TAB = 'playground-tab';
 const STORAGE_VARIANT = 'playground-variant';
 const STORAGE_DENSITY = 'playground-density';
 
-const activeTab = ref(localStorage.getItem(STORAGE_TAB) || 'botoes');
+const activeTab = ref(new URLSearchParams(window.location.search).get('tab') || localStorage.getItem(STORAGE_TAB) || 'botoes');
 
 const variants: TextFieldVariant[] = ['underlined', 'outlined', 'filled', 'plain', 'solo', 'solo-filled', 'solo-inverted'];
 
