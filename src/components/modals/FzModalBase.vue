@@ -12,7 +12,8 @@
     <v-card>
       <v-card-title
         v-if="title"
-        class="text-h5 d-flex align-center px-6 pt-6 pb-4 modal-title"
+        class="text-h5 d-flex align-center modal-title"
+        :class="titleSpacingClass"
       >
         <v-icon v-if="titleIcon" class="mr-2">{{ titleIcon }}</v-icon>
         <span>{{ title }}</span>
@@ -24,7 +25,7 @@
         </slot>
       </v-card-text>
 
-      <v-card-actions class="px-6 py-4">
+      <v-card-actions :class="actionsSpacingClass">
         <v-spacer />
         <v-btn
           v-for="(action, index) in actions"
@@ -47,6 +48,9 @@
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
 
+const MIN_MODAL_SPACING = 0;
+const MAX_MODAL_SPACING = 12;
+
 export interface ModalAction {
   text: string;
   icon?: string;
@@ -66,6 +70,8 @@ interface Props {
   contentClass?: string;
   fullscreen?: boolean;
   titleIcon?: string;
+  padding?: number;
+  mobilePadding?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -78,6 +84,8 @@ const props = withDefaults(defineProps<Props>(), {
   contentClass: undefined,
   fullscreen: false,
   titleIcon: undefined,
+  padding: 4,
+  mobilePadding: undefined,
 });
 
 const emit = defineEmits<{
@@ -99,7 +107,26 @@ const dialogContentClass = computed(() => {
   return `${dialogThemeClass.value} ${props.contentClass}`;
 });
 
-const bodySpacingClass = computed(() => props.title ? 'px-6 py-0' : 'px-6 pt-6 pb-0');
+const desktopInset = computed(() => clampSpacing(props.padding));
+const mobileInset = computed(() => clampSpacing(props.mobilePadding ?? Math.floor(desktopInset.value / 2)));
+
+const horizontalPaddingClass = computed(() => `px-${mobileInset.value} px-md-${desktopInset.value}`);
+
+const titleSpacingClass = computed(
+  () => `${horizontalPaddingClass.value} pt-${mobileInset.value} pt-md-${desktopInset.value} pb-${mobileInset.value} pb-md-${desktopInset.value}`,
+);
+
+const bodySpacingClass = computed(() => props.title
+  ? `${horizontalPaddingClass.value} py-0`
+  : `${horizontalPaddingClass.value} pt-${mobileInset.value} pt-md-${desktopInset.value} pb-0`);
+
+const actionsSpacingClass = computed(
+  () => `${horizontalPaddingClass.value} py-${mobileInset.value} py-md-${desktopInset.value}`,
+);
+
+function clampSpacing(value: number): number {
+  return Math.min(Math.max(value, MIN_MODAL_SPACING), MAX_MODAL_SPACING);
+}
 
 function findCancelAction(): ModalAction | undefined {
   return props.actions.find((a) => a.color === 'secondary' || a.color === 'error');

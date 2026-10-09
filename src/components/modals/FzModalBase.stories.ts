@@ -17,6 +17,8 @@ const meta = {
     fullscreen: { control: 'boolean', description: 'Display modal in fullscreen mode. Default: false' },
     actions: { description: 'Array of ModalAction objects: { text: string, icon?: string, color?: string, variant?: string, handler?: () => void }. The last action with color "primary" (or no color) is treated as the primary action and triggers on Enter. Actions with "secondary" or "error" color trigger on Escape.' },
     contentClass: { control: 'text', description: 'Additional CSS classes added to the dialog content element' },
+    padding: { control: 'number', description: 'Spacing for the title, body (lateral) and actions on the Vuetify spacing scale 0-12. Default: 4 (16px). Below 960px it is halved automatically to 8px.' },
+    mobilePadding: { control: 'number', description: 'Overrides the spacing used below 960px. When omitted it defaults to half of padding.' },
   },
 } satisfies Meta<typeof FzModalBase>;
 
@@ -76,6 +78,27 @@ export const LargeWidth: Story = {
     title: 'Modal largo',
     message: 'Este modal usa maxWidth de 800px.',
     maxWidth: 800,
+    actions: defaultActions,
+  },
+};
+
+export const CustomPadding: Story = {
+  args: {
+    modelValue: true,
+    title: 'Padding customizado',
+    message: 'Este modal usa padding 8 abaixo de 960px vira 4 automaticamente.',
+    padding: 8,
+    actions: defaultActions,
+  },
+};
+
+export const CustomMobilePadding: Story = {
+  args: {
+    modelValue: true,
+    title: 'Padding mobile dedicado',
+    message: 'Este modal usa padding 8 e mobilePadding 2.',
+    padding: 8,
+    mobilePadding: 2,
     actions: defaultActions,
   },
 };

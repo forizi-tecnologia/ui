@@ -435,19 +435,25 @@ long-lived `NPM_TOKEN` secret. Requirements:
 
 The `v-card-text` body previously shipped its own vertical padding (`pt-4` plus Vuetify's
 default bottom padding), so slot content was padded twice and consumers could not control
-the vertical rhythm without overriding classes. The body now renders with `px-6 py-0`:
-only lateral padding, zero vertical. The chrome owns the vertical space — title
-`pt-6 pb-4`, actions `py-4` — so a modal with `title` + `message` still gets 16px gaps
-with no work from the consumer, while slot content can add its own spacing (`py-*`)
-freely.
+the vertical rhythm without overriding classes. The body renders with lateral padding
+only, zero vertical. The chrome owns the vertical space, so a modal with `title` +
+`message` still gets gaps with no work from the consumer, while slot content can add its
+own spacing (`py-*`) freely.
 
-The horizontal padding was also unified: title, body and actions all use `px-6`. Before,
-`v-card-actions` kept Vuetify's default 8px, so the action buttons did not align with the
-title/body content (they stuck out to the card edge). No retro-compatibility layer was
-kept — consumers adjust their modals after upgrading.
+The horizontal padding was also unified: title, body and actions share the same guides.
+Before, `v-card-actions` kept Vuetify's default 8px, so the action buttons did not align
+with the title/body content (they stuck out to the card edge). No retro-compatibility
+layer was kept — consumers adjust their modals after upgrading.
 
-Edge case: without a `title`, the body switches to `px-6 pt-6 pb-0` so the first line of
-content (e.g. the `message` prop) keeps a top inset instead of touching the card edge.
+**Responsive + uniform (default `padding: 4`).** Every section now uses the same spacing:
+16px at `md` and up, 8px below 960px (Vuetify responsive spacing classes, no breakpoint
+JS). `padding` (Vuetify scale 0–12) sets the desktop value and `mobilePadding` the mobile
+one (default `floor(padding / 2)`), so consumers control the rhythm without touching CSS.
+This replaced the earlier asymmetric `px-6 pt-6 pb-4 py-4` rhythm with a single harmonious
+16/8 token.
+
+Edge case: without a `title`, the body gets a top inset (`pt-* pt-md-*`) so the first line
+of content (e.g. the `message` prop) does not touch the card edge.
 
 ### 42. FzTimePicker — native scroll-snap wheel, canonical 24h v-model
 
