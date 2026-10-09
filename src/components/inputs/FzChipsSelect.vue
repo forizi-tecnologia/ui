@@ -13,9 +13,9 @@
     :variant="resolvedVariant"
     :density="resolvedDensity"
     :hide-details="resolvedHideDetails"
-    :multiple="true"
-    :chips="true"
-    :closable-chips="true"
+    multiple
+    chips
+    closable-chips
     :hide-selected="hideSelected"
     :clear-on-select="clearOnSelect"
     :no-data-text="noDataText"

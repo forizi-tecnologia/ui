@@ -25,4 +25,14 @@ export {
 
 export type { DocumentType } from './document';
 
+export { getValueByPath, getVisibleColumns } from './table';
+
+export type {
+  DataTableOptions,
+  DataTablePassthroughProps,
+  DataTableServerProps,
+  DataTableControlledKey,
+  VisibleColumn,
+} from './table';
+
 export { ensureVuetify, debugVuetifyInstances } from './vuetify-check';

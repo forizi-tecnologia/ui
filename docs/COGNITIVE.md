@@ -495,3 +495,43 @@ Previously only `FzDatePicker`/`FzTimePicker`/`FzDateRangeField` declared the pr
 `boolean`), which rejected `"auto"` at type-check and logged a runtime warning; the other
 inputs relied on attribute fallthrough. All inputs now declare and resolve it explicitly,
 so the provider default reaches every field.
+
+### 44. FzDataTable — server-side first, custom cards over Vuetify's native mobile mode
+
+The native `v-data-table` `mobile` mode was evaluated in the playground first. It renders
+each row as a plain label/value block separated by a hairline — not a card — and keeps a
+`Sort by` selector at the top. Since the goal was a standard, good-looking card on mobile,
+`FzDataTable` renders real `v-card`s itself below `smAndDown` and keeps
+`v-data-table-server` only for desktop.
+
+Why server-side by default: lists are almost always paginated on the backend in this
+project, so `items` is the current page and `itemsLength` is the total. `update:options`
+is the single fetch hook. `search` is a plain prop because Vuetify never emits
+`update:search` (it only appears inside `update:options`).
+
+### 45. FzDataTable — wrapper + internal presenters (mirrors the FzDatePicker family)
+
+A single public `FzDataTable` decides table vs cards; the table and the card list are
+separate internal components (`FzDataTableDesktop`, `FzDataTableCards`). This keeps each
+file small and independently testable and keeps the `v-if` out of the presenters, without
+pushing the breakpoint decision onto every consumer page. Custom cell slots
+(`item.<key>`) are forwarded generically to the table and reused inside the cards, so the
+same slot works in both layouts without duplicated templates.
+
+Props are split: a small set of controlled props (`headers`, `items`, `itemsLength`,
+`loading`, `page`, `itemsPerPage`, `sortBy`, `search`, `mobile`, labels) plus a
+`tableProps` object typed from `VDataTableServer['$props']` so any other Vuetify prop is
+accepted with type-checking instead of re-declaring the whole API.
+
+### 46. `vue/valid-v-slot` allows modifiers — Vuetify dotted slot names
+
+Vuetify exposes dynamic slots as `item.<key>` / `header.<key>`. `vue-eslint-parser`
+treats the dot as a directive modifier, so `vue/valid-v-slot` is configured with
+`{ allowModifiers: true }`. The Vue compiler already accepts the dotted name (verified
+against `@vue/compiler-sfc`); the rule option only unblocks lint.
+
+### 47. FzPagination — public, reusable
+
+Pagination is not private to the table: consumers may need the same `‹ 3 de 5 ›` control
+above another component. It is exported from the barrel and used by the mobile card
+layout. Prev/next are disabled at the bounds, and the page math clamps defensively.

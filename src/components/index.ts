@@ -41,3 +41,7 @@ export {
 } from './inputs/FzFullAddress.vue';
 
 export { default as FzDateRangeField, type DateRange } from './inputs/FzDateRangeField.vue';
+
+export { default as FzPagination, type FzPaginationProps } from './navigation/FzPagination.vue';
+
+export { default as FzDataTable, type FzDataTableProps } from './tables/FzDataTable.vue';

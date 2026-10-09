@@ -228,7 +228,7 @@
           v-model="numberNegative"
           label="Negativo permitido"
           :decimal-places="2"
-          :allow-negative="true"
+          allow-negative
         />
       </div>
     </div>
@@ -428,7 +428,7 @@
 
         <FzFullAddress
           v-model="addressDisabled"
-          :disabled-fields="true"
+          disabled-fields
         />
       </div>
 
