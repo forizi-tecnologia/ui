@@ -176,16 +176,27 @@ Both dialogs follow the same contract: the consumer explicitly opts into shortcu
 Vertical rhythm lives entirely in the modal chrome; the body is neutral so consumers
 control the spacing of the content they pass through the default slot.
 
-| Section | Classes | Result |
-|---------|---------|--------|
-| Title | `px-6 pt-6 pb-4` | 24px top inset, 16px below the title |
-| Body (`v-card-text`) | `px-6 py-0` (with title) / `px-6 pt-6 pb-0` (no title) | lateral only; top inset only when there is no title |
-| Actions | `px-6 py-4` | 16px above and below the buttons |
+| Section | Classes (base → `md`) | Desktop (≥960px) | Mobile (<960px) |
+|---------|-----------------------|------------------|-----------------|
+| Title | `px-2 px-md-4 pt-2 pt-md-4 pb-2 pb-md-4` | 16px all around | 8px all around |
+| Body (`v-card-text`) | `px-2 px-md-4 py-0` (with title) / `px-2 px-md-4 pt-2 pt-md-4 pb-0` (no title) | lateral only; top inset only when there is no title | same logic, halved |
+| Actions | `px-2 px-md-4 py-2 py-md-4` | 16px all around | 8px all around |
 
-All three sections use `px-6` (24px), so the title, body content and action buttons share
-the same horizontal guides. The body has no vertical padding so consumers can add their
-own (e.g. `<div class="py-4">` in the slot) without fighting the component. When no title
-is provided, the body gets `pt-6`/`pb-0` so content never touches the card's top edge.
+Every section shares the same uniform spacing: **16px on desktop, 8px below 960px**. The
+body keeps lateral padding only, so consumers can add their own vertical spacing
+(e.g. `<div class="py-4">` in the slot) without fighting the component; when there is no
+title it gets a top inset so content never touches the card's edge.
+
+The default responsive behavior is pure CSS (Vuetify responsive spacing classes) — no
+`useDisplay`/breakpoint JS. Customization goes through two props:
+
+- `padding` (Vuetify spacing scale 0–12, default `4` = 16px) — spacing for the title,
+  body (lateral) and actions at `md` and up.
+- `mobilePadding` — spacing below 960px; defaults to `floor(padding / 2)` (so `4` → `2`,
+  i.e. 8px).
+
+`padding: 4` (the default) is the harmonious 16px/8px contract; `padding: 8` yields 32px
+on desktop and 16px below 960px.
 
 Measured with Playwright against the playground (`ModalPlayground.vue`).
 
@@ -293,7 +304,7 @@ A single input that auto-detects the document type and validates the check digit
   `requiredMessage`, `invalidMessage`, `validateOnBlur`, and an `isValid` event.
   Custom rules run after the built-in document rule.
 
-### CNPJ alfanumérico — check digit algorithm
+### Alphanumeric CNPJ — check digit algorithm
 
 Source: *Manual de Cálculo do DV do CNPJ* (Receita Federal). Applies to new
 registrations from July 2026; existing numeric CNPJs remain valid. The same algorithm

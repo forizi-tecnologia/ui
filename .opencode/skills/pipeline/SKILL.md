@@ -71,7 +71,7 @@ pnpm build
 
 If any step fails, diagnose and fix before proceeding.
 
-### 6. Auto-learning (antes do commit)
+### 6. Auto-learning (before the commit)
 
 Run `/learn` to analyze the `git diff` and update documentation:
 
@@ -90,10 +90,10 @@ git add -A
 git diff --cached --stat   # review what will be committed
 ```
 
-Write a conventional commit message in Portuguese summarizing the changes:
-- `feat: adiciona componente X com Y`
-- `fix: corrige comportamento Z`
-- `refactor: reorganiza W em subcomponentes`
+Write a conventional commit message in English summarizing the changes:
+- `feat: add component X with Y`
+- `fix: fix behavior Z`
+- `refactor: reorganize W into subcomponents`
 
 ```bash
 git commit -m "<message>"
@@ -137,10 +137,6 @@ gh pr create \
 > the `github-forizi` SSH alias, so only the MR creation needs the account switch.
 
 Report the PR URL to the user.
-
-### 8. Auto-learning (if significant changes)
-
-If this PR introduces new patterns, conventions, or architectural decisions, suggest running `/learn` to update docs. Do NOT run it automatically — ask the user.
 
 ## Rules
 

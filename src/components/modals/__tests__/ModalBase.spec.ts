@@ -478,43 +478,117 @@ describe('FzModalBase', () => {
   });
 
   describe('spacing', () => {
+    function findCardText() {
+      return wrapper.findComponent({ name: 'v-card-text' });
+    }
+
+    function findCardActions() {
+      return wrapper.findComponent({ name: 'v-card-actions' });
+    }
+
+    it('should use half spacing below 960px and full spacing at md and up by default', async () => {
+      await wrapper.setProps({ modelValue: true, title: 'Confirmação' });
+
+      const title = findCardTitle();
+
+      expect(title.classes()).toContain('px-2');
+      expect(title.classes()).toContain('px-md-4');
+      expect(title.classes()).toContain('pt-2');
+      expect(title.classes()).toContain('pt-md-4');
+      expect(title.classes()).toContain('pb-2');
+      expect(title.classes()).toContain('pb-md-4');
+    });
+
     it('should keep only horizontal padding on the body when title is provided', async () => {
       await wrapper.setProps({ modelValue: true, title: 'Confirmação' });
 
-      const cardText = wrapper.findComponent({ name: 'v-card-text' });
+      const cardText = findCardText();
 
-      expect(cardText.classes()).toContain('px-6');
+      expect(cardText.classes()).toContain('px-2');
+      expect(cardText.classes()).toContain('px-md-4');
       expect(cardText.classes()).toContain('py-0');
     });
 
-    it('should add top padding to the body when title is absent', async () => {
+    it('should add responsive top padding to the body when title is absent', async () => {
       await wrapper.setProps({ modelValue: true });
 
-      const cardText = wrapper.findComponent({ name: 'v-card-text' });
+      const cardText = findCardText();
 
-      expect(cardText.classes()).toContain('px-6');
-      expect(cardText.classes()).toContain('pt-6');
+      expect(cardText.classes()).toContain('px-2');
+      expect(cardText.classes()).toContain('px-md-4');
+      expect(cardText.classes()).toContain('pt-2');
+      expect(cardText.classes()).toContain('pt-md-4');
       expect(cardText.classes()).toContain('pb-0');
     });
 
     it('should align title, body and actions with the same horizontal padding', async () => {
       await wrapper.setProps({ modelValue: true, title: 'Confirmação' });
 
-      const title = wrapper.findComponent({ name: 'v-card-title' });
-      const cardText = wrapper.findComponent({ name: 'v-card-text' });
-      const actions = wrapper.findComponent({ name: 'v-card-actions' });
+      const sections = [findCardTitle(), findCardText(), findCardActions()];
 
-      expect(title.classes()).toContain('px-6');
-      expect(cardText.classes()).toContain('px-6');
-      expect(actions.classes()).toContain('px-6');
+      sections.forEach((section) => {
+        expect(section.classes()).toContain('px-2');
+        expect(section.classes()).toContain('px-md-4');
+      });
     });
 
-    it('should apply vertical padding only to the actions', async () => {
+    it('should apply responsive vertical padding to the actions', async () => {
       await wrapper.setProps({ modelValue: true });
 
-      const actions = wrapper.findComponent({ name: 'v-card-actions' });
+      const actions = findCardActions();
 
-      expect(actions.classes()).toContain('py-4');
+      expect(actions.classes()).toContain('py-2');
+      expect(actions.classes()).toContain('py-md-4');
+    });
+
+    it('should apply custom padding to every section at md and up', async () => {
+      await wrapper.setProps({ modelValue: true, title: 'Confirmação', padding: 8 });
+
+      const title = findCardTitle();
+      const actions = findCardActions();
+
+      expect(title.classes()).toContain('px-md-8');
+      expect(title.classes()).toContain('pt-md-8');
+      expect(title.classes()).toContain('pb-md-8');
+      expect(actions.classes()).toContain('px-md-8');
+      expect(actions.classes()).toContain('py-md-8');
+    });
+
+    it('should derive the mobile padding as half of the custom padding', async () => {
+      await wrapper.setProps({ modelValue: true, title: 'Confirmação', padding: 8 });
+
+      const title = findCardTitle();
+
+      expect(title.classes()).toContain('px-4');
+      expect(title.classes()).toContain('pt-4');
+      expect(title.classes()).toContain('pb-4');
+    });
+
+    it('should use mobilePadding when provided', async () => {
+      await wrapper.setProps({ modelValue: true, title: 'Confirmação', padding: 8, mobilePadding: 2 });
+
+      const title = findCardTitle();
+
+      expect(title.classes()).toContain('px-2');
+      expect(title.classes()).toContain('pt-2');
+      expect(title.classes()).toContain('pb-2');
+    });
+
+    it('should clamp padding above the Vuetify spacing scale', async () => {
+      await wrapper.setProps({ modelValue: true, title: 'Confirmação', padding: 20 });
+
+      const title = findCardTitle();
+
+      expect(title.classes()).toContain('px-md-12');
+    });
+
+    it('should clamp padding below the Vuetify spacing scale', async () => {
+      await wrapper.setProps({ modelValue: true, title: 'Confirmação', padding: -5 });
+
+      const title = findCardTitle();
+
+      expect(title.classes()).toContain('px-md-0');
+      expect(title.classes()).toContain('pb-md-0');
     });
   });
 });
