@@ -304,7 +304,7 @@ A single input that auto-detects the document type and validates the check digit
   `requiredMessage`, `invalidMessage`, `validateOnBlur`, and an `isValid` event.
   Custom rules run after the built-in document rule.
 
-### CNPJ alfanumérico — check digit algorithm
+### Alphanumeric CNPJ — check digit algorithm
 
 Source: *Manual de Cálculo do DV do CNPJ* (Receita Federal). Applies to new
 registrations from July 2026; existing numeric CNPJs remain valid. The same algorithm

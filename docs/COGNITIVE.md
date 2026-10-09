@@ -15,7 +15,7 @@
 | `defineExpose({ show, hide })` in LoadingOverlay | Replaced by `:is-loading` prop (Props down, Events up). |
 | `CepField` (renamed to `FzZipCodeField`) | Renamed for english naming consistency. Refactored: `any` → typed rules, `searching` → `isSearching`, `!!hint` → `hasHint` computed, if/else → early return, added AbortController, exported interface with english field names. |
 | All components prefixed with `Fz` (Forizi) | Components renamed to Fz prefix: `EmailField` → `FzEmailField`, `ModalBase` → `FzModalBase`, etc. Creates brand identity, avoids global collisions. |
-| Testes colados em `__tests__/` | Padrão da indústria pra component libraries. Testes ficam junto do arquivo que testam, não em pasta raiz. Primeiro teste: `useLoading` (lógica pura). |
+| Tests colocated in `__tests__/` | Industry standard for component libraries. Tests live next to the file they test, not in a root folder. First test: `useLoading` (pure logic). |
 | `PrimaryButton`, `SecondaryButton`, `TertiaryButton`, `QuartenaryButton` | 68 lines of prop-forwarding boilerplate. Consumers use `<v-btn>` directly. |
 | `BaseButton` | Thin wrapper around `<v-btn>` adding only `class="text-none"`. Not enough value to justify being in the library. Consumers configure text-transform globally or per-btn. |
 | `api.ts` auth/loading/notify | Application-layer concerns (auth token, redirect, loading spinner, error toasts) removed. `api.ts` is now a bare axios factory. |
@@ -302,7 +302,7 @@ Build artifacts are not committed. `prepublishOnly` builds fresh on `npm publish
 
 ### 7. 100% coverage — no exceptions
 
-All `src/` files must reach 100% coverage (statements, branch, functions, lines). If a branch is unreachable, remove it — code morto não deve existir.
+All `src/` files must reach 100% coverage (statements, branch, functions, lines). If a branch is unreachable, remove it — dead code must not exist.
 
 ### 28. FzDateRangeField — composite date range input
 
@@ -338,7 +338,7 @@ alphanumeric CNPJ be recognized from the first letters typed, not only when it r
 `FzPhoneField`/`FzZipCodeField`) so the consumer gets a backend-friendly value while
 the field shows the mask.
 
-### 35. CNPJ alfanumérico — unified check-digit algorithm
+### 35. Alphanumeric CNPJ — unified check-digit algorithm
 
 The new alphanumeric CNPJ (July 2026) is validated with a single implementation that
 also covers legacy numeric CNPJs: each character maps to `charCodeAt - 48` and the

@@ -8,16 +8,16 @@ Forizi UI — Vue 3 + TypeScript + Vuetify 3 component library.
 - **Dev**: `pnpm dev` — build in watch mode
 - **Lint**: `pnpm lint` — eslint with auto fix
 - **Check**: `pnpm check` — lint + test (run after every change)
-- **Test**: `pnpm test` — vitest run (busca `src/**/*.spec.ts`)
+- **Test**: `pnpm test` — vitest run (searches `src/**/*.spec.ts`)
 - **Test watch**: `pnpm test:watch` — iterative mode
 - **Playground**: `pnpm dev:playground` — visual test environment
 
 ## Slash commands (opencode)
 
-- **`/unit-test <nome>`** — Cria um teste unitário para um componente, composable ou utility. Segue automaticamente as skills `unit-testing` e `code-style-frontend`, lê o código fonte, busca testes similares como referência de padrão, cria o arquivo `.spec.ts`, e executa `pnpm test` + `pnpm lint`.
-- **`/refactory <nome>`** — Refatora um componente, composable ou utility para seguir o code-style da BaseLib rigidamente. Converte para Composition API (`<script setup>`), async/await, early return, tipos corretos, aspas simples, ponto-e-vírgula, Vuetify utilities no CSS, zero `any`, zero `!important`, nomes auto-documentados (sem comentários), e mais. Executa `pnpm check`, `pnpm build` e `pnpm test` para verificar.
-- **`/learn`** — Analisa o `git diff` da sessão e atualiza documentação (ARCHITECTURE.md, COGNITIVE.md, skills) com novos padrões, decisões de design e convenções descobertas. Rode ao final de sessões significativas.
-- **`/pipeline`** — Pipeline completo de pré-merge: faz `git diff` contra `main`, verifica cobertura de testes unitários, detecta breaking changes, revisa code-style, corrige problemas encontrados, roda `pnpm check` + `pnpm build`, faz commit/push (SOMENTE neste contexto), e cria merge request no GitHub com descrição em inglês. Para abrir o MR é obrigatório trocar para a conta da Forizi com `gh auth switch --user forizi-tecnologia` (as contas pessoais só têm leitura no repo). Carrega automaticamente as skills `unit-testing`, `code-review` e `code-style-frontend`.
+- **`/unit-test <name>`** — Creates a unit test for a component, composable, or utility. Automatically follows the `unit-testing` and `code-style-frontend` skills, reads the source, finds similar tests as a pattern reference, creates the `.spec.ts` file, and runs `pnpm test` + `pnpm lint`.
+- **`/refactory <name>`** — Refactors a component, composable, or utility to strictly follow the BaseLib code style. Converts to Composition API (`<script setup>`), async/await, early return, correct types, single quotes, semicolons, Vuetify utilities in CSS, zero `any`, zero `!important`, self-documenting names (no comments), and more. Runs `pnpm check`, `pnpm build`, and `pnpm test` to verify.
+- **`/learn`** — Analyzes the session's `git diff` and updates documentation (ARCHITECTURE.md, COGNITIVE.md, skills) with new patterns, design decisions, and conventions discovered. Run it at the end of significant sessions.
+- **`/pipeline`** — Full pre-merge pipeline: diffs against `main`, checks unit-test coverage, detects breaking changes, reviews code style, fixes issues found, runs `pnpm check` + `pnpm build`, commits/pushes (ONLY in this context), and creates a GitHub merge request with an English description. To open the MR you must switch to the Forizi account with `gh auth switch --user forizi-tecnologia` (personal accounts have read-only access to the repo). Automatically loads the `unit-testing`, `code-review`, and `code-style-frontend` skills.
 
 ## Before making changes
 
@@ -98,7 +98,7 @@ src/
 - async/await always — never .then().catch()
 - Zero logic in template — computed/methods
 - Early return — no `if/else`, always early return instead
-- Self-documenting names — zero comments. No abreviações obscuras (`l` → `labels`, `t` → `translate`, `fn` → `format`)
+- Self-documenting names — zero comments. No obscure abbreviations (`l` → `labels`, `t` → `translate`, `fn` → `format`)
 - `const`/`let` — never `var`
 - Type everything — never `any`
 - Booleans with is/has/can prefix (`isValid`, `hasError`, `canSave`)
