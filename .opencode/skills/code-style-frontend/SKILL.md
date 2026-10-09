@@ -29,16 +29,30 @@ Code rules for Vue 3 + TypeScript. Public library. No exceptions.
 Priority: Early Return > Ternary > If/Else
 FORBIDDEN: switch/case, nested if/else
 
+Early return is for guard clauses. When a block only chooses between two return values,
+collapse it into a ternary instead of two `return` statements.
+
 ```ts
-// CORRECT: Early return
+// CORRECT: Early return — guard clauses that bail out on invalid state
 function validate(v: string): boolean {
   if (!v) return false
   if (v.length < 3) return false
   return true
 }
 
-// CORRECT: Ternary (2 simple paths)
+// CORRECT: Ternary — a function that only picks between two values
 const label = computed(() => active.value ? 'Active' : 'Inactive')
+
+// WRONG: if/return when there are only two simple return values
+function getLabel(): string {
+  if (active.value) return 'Active'
+  return 'Inactive'
+}
+
+// CORRECT
+function getLabel(): string {
+  return active.value ? 'Active' : 'Inactive'
+}
 
 // WRONG: Nested if/else
 if (a) {
@@ -282,6 +296,26 @@ Prefer Vuetify utility classes over writing custom CSS. Only write scoped CSS wh
 Scoped CSS only when Vuetify does not cover it. Never `!important`.
 Use `:deep()` to style slots/inside Vuetify components.
 Vuetify is a peerDependency — never import as a direct dependency.
+
+### Responsive spacing (mobile-first)
+
+Vuetify generates responsive spacing classes for `sm`/`md`/`lg`/`xl` as `min-width`
+breakpoints. The unprefixed class is the mobile base; add the breakpoint prefix for that
+width and up — never reach for `useDisplay` just to toggle classes Vuetify already
+provides:
+
+```vue
+<!-- CORRECT: 8px below 960px, 16px at md and up — pure CSS, no breakpoint JS -->
+<v-card-actions class="px-2 px-md-4 py-2 py-md-4" />
+
+<!-- WRONG -->
+<v-card-actions :class="isMobileOrTablet ? 'px-2 py-2' : 'px-4 py-4'" />
+```
+
+`md` is the 960px breakpoint, so `px-md-4` applies at `≥960px` and `px-2` below it. When a
+component needs consumer-tunable spacing, expose a numeric prop on the Vuetify spacing
+scale (0–12) and clamp it (`Math.min(Math.max(value, 0), 12)`) instead of accepting
+arbitrary CSS.
 
 ## CSS (only for what Vuetify cannot do)
 

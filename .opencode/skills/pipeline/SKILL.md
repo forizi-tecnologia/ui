@@ -138,10 +138,6 @@ gh pr create \
 
 Report the PR URL to the user.
 
-### 8. Auto-learning (if significant changes)
-
-If this PR introduces new patterns, conventions, or architectural decisions, suggest running `/learn` to update docs. Do NOT run it automatically — ask the user.
-
 ## Rules
 
 - **ZERO commits outside this pipeline** — if asked to commit, remind the user that commits are only allowed via `/pr-pipeline`

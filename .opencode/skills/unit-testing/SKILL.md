@@ -247,3 +247,22 @@ expect(i.classes()).toContain('mdi-calendar');
 ```
 
 This pattern is already used in `FzModalBase` tests for `titleIcon`. Apply consistently to any Vuetify icon assertion.
+
+## Testing Vuetify utility classes
+
+When a component selects Vuetify utility classes (spacing, display, responsive), assert the
+**class tokens** on the element. jsdom does not apply stylesheets, so `getComputedStyle`
+returns nothing meaningful in Vitest:
+
+```ts
+it('should keep the mobile base and add the md spacing', async () => {
+  await wrapper.setProps({ modelValue: true });
+
+  const actions = wrapper.findComponent({ name: 'v-card-actions' });
+
+  expect(actions.classes()).toContain('py-2');
+  expect(actions.classes()).toContain('py-md-4');
+});
+```
+
+Reach for `getComputedStyle` only inside a real browser (Playwright/Chrome), never in Vitest.
