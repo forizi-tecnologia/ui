@@ -25,7 +25,8 @@ consumer imports a single component — the breakpoint decision is internal.
 
 ### Non-goals (v1)
 
-- Client-side mode (`v-data-table` with local sorting/paging). Server-side only.
+- Client-side mode as a `clientSide` prop on `FzDataTable` — use the exported
+  `useClientDataTable` composable instead.
 - Mobile sorting / selection UI (cards are read-only; selection on mobile deferred).
 - Column groups / tree data on the cards.
 - Full custom card replacement (consumer replaces the whole `v-card`); v1 only
@@ -40,7 +41,7 @@ consumer imports a single component — the breakpoint decision is internal.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `headers` | `DataTableHeader[]` | — (required) | Column definitions. |
+| `headers` | `FzDataTableHeader[]` | — (required) | Column definitions. `hideOnCard: true` drops the column from the mobile cards. |
 | `items` | `unknown[]` | — (required) | Current page of rows. |
 | `itemsLength` | `number` | — (required) | Total row count (server-side). |
 | `loading` | `boolean` | `false` | Loading state for both layouts. |
@@ -55,6 +56,7 @@ consumer imports a single component — the breakpoint decision is internal.
 | `mobile` | `boolean \| undefined` | `undefined` | Force cards (`true`) or table (`false`). `undefined` → auto via `useBreakpoint().isMobileOrTablet`. |
 | `noDataText` | `string` | `'Nenhum registro encontrado'` | Empty state text. |
 | `loadingText` | `string` | `'Carregando...'` | Loading text (mobile layout). |
+| `clickableRows` | `boolean` | `false` | Enables `row-click` on desktop rows and mobile cards. |
 | `tableProps` | `Partial<Omit<VDataTableServer['$props'], ControlledKeys>>` | `{}` | Any other `v-data-table-server` prop. Merged before the controlled props. |
 
 `ControlledKeys = 'headers' | 'items' | 'itemsLength' | 'loading' | 'page' | 'itemsPerPage' | 'sortBy' | 'search'`.
@@ -71,11 +73,14 @@ the derived type compiles.
 | `update:itemsPerPage` | `number` | Page size changes (desktop footer). |
 | `update:sortBy` | `DataTableSortItem[]` | Sort changes (desktop header). |
 | `update:options` | `{ page, itemsPerPage, sortBy, groupBy, search }` | Vuetify's consolidated fetch hook (forwarded from the internal table). |
+| `row-click` | `(item: T, event: MouseEvent)` | A row/card is clicked while `clickableRows` is true and the target is not interactive (`isInteractiveRowTarget`). |
 
 #### Slots
 
 - `#card="{ item, index }"` — replaces the **content** inside the standard
   `v-card` (mobile). Without it, the card auto-renders `header.title` + value rows.
+- `#no-data` — replaces `noDataText` in both the desktop table and the mobile
+  empty state. It is not rendered while `loading` is true.
 - Every other slot is forwarded verbatim to `v-data-table-server` (desktop) and,
   for `item.<key>`, also used as the value renderer inside the mobile cards.
 
@@ -120,15 +125,21 @@ the derived type compiles.
 ## 3. Card behavior (mobile)
 
 - One `v-card` per item, `v-for` over `items`.
-- Default body: for each visible header (`getVisibleColumns`), a row with the
+- Default body: for each visible card header (`getCardColumns`), a row with the
   header title (muted) and the value. Value priority:
   1. forwarded slot `item.<key>` (scope `{ item, index, value }`),
   2. `getValueByPath(item, header.key)`.
+- `getCardColumns` skips `data-table-select`, `data-table-expand` and every header
+  with `hideOnCard: true`; the desktop keeps the column.
 - `#card="{ item, index }"` overrides the body completely.
 - Skipped headers: `data-table-select` and `data-table-expand` (no UI in v1).
 - States:
   - `loading` → centered `v-progress-circular` + `loadingText`.
-  - `!items.length && !loading` → `noDataText` centered.
+  - `!items.length && !loading` → `#no-data` slot or `noDataText` centered.
+- Cards are clickable when `clickableRows` is true: `cursor-pointer` class and
+  `row-click(item, event)`, unless the click target is interactive
+  (button/link/input/`.v-btn`/`.v-icon--clickable`/`.v-chip--clickable`) or sits
+  under `data-row-click-ignore`.
 - Below the cards: `FzPagination` when `pageCount > 1`, where
   `pageCount = itemsPerPage > 0 ? Math.ceil(itemsLength / itemsPerPage) : 1`.
 - With `height` set, the card area becomes a scroll region (`flex: 1 1 0; overflow-y: auto`)
@@ -146,14 +157,23 @@ the derived type compiles.
 - `tableProps` is merged first; the controlled props and pt-BR footer defaults are
   applied after so the API contract wins, except for the footer labels which the
   consumer may override through `tableProps`.
+- `clickableRows` adds the `onClick:row` listener to Vuetify's row attrs when true
+  (and stays absent when false, so Vuetify does not add its clickable-row class).
+  The payload shape comes from Vuetify: `(event, { item, index })`.
+- `#no-data` is rendered explicitly; it is excluded from the generic slot
+  forwarding to avoid a duplicated slot.
+- Interactive click targets are rejected by `isInteractiveRowTarget`.
 
 ## 5. Architecture / file decomposition
 
 ```
 src/
   utils/
-    table.ts                         ← pure: getValueByPath, getVisibleColumns
+    table.ts                         ← pure: getValueByPath, getVisibleColumns, isInteractiveRowTarget
     __tests__/table.spec.ts
+  composables/
+    useClientDataTable.ts            ← PUBLIC: client-side pagination + sorting
+    __tests__/useClientDataTable.spec.ts
   components/
     tables/
       FzDataTable.vue                ← PUBLIC wrapper: breakpoint + prop/slot routing
@@ -174,8 +194,8 @@ Wrapper responsibilities (thin):
 
 1. `useBreakpoint().isMobileOrTablet` unless `props.mobile` is defined.
 2. Proxy models (`defineModel('page'|'itemsPerPage'|'sortBy'|'search')`) to whichever child renders.
-3. Forward all slots except `#card`, which is owned by the cards child.
-4. Re-emit `update:options` from the desktop child.
+3. Forward all slots except `#card` and `#no-data`, which are passed explicitly.
+4. Re-emit `update:options` and `row-click` from the active child.
 
 Slot forwarding (the key requirement):
 
@@ -194,8 +214,15 @@ explicitly to `FzDataTableCards`.
 
 ```ts
 getValueByPath(item: unknown, path: string): unknown   // dot paths, safe on missing
-getVisibleColumns(headers: DataTableHeader[]): DataTableHeader[]
+getVisibleColumns(headers: DataTableHeader[]): VisibleColumn[]
+getCardColumns(headers: FzDataTableHeader[]): VisibleColumn[]
+isInteractiveRowTarget(target: EventTarget | null): boolean
 ```
+
+`useClientDataTable(source: Ref<T[]>, initialItemsPerPage = 25)` returns
+`{ page, itemsPerPage, sortBy, pageItems, total, pageCount }`. It sorts with
+`getValueByPath` (numeric + `pt-BR` `Intl.Collator`), disables pagination when
+`itemsPerPage <= 0`, and resets `page` to 1 when the source ref changes.
 
 ## 6. CSS (scoped, only where Vuetify has no utility)
 
@@ -207,18 +234,26 @@ getVisibleColumns(headers: DataTableHeader[]): DataTableHeader[]
 ## 7. Test plan (100% coverage required)
 
 - **table.spec.ts**: `getValueByPath` (top-level, nested, missing → `undefined`),
-  `getVisibleColumns` (filters `data-table-select` / `data-table-expand`, keeps `children`?).
+  `getVisibleColumns` (filters `data-table-select` / `data-table-expand`),
+  `getCardColumns` (also drops `hideOnCard`),
+  `isInteractiveRowTarget` (native controls, Vuetify clickable classes, escape hatch).
+- **useClientDataTable.spec.ts**: default/custom page size, pagination disabled,
+  asc/desc by number, `pt-BR` collator and numeric strings, nested paths, null-safe,
+  reset on source change.
 - **FzPagination.spec.ts**: renders `page de length`; prev disabled at page 1;
   next disabled at page === length; emits on click; clamps; `disabled` blocks
   both; custom `prevLabel`/`nextLabel`; default slot override.
 - **FzDataTableCards.spec.ts**: one card per item; default rows from headers;
-  `item.<key>` slot used as value; `#card` override; loading state; empty state;
+  `item.<key>` slot used as value; `#card` override; loading state; empty state
+  (`#no-data` + fallback); row click (enabled/disabled/interactive target);
   pagination shown only when `pageCount > 1`; emits `update:page`.
 - **FzDataTableDesktop.spec.ts**: renders `v-data-table-server`; forwards slots;
-  pt-BR footer defaults; `tableProps` merged.
+  pt-BR footer defaults; `tableProps` merged; row click (enabled/disabled/
+  interactive target); `#no-data` slot + fallback.
 - **FzDataTable.spec.ts**: `mobile=false` → desktop child; `mobile=true` → cards
   child; `mobile=undefined` uses `useBreakpoint` (mocked) for both branches; model
-  proxy emits; `update:options` re-emitted; `#card` not forwarded to desktop.
+  proxy emits; `update:options` and `row-click` re-emitted; `#no-data` reaches both
+  layouts; `#card` not forwarded to desktop.
 
 Notes: jsdom/Vuetify overlay helpers from `COGNITIVE.md` #27 apply (`visualViewport`
 and `ResizeObserver` stubs where needed).
@@ -249,6 +284,10 @@ and `ResizeObserver` stubs where needed).
 - [ ] `tableProps` accepts arbitrary `v-data-table-server` props with types, controlled props win.
 - [ ] `#item.<key>` slots render the same in the table and in the cards.
 - [ ] `#card` overrides the card body.
+- [ ] `#no-data` replaces the empty state in both layouts, with `noDataText` fallback.
+- [ ] `hideOnCard` drops a column from the cards while the desktop keeps it.
+- [ ] `row-click` emits `(item, event)` on both layouts and ignores interactive targets.
+- [ ] `useClientDataTable` is exported, tested and documented.
 - [ ] `FzPagination` disables prev on first page and next on last.
 - [ ] pt-BR labels by default, all overridable.
 - [ ] Barrel exports + Storybook + playground entry.
@@ -257,7 +296,7 @@ and `ResizeObserver` stubs where needed).
 
 ## 11. Open / deferred
 
-- Client-side mode (`v-data-table`) behind a `mode` prop.
+- A `clientSide` prop on `FzDataTable` itself (the composable is the current API).
 - Mobile sorting / selection UI.
 - Whole-card replacement slot.
 - `mobileBreakpoint` prop (currently fixed to `smAndDown`).

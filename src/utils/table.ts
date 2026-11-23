@@ -28,7 +28,29 @@ export interface VisibleColumn {
   key: string;
 }
 
+export interface FzDataTableHeader extends DataTableHeader {
+  hideOnCard?: boolean;
+}
+
 const NON_DATA_COLUMN_KEYS = new Set(['data-table-select', 'data-table-expand']);
+
+const INTERACTIVE_ROW_TARGET_SELECTOR = [
+  'button',
+  'a',
+  'input',
+  'select',
+  'textarea',
+  '.v-btn',
+  '.v-icon--clickable',
+  '.v-chip--clickable',
+  '[data-row-click-ignore]',
+].join(', ');
+
+export function isInteractiveRowTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+
+  return target.closest(INTERACTIVE_ROW_TARGET_SELECTOR) !== null;
+}
 
 export function getValueByPath(item: unknown, path: string): unknown {
   if (item === null || item === undefined || typeof item !== 'object') return undefined;
@@ -44,4 +66,8 @@ export function getVisibleColumns(headers: DataTableHeader[]): VisibleColumn[] {
   return headers
     .filter((header) => header.key !== undefined && !NON_DATA_COLUMN_KEYS.has(String(header.key)))
     .map((header) => ({ title: header.title ?? '', key: String(header.key) }));
+}
+
+export function getCardColumns(headers: FzDataTableHeader[]): VisibleColumn[] {
+  return getVisibleColumns(headers.filter((header) => !header.hideOnCard));
 }

@@ -12,27 +12,31 @@ src/
     inputs/         ─ Form inputs (FzZipCodeField, FzEmailField, FzCpfCnpjField, FzChipsSelect, FzPasswordField, FzFullAddress, FzDateRangeField, etc.)
       datepicker/   ─ FzDatePicker family (public component + internal calendar shell/views)
       timepicker/   ─ FzTimePicker family (public component + internal menu/wheel)
-    layout/         ─ App shell components (FzLoadingOverlay)
+      FzSelectBase.vue ─ internal shell shared by FzSelectField / FzAutocompleteField
+      selectField.ts   ─ public prop/value/rule types for the select wrappers
+    layout/         ─ App shell components (FzLoadingOverlay, FzEmptyState)
     modals/         ─ Modal dialogs (FzModalBase)
     messages/       ─ Notification/confirm (FzFloatingNotify, FzConfirmDialog, FzCustomConfirmDialog)
-    navigation/     ─ Page navigation (FzPagination)
+    navigation/     ─ Page navigation (FzPagination, FzMonthStepper)
     tables/         ─ Responsive data table (FzDataTable family)
     FzConfigProvider.vue ─ Global defaults via provide/inject
     index.ts        ─ Barrel — exports every component
 
   composables/      ─ Vue composables
     useBreakpoint   ─ Responsive breakpoints
+    useClientDataTable ─ Client-side pagination + sorting for FzDataTable
     useGlobals      ─ Access $notify/$loading/$confirm from setup
     useLoading      ─ Reactive loading state (isActive, message, show, hide)
     useFzDefaults   ─ Resolve component defaults from FzConfigProvider
     useNumericInput ─ Shared numeric keydown handler + input formatting
     useDatePicker   ─ Reactive calendar state (navigation, drill-down, focused month/year)
+    useMonthPicker  ─ Month parsing/formatting/shifting + shared month navigation state
 
   types/            ─ Library-specific TypeScript types
     FzDefaults.ts   ─ Shared defaults interface for FzConfigProvider
 
   constants/        ─ Injection keys and library constants
-    index.ts        ─ FZ_DEFAULTS_KEY (Symbol for provide/inject)
+    index.ts        ─ FZ_DEFAULTS_KEY and stacking constants (modal/confirm/notify)
 
   utils/            ─ Pure utility functions, no Vue dependency
     notify.ts       ─ Global notification singleton
@@ -41,7 +45,7 @@ src/
     api.ts          ─ Axios wrapper
     date.ts         ─ Date parsing, formatting, validation, calendar grid
     document.ts     ─ CPF/CNPJ (numeric + alphanumeric) normalization, detection, validation, formatting
-    table.ts        ─ Data table helpers (getValueByPath, getVisibleColumns) and Vuetify prop types
+    table.ts        ─ Data table helpers (getValueByPath, getVisibleColumns, getCardColumns, isInteractiveRowTarget) and Vuetify prop types
     types.ts        ─ Shared types and constants
     vuetify-check.ts
 
@@ -82,10 +86,11 @@ The exposed method follows camelCase: `confirmDialog`. Exported type: `ConfirmCo
 ### LoadingOverlay flow
 
 1. Consumer calls `loading.show('msg')` or uses `useLoading()` composable
-2. Reactive state (`isActive`) is bound via `:is-loading` prop
-3. Component renders overlay immediately (fade transition)
-4. Content (spinner + text) appears after 300ms delay (delayed transition)
-5. On `hide()`, overlay fades out + timeout is cleaned up
+2. `FzLoadingOverlay` reads the global singleton through `useLoadingRefs()` — no props required
+3. Explicit `isLoading`/`message` props override the singleton for local usage
+4. Component renders overlay immediately (fade transition)
+5. Content (spinner + text) appears after 300ms delay (delayed transition)
+6. On `hide()`, overlay fades out + timeout is cleaned up
 
 ### Theme system
 
@@ -146,6 +151,21 @@ The `FzDefaults` interface is extensible for future shared props (density, color
 - Available via `$notify`, `$loading`, `$confirm` in templates
 - Or via `useGlobals()` composable in script setup
 - Internally use composables, not component refs
+- `notify` queues consecutive calls (up to 5 waiting, oldest waiting dropped when full); duration is
+  per-call and defaults to `NOTIFY_DURATION`
+
+### Stacking layers
+
+The z-index order is a library contract, exported as constants from `src/constants/`:
+
+| Layer | Constant | Value |
+|-------|----------|-------|
+| Modal (`FzModalBase`) | `MODAL_Z_INDEX` | 2400 |
+| Confirm (`FzCustomConfirmDialog`) | `CONFIRM_Z_INDEX` | 2600 |
+| Notify (`FzFloatingNotify`) | `NOTIFY_Z_INDEX` | 9999 |
+
+The confirm overlay applies `CONFIRM_Z_INDEX` through an inline `:style` binding (not scoped CSS), so it
+cannot be beaten by selector specificity and a confirm opened from inside a modal always renders above it.
 
 ### Keyboard shortcuts in dialogs
 
@@ -202,6 +222,11 @@ The default responsive behavior is pure CSS (Vuetify responsive spacing classes)
 on desktop and 16px below 960px.
 
 Measured with Playwright against the playground (`ModalPlayground.vue`).
+
+**Close lifecycle**: `update:modelValue` keeps its controlled-component behavior. `close` is emitted only when
+the user dismisses the dialog (outside click / Esc with `persistent: false`); programmatic prop changes do not
+emit it. `closeOnAction` closes and emits `close` after an action handler resolves. The `actions` slot replaces
+the default footer and receives `{ close, actions }`.
 
 ### FzDatePicker — component family
 
@@ -286,6 +311,34 @@ snaps non-aligned minutes on open.
 No new Vuetify component was added (`VMenu`, `VCard`, `VIcon`, `VTextField` are already in
 `requiredVuetifyComponents`).
 
+### FzMonthPicker / FzMonthStepper — month navigation family
+
+The monthly product needs both a form field and an inline header stepper. They share
+`src/composables/useMonthPicker.ts`, which exports pure helpers (`parseMonth`, `toMonthIso`,
+`formatMonth`, `shiftMonth`, `isMonthWithinRange`, `getCurrentMonth`, `getMonthLabel`) plus the
+reactive navigation state:
+
+```
+composables/useMonthPicker.ts   ─ parse/format/shift + focused year, bounds, label
+components/inputs/FzMonthPicker.vue   ─ read-only field + month/year dropdown
+components/inputs/FzMonthPickerMenu.vue ─ internal dropdown shell (year nav + month grid)
+components/navigation/FzMonthStepper.vue ─ chevrons + localized label
+```
+
+- **Canonical `v-model`**: always `yyyy-mm`, independent of the picker's display `format`
+  (`mm/yyyy` or `yyyy-mm`). Invalid/empty values resolve to `null` internally.
+- **Picker**: a read-only `v-text-field` with a `mdi-calendar-month` trigger in `append-inner`. The
+  dropdown shows the focused year with previous/next arrows and a 3-column month grid. Months outside
+  `min`/`max` are disabled; the selected month is filled and the current month gets an outlined
+  highlight.
+- **Stepper**: previous/next icon buttons around a localized label (`Novembro 2026` / `November 2026`).
+  `min`/`max` disable the arrows at the bounds, `allowFuture=false` blocks navigating past the current
+  month, `arrows=false` hides both buttons, and the default slot replaces the label.
+- **Validation**: the picker mirrors the input contract (`required`, `requiredMessage`, `rules`,
+  `validateOnBlur`, `isValid`). Rules receive the display text, like `FzDatePicker`.
+
+`requiredVuetifyComponents` gained `VDivider` (used by the picker header and the date picker family).
+
 ### FzCpfCnpjField — dynamic CPF/CNPJ input
 
 A single input that auto-detects the document type and validates the check digits
@@ -321,6 +374,20 @@ covers numeric and alphanumeric CNPJs:
 
 Reference vectors (covered in `document.spec.ts`): `12ABC34501DE35` (official
 example), `11222333000181` and `18781203000128` (classic numeric).
+
+### FzSelectField / FzAutocompleteField — validated Vuetify wrappers
+
+Both components render the same internal shell (`FzSelectBase.vue`) with `v-select` or `v-autocomplete` and
+share the prop/rule types in `src/components/inputs/selectField.ts`. They follow the other `Fz*` inputs:
+
+- Validation: `required` + `requiredMessage`, custom `rules`, `validateOnBlur`, and an `isValid` event that is
+  emitted on the first resolution and whenever the resolved validity changes.
+- Provider defaults: `variant`/`density`/`hideDetails` resolve through `useFzDefaults`, with an explicit prop
+  winning.
+- `multiple` makes the model an array; an empty array counts as empty for the required rule.
+- Vuetify attrs (`class`, `data-*`, listeners) fall through to the internal field; `prepend`/`append` are
+  explicit slots and every other slot (including `item`, `selection` and `no-data` on the autocomplete) is
+  forwarded.
 
 ### FzChipsSelect — multi-select with chips
 
@@ -415,11 +482,26 @@ utils/table.ts             ─ pure helpers + Vuetify-derived prop types
   `mobile` prop forces one layout.
 - **Slots**: all slots are forwarded to the internal table; `item.<key>` is also
   reused as the value renderer inside the cards. `#card="{ item, index }"`
-  replaces the card body.
+  replaces the card body. `#no-data` replaces the empty state in both layouts
+  (the `noDataText` fallback keeps the original typography).
+- **Row click**: `clickableRows` enables a single `row-click(item, event)` event on
+  desktop and cards. `isInteractiveRowTarget()` (in `utils/table.ts`) ignores clicks
+  coming from buttons, links, inputs, selects, textareas, clickable Vuetify
+  icons/chips and anything under `data-row-click-ignore`, so action buttons inside
+  `item.<key>` slots do not fire the row event.
+- **Client-side mode**: the library does not add a `clientSide` prop. Consumers use
+  the exported `useClientDataTable(source)` composable and bind `page`,
+  `itemsPerPage`, `sortBy`, `items`, `itemsLength` to `FzDataTable`.
+  It sorts with path-aware `getValueByPath` and a `pt-BR` `Intl.Collator`
+  (numeric-aware), disables pagination when `itemsPerPage <= 0`, and resets the page
+  to 1 when the source ref changes.
 - **Height / scroll**: the `height` prop confines the scroll to the list — the
   table scrolls internally on desktop and the card area scrolls (pagination
   pinned below) on mobile. Page layout (e.g. a field above the table) is the
   consumer's responsibility.
+- **Headers**: `FzDataTableHeader` extends Vuetify's `DataTableHeader` with
+  `hideOnCard?: boolean`. `getCardColumns()` drops those headers from the mobile
+  cards; `getVisibleColumns()` (desktop) ignores the flag.
 - **Card styling (mobile)**: cards are flat by default (`elevation: 0`, 8px
   padding). `elevation` overrides the shadow and `accentColor`/`accentWidth`
   draw an optional colored left border.
@@ -427,6 +509,14 @@ utils/table.ts             ─ pure helpers + Vuetify-derived prop types
 
 `requiredVuetifyComponents` gained `VDataTableServer`. `VCard`, `VProgressCircular`,
 `VBtn`, `VIcon` were already listed.
+
+### FzEmptyState — reusable empty state
+
+`src/components/layout/FzEmptyState.vue` centralizes the repeated icon + title + description + CTA
+markup. It is generic: no domain labels, every string is a prop. `compact` reduces the spacing, icon
+(48 → 32) and title typography (`text-h6` → `text-subtitle-1`) for use inside the `FzDataTable`
+`no-data` slot. The `action` slot replaces the default button entirely and the default slot adds
+content below the description. Colors come from Vuetify theme tokens (`actionColor`, `iconColor`).
 
 ## CSS — Vuetify utilities first
 

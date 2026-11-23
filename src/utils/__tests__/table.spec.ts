@@ -1,6 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import type { DataTableHeader } from 'vuetify';
-import { getValueByPath, getVisibleColumns } from '../table';
+import {
+  getValueByPath,
+  getVisibleColumns,
+  getCardColumns,
+  isInteractiveRowTarget,
+  type FzDataTableHeader,
+} from '../table';
 
 describe('getValueByPath', () => {
   const item = {
@@ -66,5 +72,96 @@ describe('getVisibleColumns', () => {
     const columns = getVisibleColumns([{ key: 'name' } as DataTableHeader]);
 
     expect(columns[0].title).toBe('');
+  });
+});
+
+describe('getCardColumns', () => {
+  const headers: FzDataTableHeader[] = [
+    { title: 'Nome', key: 'name' },
+    { title: '', key: 'data-table-select' },
+    { title: '', key: 'data-table-expand' },
+    { title: 'Cidade', key: 'city' },
+    { title: 'Id', key: 'id', hideOnCard: true },
+    { title: 'Ações', key: 'actions', hideOnCard: true },
+  ];
+
+  it('should drop headers marked with hideOnCard', () => {
+    const columns = getCardColumns(headers);
+
+    expect(columns.map((column) => column.key)).toEqual(['name', 'city']);
+  });
+
+  it('should keep headers without the flag', () => {
+    const columns = getCardColumns([{ title: 'Nome', key: 'name' }]);
+
+    expect(columns).toHaveLength(1);
+  });
+
+  it('should still skip the select and expand headers', () => {
+    const columns = getCardColumns(headers);
+
+    expect(columns.map((column) => column.key)).not.toContain('data-table-select');
+    expect(columns.map((column) => column.key)).not.toContain('data-table-expand');
+  });
+});
+
+describe('isInteractiveRowTarget', () => {
+  const container = document.createElement('div');
+
+  afterEach(() => {
+    container.innerHTML = '';
+  });
+
+  it('should return false when the target is null', () => {
+    expect(isInteractiveRowTarget(null)).toBe(false);
+  });
+
+  it('should return false when the target is not an Element', () => {
+    expect(isInteractiveRowTarget({} as EventTarget)).toBe(false);
+  });
+
+  it('should return false when the target is a plain element', () => {
+    const span = document.createElement('span');
+
+    container.append(span);
+
+    expect(isInteractiveRowTarget(span)).toBe(false);
+  });
+
+  it.each([
+    ['button', 'button'],
+    ['a', 'a'],
+    ['input', 'input'],
+    ['select', 'select'],
+    ['textarea', 'textarea'],
+  ])('should return true when the target is a %s', (_label, tagName) => {
+    const element = document.createElement(tagName);
+
+    container.append(element);
+
+    expect(isInteractiveRowTarget(element)).toBe(true);
+  });
+
+  it.each(['v-btn', 'v-icon--clickable', 'v-chip--clickable'])(
+    'should return true when the target has the %s class',
+    (className) => {
+      const element = document.createElement('span');
+
+      element.classList.add(className);
+      container.append(element);
+
+      expect(isInteractiveRowTarget(element)).toBe(true);
+    },
+  );
+
+  it('should return true when an ancestor carries the data-row-click-ignore attribute', () => {
+    const wrapper = document.createElement('div');
+    const inner = document.createElement('span');
+
+    wrapper.setAttribute('data-row-click-ignore', '');
+    wrapper.append(inner);
+    container.append(wrapper);
+
+    expect(isInteractiveRowTarget(inner)).toBe(true);
   });
 });

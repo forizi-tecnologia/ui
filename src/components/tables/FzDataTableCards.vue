@@ -8,7 +8,9 @@
       </div>
 
       <div v-else-if="!items.length" class="d-flex justify-center py-8">
-        <span class="text-body-2 text-medium-emphasis">{{ noDataText }}</span>
+        <slot name="no-data">
+          <span class="text-body-2 text-medium-emphasis">{{ noDataText }}</span>
+        </slot>
       </div>
 
       <template v-else>
@@ -17,6 +19,8 @@
           :key="index"
           :elevation="elevation"
           :style="accentStyle"
+          :class="{ 'cursor-pointer': clickableRows }"
+          @click="handleCardClick($event, item)"
         >
           <v-card-text class="pa-2">
             <slot name="card" :item="item" :index="index">
@@ -58,12 +62,16 @@
 <script setup lang="ts" generic="T">
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
-import type { DataTableHeader } from 'vuetify';
-import { getValueByPath, getVisibleColumns } from '@/utils/table';
+import {
+  getCardColumns,
+  getValueByPath,
+  isInteractiveRowTarget,
+  type FzDataTableHeader,
+} from '@/utils/table';
 import FzPagination from '@/components/navigation/FzPagination.vue';
 
 export interface FzDataTableCardsProps<T = unknown> {
-  headers?: DataTableHeader[];
+  headers?: FzDataTableHeader[];
   items?: T[];
   itemsLength?: number;
   loading?: boolean;
@@ -75,6 +83,7 @@ export interface FzDataTableCardsProps<T = unknown> {
   accentWidth?: number;
   noDataText?: string;
   loadingText?: string;
+  clickableRows?: boolean;
 }
 
 const props = withDefaults(defineProps<FzDataTableCardsProps<T>>(), {
@@ -90,15 +99,17 @@ const props = withDefaults(defineProps<FzDataTableCardsProps<T>>(), {
   accentWidth: 4,
   noDataText: 'Nenhum registro encontrado',
   loadingText: 'Carregando...',
+  clickableRows: false,
 });
 
 const emit = defineEmits<{
   'update:page': [value: number];
+  'row-click': [item: T, event: MouseEvent];
 }>();
 
 const theme = useTheme();
 
-const columns = computed(() => getVisibleColumns(props.headers));
+const columns = computed(() => getCardColumns(props.headers));
 
 const pageCount = computed(() => {
   if (props.itemsPerPage <= 0) return 1;
@@ -121,6 +132,14 @@ const accentStyle = computed(() => {
 
   return { borderLeft: `${props.accentWidth}px solid ${color}` };
 });
+
+function handleCardClick(event: MouseEvent, item: T): void {
+  if (!props.clickableRows) return;
+
+  if (isInteractiveRowTarget(event.target)) return;
+
+  emit('row-click', item, event);
+}
 </script>
 
 <style scoped>

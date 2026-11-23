@@ -105,6 +105,25 @@ describe('FzConfigProvider', () => {
     });
   });
 
+  describe('provide/inject — prop updates', () => {
+    it('should update the provided defaults when the defaults prop changes', async () => {
+      const wrapper = mount(FzConfigProvider, {
+        props: { defaults: { variant: 'outlined' } },
+        slots: { default: () => h(Consumer) },
+        global: { plugins: [vuetify] },
+      });
+
+      expect(wrapper.find('[data-test="variant"]').text()).toBe('outlined');
+
+      await wrapper.setProps({ defaults: { variant: 'filled' } });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.find('[data-test="variant"]').text()).toBe('filled');
+
+      wrapper.unmount();
+    });
+  });
+
   describe('provide/inject — nested providers', () => {
     let wrapper: VueWrapper;
 

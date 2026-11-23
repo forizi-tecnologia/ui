@@ -4,6 +4,7 @@
       <div
         v-if="isOpen"
         class="custom-dialog-overlay d-flex align-center justify-center pa-4"
+        :style="{ zIndex: CONFIRM_Z_INDEX }"
         @click.self="handleOverlayClick"
       >
         <v-card class="flex-grow-1" max-width="500" :elevation="12">
@@ -34,6 +35,7 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import type { ConfirmOptions } from '@/utils/types';
 import { useConfirmStore } from '@/utils/confirm';
+import { CONFIRM_Z_INDEX } from '@/constants';
 
 const isOpen = ref(false);
 const currentTitle = ref('');
@@ -126,7 +128,6 @@ defineExpose({
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 2400;
 }
 
 .dialog-fade-enter-active,

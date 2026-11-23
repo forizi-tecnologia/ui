@@ -17,19 +17,31 @@
     @update:sort-by="emit('update:sortBy', $event)"
     @update:options="emit('update:options', $event)"
   >
-    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
+    <template v-for="(_, slotName) in forwardedSlots" #[slotName]="slotProps">
       <slot :name="slotName" v-bind="slotProps" />
+    </template>
+
+    <template #no-data>
+      <slot name="no-data">
+        {{ noDataText }}
+      </slot>
     </template>
   </v-data-table-server>
 </template>
 
 <script setup lang="ts" generic="T">
-import { computed } from 'vue';
-import type { DataTableHeader, DataTableSortItem } from 'vuetify';
-import type { DataTableOptions, DataTablePassthroughProps, DataTableServerProps } from '@/utils/table';
+import { computed, useSlots } from 'vue';
+import type { DataTableSortItem } from 'vuetify';
+import {
+  isInteractiveRowTarget,
+  type DataTableOptions,
+  type DataTablePassthroughProps,
+  type DataTableServerProps,
+  type FzDataTableHeader,
+} from '@/utils/table';
 
 export interface FzDataTableDesktopProps<T = unknown> {
-  headers?: DataTableHeader[];
+  headers?: FzDataTableHeader[];
   items?: T[];
   itemsLength?: number;
   loading?: boolean;
@@ -41,6 +53,12 @@ export interface FzDataTableDesktopProps<T = unknown> {
   noDataText?: string;
   loadingText?: string;
   tableProps?: DataTablePassthroughProps;
+  clickableRows?: boolean;
+}
+
+interface FzDataTableRowClickPayload<T = unknown> {
+  item: T;
+  index: number;
 }
 
 const props = withDefaults(defineProps<FzDataTableDesktopProps<T>>(), {
@@ -56,6 +74,7 @@ const props = withDefaults(defineProps<FzDataTableDesktopProps<T>>(), {
   noDataText: 'Nenhum registro encontrado',
   loadingText: 'Carregando...',
   tableProps: () => ({}),
+  clickableRows: false,
 });
 
 const emit = defineEmits<{
@@ -63,15 +82,29 @@ const emit = defineEmits<{
   'update:itemsPerPage': [value: number];
   'update:sortBy': [value: DataTableSortItem[]];
   'update:options': [value: DataTableOptions];
+  'row-click': [item: T, event: MouseEvent];
 }>();
+
+const slots = useSlots();
 
 const resolvedHeaders = computed(
   () => props.headers as unknown as NonNullable<DataTableServerProps['headers']>,
 );
 
-const mergedTableProps = computed<DataTablePassthroughProps>(() => ({
+const mergedTableProps = computed<DataTablePassthroughProps & Record<string, unknown>>(() => ({
   itemsPerPageText: 'Itens por página',
   pageText: '{0}-{1} de {2}',
   ...props.tableProps,
+  ...(props.clickableRows ? { 'onClick:row': handleRowClick } : {}),
 }));
+
+const forwardedSlots = computed(() =>
+  Object.fromEntries(Object.entries(slots).filter(([slotName]) => slotName !== 'no-data')),
+);
+
+function handleRowClick(event: MouseEvent, payload: FzDataTableRowClickPayload<T>): void {
+  if (isInteractiveRowTarget(event.target)) return;
+
+  emit('row-click', payload.item, event);
+}
 </script>

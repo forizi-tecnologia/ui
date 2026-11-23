@@ -249,6 +249,43 @@ describe('FzFloatingNotify', () => {
     }, 10000);
   });
 
+  describe('queue', () => {
+    let queuedWrapper: ReturnType<typeof createComponent>;
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      setActivePinia(createPinia());
+      queuedWrapper = createComponent(FzFloatingNotify);
+    });
+
+    afterEach(() => {
+      useNotifyStore().dismiss();
+      queuedWrapper.unmount();
+      vi.useRealTimers();
+    });
+
+    it('should render the first item and advance to the second after the timer', async () => {
+      const store = useNotifyStore();
+
+      store.show('success', 'First');
+      store.show('warning', 'Second');
+
+      await queuedWrapper.vm.$nextTick();
+
+      expect(queuedWrapper.findComponent({ name: 'v-alert' }).props('title')).toBe('First');
+
+      vi.advanceTimersByTime(NOTIFY_DURATION);
+      await queuedWrapper.vm.$nextTick();
+
+      expect(queuedWrapper.findComponent({ name: 'v-alert' }).props('title')).toBe('Second');
+
+      vi.advanceTimersByTime(NOTIFY_DURATION);
+      await queuedWrapper.vm.$nextTick();
+
+      expect(queuedWrapper.findComponent({ name: 'v-alert' }).exists()).toBe(false);
+    });
+  });
+
   describe('theme colors', () => {
     it('should use the light background for the current notify type by default', async () => {
       const store = getStore();

@@ -33,7 +33,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue';
 import { useTheme } from 'vuetify';
 import { useNotifyStore } from '@/utils/notify';
-import { NOTIFY_DURATION } from '@/utils/types';
+import { NOTIFY_Z_INDEX } from '@/constants';
 
 const theme = useTheme();
 const store = useNotifyStore();
@@ -69,6 +69,7 @@ const DARK_BG = '#1E1E1E';
 const wrapperStyle = computed(() => ({
   backgroundColor: isDark.value ? DARK_BG : LIGHT_BG[store.type] || LIGHT_BG.info,
   borderInlineStart: `4px solid ${themeTypeColor.value}`,
+  zIndex: NOTIFY_Z_INDEX,
 }));
 
 const trackBg = computed(() => {
@@ -79,7 +80,20 @@ const trackBg = computed(() => {
 
 const fillColor = computed(() => themeTypeColor.value);
 
-function updateProgress() {
+let totalElapsedMs = 0;
+let intervalStartTime = 0;
+let enterTransitionEndTime = 0;
+let isHovered = false;
+let rafId: number | null = null;
+
+function stopProgressLoop(): void {
+  if (rafId === null) return;
+
+  cancelAnimationFrame(rafId);
+  rafId = null;
+}
+
+function updateProgress(): void {
   if (!store.isVisible) return;
 
   const hovered = Date.now() >= enterTransitionEndTime && (notificationRef.value as HTMLElement).matches(':hover');
@@ -110,7 +124,7 @@ function updateProgress() {
 
   const elapsed = Date.now() - intervalStartTime;
   const totalElapsed = totalElapsedMs + elapsed;
-  const remaining = NOTIFY_DURATION - totalElapsed;
+  const remaining = store.duration - totalElapsed;
 
   if (remaining <= 0) {
     progress.value = 0;
@@ -118,36 +132,36 @@ function updateProgress() {
     return;
   }
 
-  progress.value = (remaining / NOTIFY_DURATION) * 100;
+  progress.value = (remaining / store.duration) * 100;
 
   rafId = requestAnimationFrame(updateProgress);
 }
 
-let totalElapsedMs = 0;
-let intervalStartTime = 0;
-let enterTransitionEndTime = 0;
-let isHovered = false;
-let rafId: number | null = null;
+function startProgressLoop(): void {
+  stopProgressLoop();
 
-watch(() => store.isVisible, (visible) => {
-  if (visible) {
-    totalElapsedMs = 0;
-    intervalStartTime = Date.now();
-    enterTransitionEndTime = Date.now() + ENTER_TRANSITION_MS;
-    isHovered = false;
+  isHovered = false;
+  totalElapsedMs = 0;
+  intervalStartTime = Date.now();
+  enterTransitionEndTime = Date.now() + ENTER_TRANSITION_MS;
+  progress.value = 100;
+
+  rafId = requestAnimationFrame(updateProgress);
+}
+
+watch(() => store.currentId, (id) => {
+  if (id === null) {
+    stopProgressLoop();
     progress.value = 100;
-
-    rafId = requestAnimationFrame(updateProgress);
 
     return;
   }
 
-  isHovered = false;
-  progress.value = 100;
+  startProgressLoop();
 });
 
 onUnmounted(() => {
-  if (rafId !== null) cancelAnimationFrame(rafId);
+  stopProgressLoop();
 
   store.cleanup();
 });
@@ -160,7 +174,6 @@ onUnmounted(() => {
   right: 20px;
   min-width: 300px;
   max-width: 500px;
-  z-index: 9999;
   border-radius: 4px;
   overflow: hidden;
 }

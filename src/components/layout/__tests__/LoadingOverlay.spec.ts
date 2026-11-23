@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createComponent } from '@/testutils';
 import FzLoadingOverlay from '../FzLoadingOverlay.vue';
+import { useLoadingRefs } from '@/utils/loading';
 
 class ResizeObserverMock {
   observe = vi.fn();
@@ -20,6 +21,12 @@ describe('FzLoadingOverlay', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+
+    const loadingRefs = useLoadingRefs();
+
+    loadingRefs.hide();
+    loadingRefs.message.value = 'Carregando...';
+
     wrapper = createComponent(FzLoadingOverlay);
   });
 
@@ -120,6 +127,77 @@ describe('FzLoadingOverlay', () => {
     await w.setProps({ isLoading: false });
 
     expect(w.find('.loading-overlay').exists()).toBe(false);
+
+    w.unmount();
+  });
+
+  it('should use the global singleton when no props are passed', async () => {
+    const loadingRefs = useLoadingRefs();
+
+    loadingRefs.show('Global loading');
+
+    const w = createComponent(FzLoadingOverlay);
+
+    await w.vm.$nextTick();
+
+    expect(w.find('.loading-overlay').exists()).toBe(true);
+
+    vi.advanceTimersByTime(300);
+    await w.vm.$nextTick();
+
+    expect(w.text()).toContain('Global loading');
+
+    w.unmount();
+  });
+
+  it('should hide when the global singleton becomes inactive', async () => {
+    const loadingRefs = useLoadingRefs();
+
+    loadingRefs.show('Global loading');
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('.loading-overlay').exists()).toBe(true);
+
+    loadingRefs.hide();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('.loading-overlay').exists()).toBe(false);
+  });
+
+  it('should let an explicit isLoading prop win over the global singleton', async () => {
+    const loadingRefs = useLoadingRefs();
+
+    loadingRefs.show('Global loading');
+
+    const w = createComponent(FzLoadingOverlay, {
+      props: { isLoading: false },
+    });
+
+    await w.vm.$nextTick();
+
+    expect(w.find('.loading-overlay').exists()).toBe(false);
+
+    w.unmount();
+  });
+
+  it('should let an explicit message prop win over the singleton message', async () => {
+    const loadingRefs = useLoadingRefs();
+
+    loadingRefs.show('Global loading');
+
+    const w = createComponent(FzLoadingOverlay, {
+      props: { message: 'Custom loading' },
+    });
+
+    await w.vm.$nextTick();
+
+    expect(w.find('.loading-overlay').exists()).toBe(true);
+
+    vi.advanceTimersByTime(300);
+    await w.vm.$nextTick();
+
+    expect(w.text()).toContain('Custom loading');
+    expect(w.text()).not.toContain('Global loading');
 
     w.unmount();
   });

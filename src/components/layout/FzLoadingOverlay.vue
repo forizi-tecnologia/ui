@@ -1,11 +1,11 @@
 <template>
   <Transition name="fade">
-    <div v-if="isLoading" class="loading-overlay d-flex align-center justify-center">
+    <div v-if="isOverlayVisible" class="loading-overlay d-flex align-center justify-center">
       <Transition name="fade-delayed">
         <div v-if="showContent" class="d-flex flex-column align-center">
           <v-progress-circular indeterminate color="primary" :size="30" :width="5" />
           <div class="text-white text-body-1 font-weight-medium mt-3">
-            {{ message }}
+            {{ overlayMessage }}
           </div>
         </div>
       </Transition>
@@ -14,7 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount } from 'vue';
+import { computed, ref, watch, onBeforeUnmount } from 'vue';
+import { useLoadingRefs } from '@/utils/loading';
 
 interface Props {
   isLoading?: boolean
@@ -23,16 +24,31 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isLoading: false,
-  message: 'Carregando...',
+  isLoading: undefined,
+  message: undefined,
   delay: 300,
 });
 
+const loadingRefs = useLoadingRefs();
+
+const isOverlayVisible = computed(() => props.isLoading ?? loadingRefs.isActive.value);
+
+const overlayMessage = computed(() => props.message ?? loadingRefs.message.value);
+
 const showContent = ref(false);
+
 let contentTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-watch(() => props.isLoading, (val) => {
-  if (val) {
+function clearContentTimeout(): void {
+  if (!contentTimeoutId) return;
+
+  clearTimeout(contentTimeoutId);
+  contentTimeoutId = null;
+}
+
+watch(isOverlayVisible, (visible) => {
+  if (visible) {
+    clearContentTimeout();
     contentTimeoutId = setTimeout(() => {
       showContent.value = true;
     }, props.delay);
@@ -40,17 +56,11 @@ watch(() => props.isLoading, (val) => {
     return;
   }
 
-  if (contentTimeoutId) {
-    clearTimeout(contentTimeoutId);
-    contentTimeoutId = null;
-  }
-
+  clearContentTimeout();
   showContent.value = false;
-});
+}, { immediate: true });
 
-onBeforeUnmount(() => {
-  if (contentTimeoutId) clearTimeout(contentTimeoutId);
-});
+onBeforeUnmount(clearContentTimeout);
 </script>
 
 <style scoped>

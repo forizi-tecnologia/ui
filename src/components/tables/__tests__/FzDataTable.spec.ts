@@ -198,4 +198,77 @@ describe('FzDataTable', () => {
     expect(wrapper.findComponent({ name: 'FzDataTableDesktop' }).props('noDataText')).toBe('Nenhum registro encontrado');
     expect(wrapper.findComponent({ name: 'FzDataTableDesktop' }).props('loadingText')).toBe('Carregando...');
   });
+
+  it('should forward clickableRows to the desktop table', () => {
+    mountTable({ clickableRows: true });
+
+    expect(wrapper.findComponent({ name: 'FzDataTableDesktop' }).props('clickableRows')).toBe(true);
+  });
+
+  it('should forward clickableRows to the cards', () => {
+    mountTable({ mobile: true, clickableRows: true });
+
+    expect(wrapper.findComponent({ name: 'FzDataTableCards' }).props('clickableRows')).toBe(true);
+  });
+
+  it('should re-emit row-click from the desktop table', async () => {
+    const item = ITEMS[0];
+    const event = new MouseEvent('click');
+
+    wrapper.findComponent({ name: 'FzDataTableDesktop' }).vm.$emit('row-click', item, event);
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.emitted('row-click')?.[0]).toEqual([item, event]);
+  });
+
+  it('should re-emit row-click from the cards', async () => {
+    mountTable({ mobile: true });
+
+    const item = ITEMS[0];
+    const event = new MouseEvent('click');
+
+    wrapper.findComponent({ name: 'FzDataTableCards' }).vm.$emit('row-click', item, event);
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.emitted('row-click')?.[0]).toEqual([item, event]);
+  });
+
+  it('should forward the no-data slot to the desktop table', () => {
+    mountTable({ items: [], itemsLength: 0 }, {
+      'no-data': () => [h('div', { class: 'custom-empty' }, 'Nenhuma fatura')],
+    });
+
+    expect(wrapper.find('.custom-empty').exists()).toBe(true);
+  });
+
+  it('should forward the no-data slot to the cards', () => {
+    mountTable({ mobile: true, items: [], itemsLength: 0 }, {
+      'no-data': () => [h('div', { class: 'custom-empty' }, 'Nenhuma fatura')],
+    });
+
+    expect(wrapper.find('.custom-empty').exists()).toBe(true);
+  });
+
+  it('should keep a hideOnCard column on the desktop table', () => {
+    const headers = [
+      { title: 'Nome', key: 'name' },
+      { title: 'Segredo', key: 'secret', hideOnCard: true },
+    ];
+
+    mountTable({ headers, items: [{ name: 'Ana', secret: 'valor oculto' }] });
+
+    expect(wrapper.text()).toContain('Segredo');
+  });
+
+  it('should drop a hideOnCard column from the cards', () => {
+    const headers = [
+      { title: 'Nome', key: 'name' },
+      { title: 'Segredo', key: 'secret', hideOnCard: true },
+    ];
+
+    mountTable({ mobile: true, headers, items: [{ name: 'Ana', secret: 'valor oculto' }] });
+
+    expect(wrapper.text()).toContain('Nome');
+    expect(wrapper.text()).not.toContain('Segredo');
+  });
 });

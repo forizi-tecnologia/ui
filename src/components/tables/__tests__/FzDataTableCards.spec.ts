@@ -53,6 +53,26 @@ describe('FzDataTableCards', () => {
     expect(wrapper.text()).toContain('São Paulo');
   });
 
+  it('should not render a column marked with hideOnCard', () => {
+    wrapper.unmount();
+
+    wrapper = createComponent(FzDataTableCards, {
+      props: {
+        headers: [
+          { title: 'Nome', key: 'name' },
+          { title: 'Segredo', key: 'secret', hideOnCard: true },
+        ],
+        items: [{ name: 'Ana', secret: 'valor oculto' }],
+        itemsLength: 1,
+      },
+    });
+
+    expect(wrapper.text()).toContain('Nome');
+    expect(wrapper.text()).toContain('Ana');
+    expect(wrapper.text()).not.toContain('Segredo');
+    expect(wrapper.text()).not.toContain('valor oculto');
+  });
+
   it('should not render the select or expand columns', () => {
     wrapper.unmount();
 
@@ -242,5 +262,84 @@ describe('FzDataTableCards', () => {
     await wrapper.vm.$nextTick();
 
     expect(wrapper.emitted('update:page')?.[0]).toEqual([2]);
+  });
+
+  describe('row click', () => {
+    it('should emit row-click with the item and the mouse event when clickableRows is true', async () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableCards, {
+        props: { headers: HEADERS, items: ITEMS, itemsLength: 2, clickableRows: true },
+      });
+
+      await getCards()[0].trigger('click');
+
+      const emitted = wrapper.emitted('row-click');
+
+      expect(emitted).toBeTruthy();
+      expect(emitted![0][0]).toEqual(ITEMS[0]);
+      expect(emitted![0][1]).toBeInstanceOf(MouseEvent);
+    });
+
+    it('should not emit row-click when clickableRows is false', async () => {
+      await getCards()[0].trigger('click');
+
+      expect(wrapper.emitted('row-click')).toBeFalsy();
+    });
+
+    it('should not emit row-click when the click target is an action button inside the card', async () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableCards, {
+        props: { headers: HEADERS, items: ITEMS, itemsLength: 2, clickableRows: true },
+        slots: {
+          'item.name': () => h('button', { class: 'card-action' }, 'Editar'),
+        },
+      });
+
+      await wrapper.find('button').trigger('click');
+
+      expect(wrapper.emitted('row-click')).toBeFalsy();
+    });
+
+    it('should apply the pointer cursor only when clickableRows is true', async () => {
+      expect(getCards()[0].classes()).not.toContain('cursor-pointer');
+
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableCards, {
+        props: { headers: HEADERS, items: ITEMS, itemsLength: 2, clickableRows: true },
+      });
+
+      expect(getCards()[0].classes()).toContain('cursor-pointer');
+    });
+  });
+
+  describe('no-data slot', () => {
+    it('should render the no-data slot content when there are no items', () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableCards, {
+        props: { headers: HEADERS, items: [], itemsLength: 0 },
+        slots: {
+          'no-data': () => h('div', { class: 'custom-empty' }, 'Nenhuma fatura'),
+        },
+      });
+
+      expect(wrapper.find('.custom-empty').exists()).toBe(true);
+    });
+
+    it('should keep the default empty typography when the slot is not provided', () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableCards, {
+        props: { headers: HEADERS, items: [], itemsLength: 0, noDataText: 'Sem dados' },
+      });
+
+      const emptyText = wrapper.find('.text-body-2');
+
+      expect(emptyText.exists()).toBe(true);
+      expect(emptyText.text()).toBe('Sem dados');
+    });
   });
 });

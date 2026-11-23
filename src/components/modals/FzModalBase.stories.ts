@@ -19,6 +19,7 @@ const meta = {
     contentClass: { control: 'text', description: 'Additional CSS classes added to the dialog content element' },
     padding: { control: 'number', description: 'Spacing for the title, body (lateral) and actions on the Vuetify spacing scale 0-12. Default: 4 (16px). Below 960px it is halved automatically to 8px.' },
     mobilePadding: { control: 'number', description: 'Overrides the spacing used below 960px. When omitted it defaults to half of padding.' },
+    closeOnAction: { control: 'boolean', description: 'Closes the modal and emits close after an action handler resolves. Default: false' },
   },
 } satisfies Meta<typeof FzModalBase>;
 
@@ -127,4 +128,58 @@ export const KeyboardShortcuts: Story = {
       { text: 'Confirmar', color: 'primary' },
     ],
   },
+};
+
+export const ActionsSlot: Story = {
+  render: () => ({
+    components: { FzModalBase },
+    setup() {
+      const open = ref(true);
+
+      return { open };
+    },
+    template: `
+      <FzModalBase v-model="open" title="Rodapé customizado" :close-on-action="false">
+        <p>O slot <code>actions</code> substitui os botões padrão e recebe <code>{ close, actions }</code>.</p>
+        <template #actions="{ close }">
+          <v-spacer />
+          <v-btn color="error" variant="text" class="text-none" @click="close">Excluir</v-btn>
+          <v-btn color="secondary" variant="outlined" class="text-none" @click="close">Cancelar</v-btn>
+          <v-btn color="primary" variant="elevated" class="text-none" @click="close">Salvar</v-btn>
+        </template>
+      </FzModalBase>
+    `,
+  }),
+};
+
+export const CloseOnAction: Story = {
+  render: () => ({
+    components: { FzModalBase },
+    setup() {
+      const open = ref(true);
+      const actions: ModalAction[] = [
+        { text: 'Cancelar', color: 'secondary' },
+        { text: 'Concluir', color: 'primary' },
+      ];
+      const reopen = () => {
+        open.value = true;
+      };
+
+      return { open, actions, reopen };
+    },
+    template: `
+      <div class="d-flex flex-column ga-4">
+        <v-btn v-if="!open" color="primary" variant="elevated" class="align-self-start" @click="reopen">
+          Abrir modal
+        </v-btn>
+        <FzModalBase
+          v-model="open"
+          title="Fecha após a ação"
+          message="Clique em Concluir para fechar automaticamente."
+          :actions="actions"
+          :close-on-action="true"
+        />
+      </div>
+    `,
+  }),
 };

@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
+import { h } from 'vue';
 import { createComponent } from '@/testutils';
 import FzModalBase, { type ModalAction } from '../FzModalBase.vue';
+import { MODAL_Z_INDEX } from '@/constants';
 
 beforeAll(() => {
   vi.stubGlobal('visualViewport', {
@@ -351,6 +353,20 @@ describe('FzModalBase', () => {
       expect(lastHandler).toHaveBeenCalledTimes(1);
     });
 
+    it('should not run any action on Enter when no primary action exists', async () => {
+      const actions: ModalAction[] = [
+        { text: 'Cancelar', color: 'secondary', handler: cancelHandler },
+      ];
+
+      await wrapper.setProps({ modelValue: true, enterToConfirm: true, actions });
+
+      const card = wrapper.findComponent({ name: 'v-card' });
+
+      await card.trigger('keydown', { key: 'Enter' });
+
+      expect(cancelHandler).not.toHaveBeenCalled();
+    });
+
     it('should not trigger primary action on Enter when target is a textarea', async () => {
       wrapper.unmount();
 
@@ -589,6 +605,132 @@ describe('FzModalBase', () => {
 
       expect(title.classes()).toContain('px-md-0');
       expect(title.classes()).toContain('pb-md-0');
+    });
+  });
+
+  describe('z-index', () => {
+    it('should use the modal z-index constant', () => {
+      expect(findDialog().props('zIndex')).toBe(MODAL_Z_INDEX);
+    });
+  });
+
+  describe('close event', () => {
+    it('should emit close when the dialog is dismissed by the user', async () => {
+      await wrapper.setProps({ modelValue: true, persistent: false });
+
+      findDialog().vm.$emit('update:modelValue', false);
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false]);
+      expect(wrapper.emitted('close')).toHaveLength(1);
+    });
+
+    it('should not emit close when modelValue changes programmatically', async () => {
+      await wrapper.setProps({ modelValue: true });
+      await wrapper.setProps({ modelValue: false });
+
+      expect(wrapper.emitted('update:modelValue')).toBeFalsy();
+      expect(wrapper.emitted('close')).toBeFalsy();
+    });
+
+    it('should keep emitting update:modelValue as before', async () => {
+      await wrapper.setProps({ modelValue: true });
+
+      findDialog().vm.$emit('update:modelValue', false);
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false]);
+    });
+
+    it('should emit update:modelValue true without close when the dialog opens internally', async () => {
+      await wrapper.setProps({ modelValue: true });
+
+      findDialog().vm.$emit('update:modelValue', true);
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true]);
+      expect(wrapper.emitted('close')).toBeFalsy();
+    });
+  });
+
+  describe('closeOnAction', () => {
+    it('should not change modelValue after an action when closeOnAction is false', async () => {
+      await wrapper.setProps({ modelValue: true });
+
+      await findActionButtons()[0].trigger('click');
+
+      expect(wrapper.emitted('update:modelValue')).toBeFalsy();
+      expect(wrapper.emitted('close')).toBeFalsy();
+    });
+
+    it('should close after the action handler resolves when closeOnAction is true', async () => {
+      const handler = vi.fn().mockResolvedValue(undefined);
+      const actions: ModalAction[] = [{ text: 'OK', color: 'primary', handler }];
+
+      await wrapper.setProps({ modelValue: true, closeOnAction: true, actions });
+
+      await findActionButtons()[0].trigger('click');
+      await wrapper.vm.$nextTick();
+
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false]);
+      expect(wrapper.emitted('close')).toHaveLength(1);
+    });
+
+    it('should close an action without handler when closeOnAction is true', async () => {
+      const actions: ModalAction[] = [{ text: 'Fechar' }];
+
+      await wrapper.setProps({ modelValue: true, closeOnAction: true, actions });
+
+      await findActionButtons()[0].trigger('click');
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false]);
+      expect(wrapper.emitted('close')).toHaveLength(1);
+    });
+  });
+
+  describe('actions slot', () => {
+    it('should replace the default footer buttons when provided', async () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzModalBase, {
+        attachTo: document.body,
+        props: { modelValue: true, actions: defaultActions },
+        slots: {
+          actions: () => h('button', { class: 'custom-action' }, 'Custom'),
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      expect(document.querySelector('.custom-action')).toBeTruthy();
+      expect(findActionButtons()).toHaveLength(0);
+    });
+
+    it('should expose close and actions as slot props', async () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzModalBase, {
+        attachTo: document.body,
+        props: { modelValue: true, actions: defaultActions },
+        slots: {
+          actions: ({ close, actions }: { close: () => void; actions: ModalAction[] }) => h('div', [
+            h('span', { class: 'slot-action-count' }, String(actions.length)),
+            h('button', { class: 'slot-close', onClick: close }),
+          ]),
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      expect(document.querySelector('.slot-action-count')?.textContent).toBe('2');
+
+      (document.querySelector('.slot-close') as HTMLElement).dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([false]);
+      expect(wrapper.emitted('close')).toHaveLength(1);
     });
   });
 });
