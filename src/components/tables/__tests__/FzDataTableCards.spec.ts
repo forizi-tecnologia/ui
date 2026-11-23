@@ -53,6 +53,26 @@ describe('FzDataTableCards', () => {
     expect(wrapper.text()).toContain('São Paulo');
   });
 
+  it('should not render a column marked with hideOnCard', () => {
+    wrapper.unmount();
+
+    wrapper = createComponent(FzDataTableCards, {
+      props: {
+        headers: [
+          { title: 'Nome', key: 'name' },
+          { title: 'Segredo', key: 'secret', hideOnCard: true },
+        ],
+        items: [{ name: 'Ana', secret: 'valor oculto' }],
+        itemsLength: 1,
+      },
+    });
+
+    expect(wrapper.text()).toContain('Nome');
+    expect(wrapper.text()).toContain('Ana');
+    expect(wrapper.text()).not.toContain('Segredo');
+    expect(wrapper.text()).not.toContain('valor oculto');
+  });
+
   it('should not render the select or expand columns', () => {
     wrapper.unmount();
 

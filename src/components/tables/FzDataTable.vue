@@ -59,14 +59,14 @@
 
 <script setup lang="ts" generic="T">
 import { computed, useSlots } from 'vue';
-import type { DataTableHeader, DataTableSortItem } from 'vuetify';
+import type { DataTableSortItem } from 'vuetify';
 import { useBreakpoint } from '@/composables/useBreakpoint';
-import type { DataTableOptions, DataTablePassthroughProps } from '@/utils/table';
+import type { DataTableOptions, DataTablePassthroughProps, FzDataTableHeader } from '@/utils/table';
 import FzDataTableCards from './FzDataTableCards.vue';
 import FzDataTableDesktop from './FzDataTableDesktop.vue';
 
 export interface FzDataTableProps<T = unknown> {
-  headers: DataTableHeader[];
+  headers: FzDataTableHeader[];
   items: T[];
   itemsLength: number;
   loading?: boolean;

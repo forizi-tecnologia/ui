@@ -13,3 +13,21 @@ export { useDatePicker, type CalendarView, type UseDatePickerParams } from './us
 export { useTimePicker, type UseTimePickerParams } from './useTimePicker';
 
 export { useClientDataTable } from './useClientDataTable';
+
+export {
+  useMonthPicker,
+  parseMonth,
+  toMonthIso,
+  formatMonth,
+  shiftMonth,
+  isMonthWithinRange,
+  getCurrentMonth,
+  getMonthLabel,
+} from './useMonthPicker';
+
+export type {
+  MonthFormat,
+  MonthParts,
+  UseMonthPickerParams,
+  UseMonthPickerReturn,
+} from './useMonthPicker';

@@ -113,11 +113,22 @@ export interface FzDefaults {
   <FzPhoneField v-model="phone" label="Telefone" />
   <FzCpfCnpjField v-model="document" label="CPF/CNPJ" required />
   <FzChipsSelect v-model="states" label="Estados" :items="states" :max-visible-chips="3" />
+  <FzSelectField v-model="category" label="Categoria" :items="categories" required />
+  <FzAutocompleteField v-model="bank" label="Banco" :items="banks" hint="Digite para filtrar" />
+  <FzMonthPicker v-model="referenceMonth" label="Mês de referência" />
   <FzPasswordField v-model="password" label="Senha" :minlength="8" required />
   <FzZipCodeField v-model="cep" label="CEP" @zip-code-found="onAddress" />
   <FzFullAddress v-model="address" required counter />
 </template>
 ```
+
+`FzSelectField` and `FzAutocompleteField` follow the same contract as the other inputs: `rules`, `required`,
+`requiredMessage`, `validateOnBlur`, `hideDetails`, `@isValid`, and `variant`/`density` resolved through
+`FzConfigProvider`. `multiple` switches the model to an array. The autocomplete also forwards the `item`,
+`selection` and `no-data` slots.
+
+`FzMonthPicker` uses a canonical `yyyy-mm` `v-model`, independent of the display `format` (`mm/yyyy` or
+`yyyy-mm`). `min`/`max` disable out-of-range months, and the current month is highlighted.
 
 ### Buttons
 
@@ -299,6 +310,17 @@ async function fetchPage() {
 - Clicks inside interactive content (`button`, `a`, `input`, `select`, `textarea`, `.v-btn`, `.v-icon--clickable`,
   `.v-chip--clickable`) do not trigger `row-click`. For custom content, add `data-row-click-ignore` to opt out.
 - **`no-data` slot** replaces `no-data-text` in both the table and the card list; it is not rendered while loading.
+- **`hideOnCard`**: mark a header to drop it from the mobile cards while keeping it on desktop.
+
+```ts
+import type { FzDataTableHeader } from '@forizi/ui';
+
+const headers: FzDataTableHeader[] = [
+  { title: 'Id', key: 'id', hideOnCard: true },
+  { title: 'Nome', key: 'name' },
+  { title: 'Ações', key: 'actions', hideOnCard: true, sortable: false },
+];
+```
 
 ### Client-side tables
 
@@ -332,10 +354,69 @@ const { page, itemsPerPage, sortBy, pageItems, total, pageCount } = useClientDat
 The composable sorts with path-aware `getValueByPath`, numeric comparison for numbers and numeric strings, and a
 `pt-BR` `Intl.Collator`. It resets the page to 1 whenever the source ref changes.
 
+## Navigation
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { FzMonthStepper } from '@forizi/ui';
+
+const month = ref('2026-11');
+</script>
+
+<template>
+  <FzMonthStepper v-model="month" />
+  <FzMonthStepper v-model="month" locale="en" :arrows="false" />
+</template>
+```
+
+`FzMonthStepper` shares the `yyyy-mm` contract and navigation logic with `FzMonthPicker`. `min`/`max` disable the
+arrows at the bounds, `allow-future="false"` blocks navigating past the current month, `arrows="false"` hides the
+buttons for read-only headers, and the default slot replaces the label.
+
+## Layout
+
+### Empty state
+
+```vue
+<script setup lang="ts">
+import { FzEmptyState } from '@forizi/ui';
+</script>
+
+<template>
+  <FzEmptyState
+    title="Nenhuma fatura encontrada"
+    description="Comece registrando sua primeira fatura para acompanhar seus gastos."
+    action-text="Nova fatura"
+    action-icon="mdi-plus"
+    @action="openCreateInvoice"
+  />
+</template>
+```
+
+`compact` reduces the spacing/icon/typography for use inside table cards. The `action` slot fully replaces the
+default button, and the default slot adds extra content below the description.
+
+Combine it with the `FzDataTable` `no-data` slot:
+
+```vue
+<FzDataTable :headers="headers" :items="items" :items-length="total">
+  <template #no-data>
+    <FzEmptyState
+      compact
+      title="Nenhuma fatura encontrada"
+      description="Comece registrando sua primeira fatura."
+      action-text="Nova fatura"
+      @action="openCreateInvoice"
+    />
+  </template>
+</FzDataTable>
+```
+
 ## Composables
 
 ```ts
-import { useBreakpoint, useClientDataTable, useGlobals, useLoading } from '@forizi/ui';
+import { useBreakpoint, useClientDataTable, useGlobals, useLoading, useMonthPicker } from '@forizi/ui';
 
 // Responsive breakpoints
 const { isMobile, isMobileOrTablet } = useBreakpoint();
@@ -348,7 +429,13 @@ const { isActive, message, show, hide } = useLoading();
 
 // Client-side pagination + sorting for FzDataTable
 const { page, itemsPerPage, sortBy, pageItems, total, pageCount } = useClientDataTable(source);
+
+// Month navigation state shared by FzMonthPicker / FzMonthStepper
+const { label, canGoPrevious, canGoNext, goPrevious, goNext } = useMonthPicker({ modelValue: month });
 ```
+
+Pure month helpers are also exported: `parseMonth`, `toMonthIso`, `formatMonth`, `shiftMonth`,
+`isMonthWithinRange`, `getCurrentMonth` and `getMonthLabel`.
 
 ## API (HTTP Client)
 

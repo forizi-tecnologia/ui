@@ -41,7 +41,7 @@ consumer imports a single component — the breakpoint decision is internal.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `headers` | `DataTableHeader[]` | — (required) | Column definitions. |
+| `headers` | `FzDataTableHeader[]` | — (required) | Column definitions. `hideOnCard: true` drops the column from the mobile cards. |
 | `items` | `unknown[]` | — (required) | Current page of rows. |
 | `itemsLength` | `number` | — (required) | Total row count (server-side). |
 | `loading` | `boolean` | `false` | Loading state for both layouts. |
@@ -125,10 +125,12 @@ the derived type compiles.
 ## 3. Card behavior (mobile)
 
 - One `v-card` per item, `v-for` over `items`.
-- Default body: for each visible header (`getVisibleColumns`), a row with the
+- Default body: for each visible card header (`getCardColumns`), a row with the
   header title (muted) and the value. Value priority:
   1. forwarded slot `item.<key>` (scope `{ item, index, value }`),
   2. `getValueByPath(item, header.key)`.
+- `getCardColumns` skips `data-table-select`, `data-table-expand` and every header
+  with `hideOnCard: true`; the desktop keeps the column.
 - `#card="{ item, index }"` overrides the body completely.
 - Skipped headers: `data-table-select` and `data-table-expand` (no UI in v1).
 - States:
@@ -213,6 +215,7 @@ explicitly to `FzDataTableCards`.
 ```ts
 getValueByPath(item: unknown, path: string): unknown   // dot paths, safe on missing
 getVisibleColumns(headers: DataTableHeader[]): VisibleColumn[]
+getCardColumns(headers: FzDataTableHeader[]): VisibleColumn[]
 isInteractiveRowTarget(target: EventTarget | null): boolean
 ```
 
@@ -232,6 +235,7 @@ isInteractiveRowTarget(target: EventTarget | null): boolean
 
 - **table.spec.ts**: `getValueByPath` (top-level, nested, missing → `undefined`),
   `getVisibleColumns` (filters `data-table-select` / `data-table-expand`),
+  `getCardColumns` (also drops `hideOnCard`),
   `isInteractiveRowTarget` (native controls, Vuetify clickable classes, escape hatch).
 - **useClientDataTable.spec.ts**: default/custom page size, pagination disabled,
   asc/desc by number, `pt-BR` collator and numeric strings, nested paths, null-safe,
@@ -281,6 +285,7 @@ and `ResizeObserver` stubs where needed).
 - [ ] `#item.<key>` slots render the same in the table and in the cards.
 - [ ] `#card` overrides the card body.
 - [ ] `#no-data` replaces the empty state in both layouts, with `noDataText` fallback.
+- [ ] `hideOnCard` drops a column from the cards while the desktop keeps it.
 - [ ] `row-click` emits `(item, event)` on both layouts and ignores interactive targets.
 - [ ] `useClientDataTable` is exported, tested and documented.
 - [ ] `FzPagination` disables prev on first page and next on last.

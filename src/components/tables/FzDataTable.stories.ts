@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import type { ConcreteComponent } from 'vue';
 import { ref } from 'vue';
-import type { DataTableHeader } from 'vuetify';
+import type { FzDataTableHeader } from '@/utils/table';
 import FzDataTable from './FzDataTable.vue';
 import { useClientDataTable } from '@/composables/useClientDataTable';
 
-const headers: DataTableHeader[] = [
+const headers: FzDataTableHeader[] = [
   { title: 'Nome', key: 'name' },
-  { title: 'E-mail', key: 'email' },
+  { title: 'E-mail', key: 'email', hideOnCard: true },
   { title: 'Cidade', key: 'city' },
   { title: 'Status', key: 'status' },
 ];
@@ -24,7 +24,6 @@ const meta = {
   component: FzDataTable as unknown as ConcreteComponent,
   tags: ['autodocs'],
   argTypes: {
-    headers: { control: 'object', description: 'Column definitions (DataTableHeader[])' },
     items: { control: 'object', description: 'Current page of rows (server-side)' },
     itemsLength: { control: 'number', description: 'Total row count (server-side)' },
     loading: { control: 'boolean', description: 'Show the loading state' },
@@ -35,6 +34,10 @@ const meta = {
     clickableRows: {
       control: 'boolean',
       description: 'Enables row-click on desktop and cards. Default: false. Add `data-row-click-ignore` to custom cell content that must not trigger the event',
+    },
+    headers: {
+      control: 'object',
+      description: 'Column definitions (FzDataTableHeader[]). Set `hideOnCard: true` on a header to drop it from the mobile cards while keeping it on desktop',
     },
   },
 } satisfies Meta;
@@ -60,6 +63,13 @@ export const Mobile: Story = {
     itemsLength: items.length,
     mobile: true,
     itemsPerPage: 5,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'The `email` header is marked with `hideOnCard: true`, so the mobile cards drop that row while the desktop table keeps the column.',
+      },
+    },
   },
 };
 

@@ -62,12 +62,16 @@
 <script setup lang="ts" generic="T">
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
-import type { DataTableHeader } from 'vuetify';
-import { getValueByPath, getVisibleColumns, isInteractiveRowTarget } from '@/utils/table';
+import {
+  getCardColumns,
+  getValueByPath,
+  isInteractiveRowTarget,
+  type FzDataTableHeader,
+} from '@/utils/table';
 import FzPagination from '@/components/navigation/FzPagination.vue';
 
 export interface FzDataTableCardsProps<T = unknown> {
-  headers?: DataTableHeader[];
+  headers?: FzDataTableHeader[];
   items?: T[];
   itemsLength?: number;
   loading?: boolean;
@@ -105,7 +109,7 @@ const emit = defineEmits<{
 
 const theme = useTheme();
 
-const columns = computed(() => getVisibleColumns(props.headers));
+const columns = computed(() => getCardColumns(props.headers));
 
 const pageCount = computed(() => {
   if (props.itemsPerPage <= 0) return 1;

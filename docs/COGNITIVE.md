@@ -601,3 +601,49 @@ example, destructive button on the left). `close` is emitted only on user dismis
 on programmatic prop changes, preserving the controlled-component contract. `closeOnAction`
 opts into closing after an action handler resolves. The `actions` slot uses Vue's fallback
 semantics: when provided it replaces the default buttons, otherwise rendering is unchanged.
+
+### 54. FzSelectField / FzAutocompleteField — one shell, two Vuetify components
+
+The two wrappers differ only in the underlying Vuetify component. `FzSelectBase.vue` owns the
+shared template and validation flow and receives `component: 'select' | 'autocomplete'`; the
+public components keep identical props in `selectField.ts`. This avoids duplicating the
+validation/`isValid`/provider logic while preserving the simple public API.
+
+The `isValid` event is emitted on the first resolution (even when false) and then only when the
+resolved validity changes — an unvalidated field is not the same knowledge state as an invalid
+one. `validateOnBlur` maps to Vuetify's `validate-on` and the built-in required rule is the first
+entry in `rules`, so custom rules run after it. `multiple` means an empty array is the empty
+value for the required rule.
+
+### 55. FzMonthPicker / FzMonthStepper — shared composable, canonical yyyy-mm
+
+Month parsing is intentionally separate from the date parser in `utils/date.ts`: a month has no
+day and a partial date parser would be the wrong abstraction. `useMonthPicker` owns the pure
+month helpers and the shared reactive state (focused year, bounds, localized label, previous/
+next values), and both components consume it.
+
+`v-model` is always `yyyy-mm`; `format` is display-only. The picker navigates a focused year
+without committing it, while the stepper operates on the selected value. `allowFuture=false`
+turns the current month into the upper bound (`canGoNext` and the year clamp), and the stepper
+label uses `Novembro 2026` (no "de") because it is a page header, not a calendar title.
+
+### 56. FzDataTable — hideOnCard is a header flag, not a slot workaround
+
+`getCardColumns()` filters `hideOnCard` headers after the same selection/expand filtering used by
+the desktop. The desktop keeps using `getVisibleColumns()`, so the flag is ignored there and
+Vuetify's extra header property is harmless. Consumers no longer need a custom `card` slot just
+to drop `id`/timestamps/actions from the mobile cards.
+
+### 57. FzEmptyState — generic markup, compact variant for tables
+
+Empty states were repeated markup in every app. The component keeps only generic props (icon,
+title, description, action) and no domain labels; `compact` exists because the `no-data` slot in
+the table needs smaller spacing and typography. The `action` slot replaces the button instead of
+adding a second button slot, so consumers keep full control without prop explosion.
+
+### 58. P2 rejections — no `clientSide` prop, no `FzButton` presets
+
+`useClientDataTable` already covers client-side pagination with one line and an explicit
+data-ownership contract; a `clientSide` flag would add a second mode to the server-side table
+and split the test surface. Button presets belong to Vuetify's `defaults.VBtn` theme config —
+a wrapper would be an abstraction over an abstraction.

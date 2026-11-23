@@ -1,6 +1,12 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import type { DataTableHeader } from 'vuetify';
-import { getValueByPath, getVisibleColumns, isInteractiveRowTarget } from '../table';
+import {
+  getValueByPath,
+  getVisibleColumns,
+  getCardColumns,
+  isInteractiveRowTarget,
+  type FzDataTableHeader,
+} from '../table';
 
 describe('getValueByPath', () => {
   const item = {
@@ -66,6 +72,36 @@ describe('getVisibleColumns', () => {
     const columns = getVisibleColumns([{ key: 'name' } as DataTableHeader]);
 
     expect(columns[0].title).toBe('');
+  });
+});
+
+describe('getCardColumns', () => {
+  const headers: FzDataTableHeader[] = [
+    { title: 'Nome', key: 'name' },
+    { title: '', key: 'data-table-select' },
+    { title: '', key: 'data-table-expand' },
+    { title: 'Cidade', key: 'city' },
+    { title: 'Id', key: 'id', hideOnCard: true },
+    { title: 'Ações', key: 'actions', hideOnCard: true },
+  ];
+
+  it('should drop headers marked with hideOnCard', () => {
+    const columns = getCardColumns(headers);
+
+    expect(columns.map((column) => column.key)).toEqual(['name', 'city']);
+  });
+
+  it('should keep headers without the flag', () => {
+    const columns = getCardColumns([{ title: 'Nome', key: 'name' }]);
+
+    expect(columns).toHaveLength(1);
+  });
+
+  it('should still skip the select and expand headers', () => {
+    const columns = getCardColumns(headers);
+
+    expect(columns.map((column) => column.key)).not.toContain('data-table-select');
+    expect(columns.map((column) => column.key)).not.toContain('data-table-expand');
   });
 });
 

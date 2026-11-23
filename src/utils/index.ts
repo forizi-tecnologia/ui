@@ -25,7 +25,7 @@ export {
 
 export type { DocumentType } from './document';
 
-export { getValueByPath, getVisibleColumns } from './table';
+export { getValueByPath, getVisibleColumns, getCardColumns, isInteractiveRowTarget } from './table';
 
 export type {
   DataTableOptions,
@@ -33,6 +33,7 @@ export type {
   DataTableServerProps,
   DataTableControlledKey,
   VisibleColumn,
+  FzDataTableHeader,
 } from './table';
 
 export { ensureVuetify, debugVuetifyInstances } from './vuetify-check';

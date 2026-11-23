@@ -248,4 +248,27 @@ describe('FzDataTable', () => {
 
     expect(wrapper.find('.custom-empty').exists()).toBe(true);
   });
+
+  it('should keep a hideOnCard column on the desktop table', () => {
+    const headers = [
+      { title: 'Nome', key: 'name' },
+      { title: 'Segredo', key: 'secret', hideOnCard: true },
+    ];
+
+    mountTable({ headers, items: [{ name: 'Ana', secret: 'valor oculto' }] });
+
+    expect(wrapper.text()).toContain('Segredo');
+  });
+
+  it('should drop a hideOnCard column from the cards', () => {
+    const headers = [
+      { title: 'Nome', key: 'name' },
+      { title: 'Segredo', key: 'secret', hideOnCard: true },
+    ];
+
+    mountTable({ mobile: true, headers, items: [{ name: 'Ana', secret: 'valor oculto' }] });
+
+    expect(wrapper.text()).toContain('Nome');
+    expect(wrapper.text()).not.toContain('Segredo');
+  });
 });

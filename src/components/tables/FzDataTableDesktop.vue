@@ -31,16 +31,17 @@
 
 <script setup lang="ts" generic="T">
 import { computed, useSlots } from 'vue';
-import type { DataTableHeader, DataTableSortItem } from 'vuetify';
+import type { DataTableSortItem } from 'vuetify';
 import {
   isInteractiveRowTarget,
   type DataTableOptions,
   type DataTablePassthroughProps,
   type DataTableServerProps,
+  type FzDataTableHeader,
 } from '@/utils/table';
 
 export interface FzDataTableDesktopProps<T = unknown> {
-  headers?: DataTableHeader[];
+  headers?: FzDataTableHeader[];
   items?: T[];
   itemsLength?: number;
   loading?: boolean;
