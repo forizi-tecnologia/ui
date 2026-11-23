@@ -30,6 +30,24 @@ export interface VisibleColumn {
 
 const NON_DATA_COLUMN_KEYS = new Set(['data-table-select', 'data-table-expand']);
 
+const INTERACTIVE_ROW_TARGET_SELECTOR = [
+  'button',
+  'a',
+  'input',
+  'select',
+  'textarea',
+  '.v-btn',
+  '.v-icon--clickable',
+  '.v-chip--clickable',
+  '[data-row-click-ignore]',
+].join(', ');
+
+export function isInteractiveRowTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+
+  return target.closest(INTERACTIVE_ROW_TARGET_SELECTOR) !== null;
+}
+
 export function getValueByPath(item: unknown, path: string): unknown {
   if (item === null || item === undefined || typeof item !== 'object') return undefined;
 

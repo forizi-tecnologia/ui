@@ -144,4 +144,72 @@ describe('FzDataTableDesktop', () => {
 
     expect(wrapper.emitted('update:options')?.[0]).toEqual([options]);
   });
+
+  describe('row click', () => {
+    function getRows() {
+      return wrapper.findAll('tbody tr');
+    }
+
+    it('should emit row-click with the item and the mouse event when clickableRows is true', async () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableDesktop, {
+        props: { headers: HEADERS, items: ITEMS, itemsLength: 1, clickableRows: true },
+      });
+
+      await getRows()[0].trigger('click');
+
+      const emitted = wrapper.emitted('row-click');
+
+      expect(emitted).toBeTruthy();
+      expect(emitted![0][0]).toEqual(ITEMS[0]);
+      expect(emitted![0][1]).toBeInstanceOf(MouseEvent);
+    });
+
+    it('should not emit row-click when clickableRows is false', async () => {
+      await getRows()[0].trigger('click');
+
+      expect(wrapper.emitted('row-click')).toBeFalsy();
+    });
+
+    it('should not emit row-click when the click target is an action button', async () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableDesktop, {
+        props: { headers: HEADERS, items: ITEMS, itemsLength: 1, clickableRows: true },
+        slots: {
+          'item.name': () => h('button', { class: 'row-action' }, 'Editar'),
+        },
+      });
+
+      await wrapper.find('button').trigger('click');
+
+      expect(wrapper.emitted('row-click')).toBeFalsy();
+    });
+  });
+
+  describe('no-data slot', () => {
+    it('should render the no-data slot content when there are no items', () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableDesktop, {
+        props: { headers: HEADERS, items: [], itemsLength: 0 },
+        slots: {
+          'no-data': () => h('div', { class: 'custom-empty' }, 'Nenhuma fatura'),
+        },
+      });
+
+      expect(wrapper.find('.custom-empty').exists()).toBe(true);
+    });
+
+    it('should fall back to noDataText when the slot is not provided', () => {
+      wrapper.unmount();
+
+      wrapper = createComponent(FzDataTableDesktop, {
+        props: { headers: HEADERS, items: [], itemsLength: 0, noDataText: 'Sem dados' },
+      });
+
+      expect(wrapper.text()).toContain('Sem dados');
+    });
+  });
 });

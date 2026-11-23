@@ -14,8 +14,8 @@ export interface ConfirmComponentRef {
 export type NotifyType = 'success' | 'error' | 'warning' | 'info';
 
 export interface NotifyOptions {
-  type: NotifyType;
-  title: string;
+  type?: NotifyType;
+  title?: string;
   message?: string;
   duration?: number;
 }

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
-import { useNotifyStore, notify } from '../notify';
+import { useNotifyStore, notify, MAX_NOTIFY_QUEUE } from '../notify';
 import { NOTIFY_DURATION } from '../types';
 
 describe('useNotifyStore', () => {
@@ -84,7 +84,18 @@ describe('useNotifyStore', () => {
     expect(store.isVisible).toBe(false);
   });
 
-  it('should clear previous timeout when show is called again', () => {
+  it('should queue a new notification while one is visible', () => {
+    const store = useNotifyStore();
+
+    store.show('info', 'First');
+    store.show('warning', 'Second');
+
+    expect(store.isVisible).toBe(true);
+    expect(store.title).toBe('First');
+    expect(store.pendingCount).toBe(1);
+  });
+
+  it('should advance to the queued notification after the first auto-hides', () => {
     const store = useNotifyStore();
 
     store.show('info', 'First');
@@ -92,17 +103,92 @@ describe('useNotifyStore', () => {
 
     vi.advanceTimersByTime(NOTIFY_DURATION);
 
+    expect(store.isVisible).toBe(true);
+    expect(store.title).toBe('Second');
+    expect(store.pendingCount).toBe(0);
+
+    vi.advanceTimersByTime(NOTIFY_DURATION);
+
     expect(store.isVisible).toBe(false);
+  });
+
+  it('should advance to the queued notification when dismiss is called', () => {
+    const store = useNotifyStore();
+
+    store.show('success', 'First');
+    store.show('error', 'Second');
+
+    store.dismiss();
+
+    expect(store.isVisible).toBe(true);
+    expect(store.type).toBe('error');
     expect(store.title).toBe('Second');
   });
 
-  it('should reset type when show is called with a different type', () => {
+  it('should stop being visible when dismiss is called without a queued notification', () => {
     const store = useNotifyStore();
 
-    store.show('success', 'OK');
-    store.show('error', 'Fail');
+    store.show('info', 'Only');
+    store.dismiss();
 
-    expect(store.type).toBe('error');
+    expect(store.isVisible).toBe(false);
+    expect(store.currentId).toBeNull();
+  });
+
+  it('should not change the visible notification when dismiss is called while hidden', () => {
+    const store = useNotifyStore();
+
+    store.dismiss();
+
+    expect(store.isVisible).toBe(false);
+    expect(store.title).toBe('');
+  });
+
+  it('should use the per-call duration for the auto-hide timer', () => {
+    const store = useNotifyStore();
+
+    store.show('info', 'Slow', '', { duration: 5000 });
+
+    vi.advanceTimersByTime(NOTIFY_DURATION);
+
+    expect(store.isVisible).toBe(true);
+    expect(store.duration).toBe(5000);
+
+    vi.advanceTimersByTime(2000);
+
+    expect(store.isVisible).toBe(false);
+  });
+
+  it('should drop the oldest queued notification when the queue is full', () => {
+    const store = useNotifyStore();
+
+    store.show('info', 'First');
+    store.show('info', 'Second');
+    store.show('info', 'Third');
+    store.show('info', 'Fourth');
+    store.show('info', 'Fifth');
+    store.show('info', 'Sixth');
+    store.show('info', 'Seventh');
+
+    expect(store.pendingCount).toBe(MAX_NOTIFY_QUEUE);
+    expect(store.title).toBe('First');
+
+    store.dismiss();
+
+    expect(store.title).toBe('Third');
+
+    store.dismiss();
+
+    expect(store.title).toBe('Fourth');
+  });
+
+  it('should reset the show duration to the default after the queue is empty', () => {
+    const store = useNotifyStore();
+
+    store.show('info', 'Custom', '', { duration: 5000 });
+    store.dismiss();
+
+    expect(store.duration).toBe(NOTIFY_DURATION);
   });
 
   describe('pause / resume', () => {
@@ -253,5 +339,43 @@ describe('notify singleton', () => {
     notify.show('info', 'Only Title');
 
     expect(store.message).toBe('');
+  });
+
+  it.each(NOTIFY_METHODS)('should forward the duration option when $method() is called', ({ method }) => {
+    const store = useNotifyStore();
+
+    notify[method]('Title', 'Message', { duration: 5000 });
+
+    expect(store.duration).toBe(5000);
+  });
+
+  it('should forward the duration option when notify.show is called directly', () => {
+    const store = useNotifyStore();
+
+    notify.show('info', 'Title', 'Message', { duration: 4000 });
+
+    expect(store.duration).toBe(4000);
+  });
+
+  it('should advance the queue when notify.dismiss is called', () => {
+    const store = useNotifyStore();
+
+    notify.success('First');
+    notify.info('Second');
+
+    notify.dismiss();
+
+    expect(store.title).toBe('Second');
+  });
+
+  it('should advance the queue when notify.hide is called', () => {
+    const store = useNotifyStore();
+
+    notify.success('First');
+    notify.info('Second');
+
+    notify.hide();
+
+    expect(store.title).toBe('Second');
   });
 });

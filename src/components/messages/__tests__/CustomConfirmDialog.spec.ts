@@ -4,6 +4,7 @@ import { createVuetify } from 'vuetify';
 import { createPinia, setActivePinia } from 'pinia';
 import FzCustomConfirmDialog from '../FzCustomConfirmDialog.vue';
 import { useConfirmStore } from '@/utils/confirm';
+import { CONFIRM_Z_INDEX } from '@/constants';
 
 function createWrapper() {
   const vuetify = createVuetify();
@@ -67,6 +68,14 @@ describe('FzCustomConfirmDialog', () => {
 
     expect(queryOverlay()?.textContent).toContain('My Title');
     expect(queryOverlay()?.textContent).toContain('My Message');
+  });
+
+  it('should render above modals using the confirm z-index constant', async () => {
+    openDialog();
+
+    await wrapper.vm.$nextTick();
+
+    expect(queryOverlay()?.style.zIndex).toBe(String(CONFIRM_Z_INDEX));
   });
 
   it('should display default button labels in pt-BR', async () => {

@@ -6,7 +6,7 @@
     :content-class="dialogContentClass"
     :fullscreen="fullscreen"
     scrollable
-    :z-index="2400"
+    :z-index="MODAL_Z_INDEX"
     @keydown="onDialogKeydown"
   >
     <v-card>
@@ -26,19 +26,21 @@
       </v-card-text>
 
       <v-card-actions :class="actionsSpacingClass">
-        <v-spacer />
-        <v-btn
-          v-for="(action, index) in actions"
-          :key="index"
-          :color="action.color || 'primary'"
-          :prepend-icon="action.icon"
-          :variant="action.variant || getDefaultVariant(action.color)"
-          type="button"
-          class="text-none"
-          @click="handleAction(action)"
-        >
-          {{ action.text }}
-        </v-btn>
+        <slot name="actions" :close="closeModal" :actions="actions">
+          <v-spacer />
+          <v-btn
+            v-for="(action, index) in actions"
+            :key="index"
+            :color="action.color || 'primary'"
+            :prepend-icon="action.icon"
+            :variant="action.variant || getDefaultVariant(action.color)"
+            type="button"
+            class="text-none"
+            @click="handleAction(action)"
+          >
+            {{ action.text }}
+          </v-btn>
+        </slot>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -47,6 +49,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useTheme } from 'vuetify';
+import { MODAL_Z_INDEX } from '@/constants';
 
 const MIN_MODAL_SPACING = 0;
 const MAX_MODAL_SPACING = 12;
@@ -72,6 +75,7 @@ interface Props {
   titleIcon?: string;
   padding?: number;
   mobilePadding?: number;
+  closeOnAction?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -86,17 +90,23 @@ const props = withDefaults(defineProps<Props>(), {
   titleIcon: undefined,
   padding: 4,
   mobilePadding: undefined,
+  closeOnAction: false,
 });
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean];
+  'close': [];
 }>();
 
 const theme = useTheme();
 
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
+  set: (val) => {
+    emit('update:modelValue', val);
+
+    if (!val) emit('close');
+  },
 });
 
 const dialogThemeClass = computed(() => `v-theme--${theme.global.name.value}`);
@@ -150,10 +160,17 @@ function getDefaultVariant(color?: string): 'elevated' | 'outlined' | 'text' {
   return 'text';
 }
 
-async function handleAction(action: ModalAction): Promise<void> {
-  if (!action.handler) return;
+function closeModal(): void {
+  emit('update:modelValue', false);
+  emit('close');
+}
 
-  await action.handler();
+async function handleAction(action: ModalAction): Promise<void> {
+  if (action.handler) await action.handler();
+
+  if (!props.closeOnAction) return;
+
+  closeModal();
 }
 
 function onDialogKeydown(e: KeyboardEvent): void {

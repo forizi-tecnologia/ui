@@ -11,3 +11,5 @@ export { useNumericInput, NAVIGATION_KEYS, createNumericKeydownHandler } from '.
 export { useDatePicker, type CalendarView, type UseDatePickerParams } from './useDatePicker';
 
 export { useTimePicker, type UseTimePickerParams } from './useTimePicker';
+
+export { useClientDataTable } from './useClientDataTable';

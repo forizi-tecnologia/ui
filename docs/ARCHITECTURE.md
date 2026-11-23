@@ -22,6 +22,7 @@ src/
 
   composables/      ─ Vue composables
     useBreakpoint   ─ Responsive breakpoints
+    useClientDataTable ─ Client-side pagination + sorting for FzDataTable
     useGlobals      ─ Access $notify/$loading/$confirm from setup
     useLoading      ─ Reactive loading state (isActive, message, show, hide)
     useFzDefaults   ─ Resolve component defaults from FzConfigProvider
@@ -41,7 +42,7 @@ src/
     api.ts          ─ Axios wrapper
     date.ts         ─ Date parsing, formatting, validation, calendar grid
     document.ts     ─ CPF/CNPJ (numeric + alphanumeric) normalization, detection, validation, formatting
-    table.ts        ─ Data table helpers (getValueByPath, getVisibleColumns) and Vuetify prop types
+    table.ts        ─ Data table helpers (getValueByPath, getVisibleColumns, isInteractiveRowTarget) and Vuetify prop types
     types.ts        ─ Shared types and constants
     vuetify-check.ts
 
@@ -82,10 +83,11 @@ The exposed method follows camelCase: `confirmDialog`. Exported type: `ConfirmCo
 ### LoadingOverlay flow
 
 1. Consumer calls `loading.show('msg')` or uses `useLoading()` composable
-2. Reactive state (`isActive`) is bound via `:is-loading` prop
-3. Component renders overlay immediately (fade transition)
-4. Content (spinner + text) appears after 300ms delay (delayed transition)
-5. On `hide()`, overlay fades out + timeout is cleaned up
+2. `FzLoadingOverlay` reads the global singleton through `useLoadingRefs()` — no props required
+3. Explicit `isLoading`/`message` props override the singleton for local usage
+4. Component renders overlay immediately (fade transition)
+5. Content (spinner + text) appears after 300ms delay (delayed transition)
+6. On `hide()`, overlay fades out + timeout is cleaned up
 
 ### Theme system
 
@@ -146,6 +148,21 @@ The `FzDefaults` interface is extensible for future shared props (density, color
 - Available via `$notify`, `$loading`, `$confirm` in templates
 - Or via `useGlobals()` composable in script setup
 - Internally use composables, not component refs
+- `notify` queues consecutive calls (up to 5 waiting, oldest waiting dropped when full); duration is
+  per-call and defaults to `NOTIFY_DURATION`
+
+### Stacking layers
+
+The z-index order is a library contract, exported as constants from `src/constants/`:
+
+| Layer | Constant | Value |
+|-------|----------|-------|
+| Modal (`FzModalBase`) | `MODAL_Z_INDEX` | 2400 |
+| Confirm (`FzCustomConfirmDialog`) | `CONFIRM_Z_INDEX` | 2600 |
+| Notify (`FzFloatingNotify`) | `NOTIFY_Z_INDEX` | 9999 |
+
+The confirm overlay applies `CONFIRM_Z_INDEX` through an inline `:style` binding (not scoped CSS), so it
+cannot be beaten by selector specificity and a confirm opened from inside a modal always renders above it.
 
 ### Keyboard shortcuts in dialogs
 
@@ -202,6 +219,11 @@ The default responsive behavior is pure CSS (Vuetify responsive spacing classes)
 on desktop and 16px below 960px.
 
 Measured with Playwright against the playground (`ModalPlayground.vue`).
+
+**Close lifecycle**: `update:modelValue` keeps its controlled-component behavior. `close` is emitted only when
+the user dismisses the dialog (outside click / Esc with `persistent: false`); programmatic prop changes do not
+emit it. `closeOnAction` closes and emits `close` after an action handler resolves. The `actions` slot replaces
+the default footer and receives `{ close, actions }`.
 
 ### FzDatePicker — component family
 
@@ -415,7 +437,19 @@ utils/table.ts             ─ pure helpers + Vuetify-derived prop types
   `mobile` prop forces one layout.
 - **Slots**: all slots are forwarded to the internal table; `item.<key>` is also
   reused as the value renderer inside the cards. `#card="{ item, index }"`
-  replaces the card body.
+  replaces the card body. `#no-data` replaces the empty state in both layouts
+  (the `noDataText` fallback keeps the original typography).
+- **Row click**: `clickableRows` enables a single `row-click(item, event)` event on
+  desktop and cards. `isInteractiveRowTarget()` (in `utils/table.ts`) ignores clicks
+  coming from buttons, links, inputs, selects, textareas, clickable Vuetify
+  icons/chips and anything under `data-row-click-ignore`, so action buttons inside
+  `item.<key>` slots do not fire the row event.
+- **Client-side mode**: the library does not add a `clientSide` prop. Consumers use
+  the exported `useClientDataTable(source)` composable and bind `page`,
+  `itemsPerPage`, `sortBy`, `items`, `itemsLength` to `FzDataTable`.
+  It sorts with path-aware `getValueByPath` and a `pt-BR` `Intl.Collator`
+  (numeric-aware), disables pagination when `itemsPerPage <= 0`, and resets the page
+  to 1 when the source ref changes.
 - **Height / scroll**: the `height` prop confines the scroll to the list — the
   table scrolls internally on desktop and the card area scrolls (pagination
   pinned below) on mobile. Page layout (e.g. a field above the table) is the

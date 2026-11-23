@@ -535,3 +535,69 @@ against `@vue/compiler-sfc`); the rule option only unblocks lint.
 Pagination is not private to the table: consumers may need the same `‹ 3 de 5 ›` control
 above another component. It is exported from the barrel and used by the mobile card
 layout. Prev/next are disabled at the bounds, and the page math clamps defensively.
+
+### 48. FzLoadingOverlay — self-connected to the global singleton
+
+`FzLoadingOverlay` used to require `:is-loading` + `:message` wiring in every consumer
+`App.vue`, unlike `FzFloatingNotify` and `FzConfirmDialog` which work standalone. Now the
+component reads `useLoadingRefs()` internally, so `<FzLoadingOverlay />` alone works.
+
+`isLoading` and `message` became optional overrides with `undefined` defaults, letting the
+component distinguish "not provided" from an explicit `false`/empty string. The watch on
+the resolved visibility uses `{ immediate: true }` so a `loading.show()` executed before
+the overlay mounts still starts the 300ms content delay.
+
+### 49. Stacking layers — constants, not magic numbers
+
+`FzModalBase` and `FzCustomConfirmDialog` both used `z-index: 2400`, so a confirm opened
+from inside a modal could render underneath it (DOM order decided). The layers are now
+single-source constants in `src/constants/`: `MODAL_Z_INDEX` (2400), `CONFIRM_Z_INDEX`
+(2600) and `NOTIFY_Z_INDEX` (9999, the existing notify layer).
+
+The confirm applies its value through an inline `:style` binding rather than scoped CSS,
+so specificity cannot override it and the value is directly testable. Consumers can drop
+local `z-index` workarounds.
+
+### 50. notify — queue instead of overwrite
+
+A second `notify.show()` used to replace the visible notification, losing information, and
+`NotifyOptions.duration` existed but was never read. The store now keeps one visible item
+plus a pending queue (max 5; when full, the oldest waiting item is dropped). Advancing
+happens on auto-hide, `dismiss()` or its `hide()` alias. Pause/resume keeps the remaining
+time of the visible item only.
+
+`duration` is resolved per item, and `FzFloatingNotify` reads `store.duration` instead of
+the global constant for its progress bar. The progress loop restarts when `currentId`
+changes, so a queued item gets a full progress bar.
+
+### 51. FzDataTable — row click, no-data slot and the client-side composable
+
+Row click is opt-in via `clickableRows`; the desktop listener is added through a computed
+`v-bind` object (`onClick:row`) instead of a ternary `@click:row`, because a ternary in a
+`v-on` compiles to an inline statement and never invokes the handler. This also avoids
+Vuetify's clickable-row class when the prop is off.
+
+Interactive content inside cells must not trigger the row event: `isInteractiveRowTarget`
+checks `event.target.closest(...)` for native controls, Vuetify clickable classes and the
+`data-row-click-ignore` escape hatch.
+
+The empty state is a `no-data` slot forwarded to both layouts (filtered out of the generic
+slot forwarding on desktop to avoid a duplicate slot). Client-side pagination/sorting is a
+composable (`useClientDataTable`), not a `clientSide` prop — the table stays server-side and
+the consumer keeps control of the data source.
+
+### 52. FzIconToolTip — keyboard activation is a library concern
+
+An icon rendered with `role="button"` and `tabindex="0"` must respond to Enter and Space.
+The icon-only mode now emits a synthetic `MouseEvent` for both keys, prevents the Space
+page scroll, ignores activation when disabled and exposes `aria-label`/`aria-disabled`
+plus `tabindex="-1"` when disabled. `size` is forwarded to both `v-icon` and `v-btn`; the
+`asButton` mode relies on the native button keyboard behavior instead of double-handling.
+
+### 53. FzModalBase — close event and actions slot
+
+Every consumer repeated the same close handler and could not customize the footer (for
+example, destructive button on the left). `close` is emitted only on user dismissal, not
+on programmatic prop changes, preserving the controlled-component contract. `closeOnAction`
+opts into closing after an action handler resolves. The `actions` slot uses Vue's fallback
+semantics: when provided it replaces the default buttons, otherwise rendering is unchanged.

@@ -23,6 +23,14 @@ const meta = {
           "notify.warning('Atenção', 'Verifique os dados.');",
           "notify.info('Info', 'Mensagem informativa.');",
           '```',
+          '',
+          '**Queue**: consecutive calls are shown one at a time, in order. Hovering pauses the visible item only.',
+          '',
+          '**Duration**: pass `{ duration }` as the last argument to override the default 3000ms:',
+          '',
+          '```ts',
+          "notify.success('Salvo', 'Tudo certo', { duration: 5000 });",
+          '```',
         ].join('\n'),
       },
     },
@@ -64,6 +72,27 @@ export const Info: Story = {
   render: () => ({
     setup() {
       onMounted(() => notify.info('Informação', 'Esta é uma mensagem informativa.'));
+    },
+    template: '<FzFloatingNotify />',
+  }),
+};
+
+export const CustomDuration: Story = {
+  render: () => ({
+    setup() {
+      onMounted(() => notify.success('Sucesso', 'Esta notificação fica 6 segundos na tela.', { duration: 6000 }));
+    },
+    template: '<FzFloatingNotify />',
+  }),
+};
+
+export const Queue: Story = {
+  render: () => ({
+    setup() {
+      onMounted(() => {
+        notify.info('Primeira', 'Preenche a tela primeiro.');
+        notify.success('Segunda', 'Aparece quando a primeira fechar.');
+      });
     },
     template: '<FzFloatingNotify />',
   }),
